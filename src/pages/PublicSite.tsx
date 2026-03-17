@@ -6,7 +6,7 @@ import L from "leaflet";
 import {
   Search, MapPin, ArrowRight, Menu, X, Phone, Mail, Car, Ruler, Eye,
   Building2, User, Shield, Award, TrendingUp, Navigation, ExternalLink,
-  ChevronRight, Maximize2,
+  ChevronRight, Maximize2, ChevronLeft, Target, DollarSign, Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
@@ -35,11 +35,6 @@ function getStreetViewUrl(lat: number, lng: number) {
 
 function getGoogleMapsUrl(lat: number, lng: number) {
   return `https://www.google.com/maps?q=${lat},${lng}`;
-}
-
-// Static Street View thumbnail
-function getStreetViewThumb(lat: number, lng: number) {
-  return `https://maps.googleapis.com/maps/api/streetview?size=600x300&location=${lat},${lng}&key=&source=outdoor`;
 }
 
 function PublicNav() {
@@ -80,80 +75,149 @@ function PublicNav() {
   );
 }
 
-function BillboardCard({ billboard, onClick }: { billboard: Billboard; onClick: () => void }) {
+/* ====== FAVRETTO-STYLE BILLBOARD SLIDE ====== */
+function BillboardSlide({ billboard, onContact }: { billboard: Billboard; onContact: () => void }) {
   const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
   const statusStyle: Record<string, string> = {
-    available: "bg-primary/20 text-primary border border-primary/30",
-    occupied: "bg-destructive/20 text-destructive border border-destructive/30",
-    reserved: "bg-muted text-muted-foreground border border-border",
+    available: "bg-primary text-primary-foreground",
+    occupied: "bg-destructive text-destructive-foreground",
+    reserved: "bg-muted text-muted-foreground",
   };
+  const monthlyImpacts = billboard.estimated_flow * 30;
 
   return (
-    <div
-      className="group relative rounded-xl overflow-hidden border border-border bg-card hover:border-primary/40 transition-all duration-300 cursor-pointer"
-      onClick={onClick}
-    >
-      {/* Photo / Street View area */}
-      <div className="relative h-48 bg-muted overflow-hidden">
+    <div className="relative w-full min-h-[70vh] md:min-h-[80vh] overflow-hidden rounded-2xl border border-border">
+      {/* Full background - Street View embed */}
+      <div className="absolute inset-0">
         <iframe
           src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
-          className="w-full h-full border-0 pointer-events-none"
+          className="w-full h-full border-0"
           loading="lazy"
           title={`Street View #${billboard.code}`}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-card via-transparent to-transparent" />
-        {/* Top bar */}
-        <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-display font-black text-xl text-primary drop-shadow-lg">#{billboard.code}</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wide ${statusStyle[billboard.status]}`}>
-              {statusLabel[billboard.status]}
-            </span>
-          </div>
-          <span className="text-xs bg-card/80 backdrop-blur-sm px-2.5 py-1 rounded-md font-mono font-semibold text-foreground border border-border/50">
-            {billboard.dimension}
-          </span>
-        </div>
-        {/* View on map link */}
-        <a
-          href={getStreetViewUrl(billboard.lat, billboard.lng)}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={e => e.stopPropagation()}
-          className="absolute bottom-3 right-3 bg-card/80 backdrop-blur-sm text-primary text-[10px] font-semibold px-2.5 py-1.5 rounded-md flex items-center gap-1 hover:bg-primary hover:text-primary-foreground transition-colors border border-border/50"
-        >
-          <Maximize2 className="w-3 h-3" /> Street View
-        </a>
       </div>
 
-      {/* Info */}
-      <div className="p-4">
-        <div className="space-y-2 text-sm">
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-            <span className="truncate">{billboard.route} - {billboard.address}</span>
-          </p>
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <Navigation className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-            <span>{billboard.route} · {billboard.city}</span>
-          </p>
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <Car className="w-3.5 h-3.5 text-primary flex-shrink-0" />
-            <span className="font-medium text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</span>
-          </p>
-        </div>
+      {/* Gradient overlays for readability */}
+      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-background/30" />
 
-        {/* Price footer */}
-        <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
+      {/* Top-right: Coordinates + Status */}
+      <div className="absolute top-4 right-4 md:top-6 md:right-6 text-right z-10">
+        <p className="text-xs text-muted-foreground font-mono mb-1">
+          Lat/Lng: {billboard.lat.toFixed(6)}, {billboard.lng.toFixed(6)}
+        </p>
+        <div className="flex items-center gap-2 justify-end">
+          <a
+            href={getGoogleMapsUrl(billboard.lat, billboard.lng)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity"
+          >
+            MAPA
+          </a>
+          <a
+            href={getStreetViewUrl(billboard.lat, billboard.lng)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-card/80 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary transition-colors"
+          >
+            STREET VIEW
+          </a>
+        </div>
+        <div className={`inline-block mt-3 px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
+          {statusLabel[billboard.status]}
+        </div>
+      </div>
+
+      {/* Left panel: Data overlay (Favretto style) */}
+      <div className="absolute left-4 md:left-8 top-20 md:top-24 z-10 space-y-5 max-w-xs">
+        {/* Impacts */}
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
           <div>
-            <span className="font-display font-black text-xl text-primary">R$ {billboard.price.toLocaleString()}</span>
-            <span className="text-xs text-muted-foreground">/mês</span>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Impactos Mensais</p>
+            <p className="text-2xl md:text-3xl font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</p>
+            <p className="text-[10px] text-muted-foreground">(Fluxo diário × 30)</p>
           </div>
-          <span className="text-xs text-primary flex items-center gap-1 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
-            Detalhes <ChevronRight className="w-3.5 h-3.5" />
-          </span>
+        </div>
+
+        {/* Flow */}
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+            <Car className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Fluxo Diário</p>
+            <p className="text-xl font-display font-black text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</p>
+          </div>
+        </div>
+
+        {/* Investment */}
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+            <DollarSign className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Investimento</p>
+            <div className="space-y-1 mt-1">
+              <div className="flex justify-between gap-4 text-sm">
+                <span className="text-primary font-semibold">Veiculação Mensal:</span>
+                <span className="font-bold text-foreground">R$ {billboard.price.toLocaleString()}</span>
+              </div>
+              {billboard.production_cost > 0 && (
+                <div className="flex justify-between gap-4 text-sm">
+                  <span className="text-primary font-semibold">Produção (lona):</span>
+                  <span className="font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Dimension */}
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+            <Ruler className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Dimensões</p>
+            <p className="text-lg font-display font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</p>
+          </div>
         </div>
       </div>
+
+      {/* Bottom bar: Type + Location (Favretto footer style) */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
+          <div>
+            <h3 className="font-display font-black text-xl md:text-2xl text-foreground uppercase tracking-wide">
+              {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
+            </h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              <span className="text-primary font-semibold">{billboard.city} ({billboard.code})</span>{" "}
+              {billboard.route}, {billboard.address}
+              {billboard.direction && <>, sentido {billboard.direction}</>}
+            </p>
+          </div>
+          <button
+            onClick={onContact}
+            className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 whitespace-nowrap"
+          >
+            Solicitar Proposta
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Detail({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div>
+      <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">{label}</span>
+      <span className={`text-sm font-medium ${highlight ? "text-primary" : "text-foreground"}`}>{value}</span>
     </div>
   );
 }
@@ -164,7 +228,6 @@ export default function PublicSite() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [routeFilter, setRouteFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const [selectedBillboard, setSelectedBillboard] = useState<Billboard | null>(null);
   const [formType, setFormType] = useState<"advertiser" | "landowner">("advertiser");
 
   const cities = [...new Set(billboards.map(b => b.city))];
@@ -182,11 +245,8 @@ export default function PublicSite() {
   const available = filtered.filter(b => b.status === "available");
   const totalFlow = billboards.reduce((s, b) => s + b.estimated_flow, 0);
 
-  const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
-  const statusBadge: Record<string, string> = {
-    available: "bg-primary/20 text-primary border border-primary/30",
-    occupied: "bg-destructive/20 text-destructive border border-destructive/30",
-    reserved: "bg-muted text-muted-foreground border border-border",
+  const scrollToContact = () => {
+    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -213,7 +273,6 @@ export default function PublicSite() {
 
       {/* ====== HERO ====== */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-        {/* Background image */}
         <div className="absolute inset-0">
           <img src={heroBillboard} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
@@ -326,7 +385,11 @@ export default function PublicSite() {
                   key={b.id}
                   position={[b.lat, b.lng]}
                   icon={createPublicIcon(b.code, b.status)}
-                  eventHandlers={{ click: () => setSelectedBillboard(b) }}
+                  eventHandlers={{
+                    click: () => {
+                      document.getElementById(`billboard-${b.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                  }}
                 >
                   <Popup>
                     <div className="text-sm min-w-[200px]">
@@ -335,11 +398,11 @@ export default function PublicSite() {
                       <p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p>
                       <div className="flex gap-2 mt-2">
                         <a href={getGoogleMapsUrl(b.lat, b.lng)} target="_blank" rel="noopener noreferrer"
-                          className="text-xs bg-blue-500 text-white px-2 py-1 rounded flex items-center gap-1">
+                          className="text-xs px-2 py-1 rounded flex items-center gap-1" style={{ background: "#3b82f6", color: "#fff" }}>
                           <ExternalLink className="w-3 h-3" /> Google Maps
                         </a>
                         <a href={getStreetViewUrl(b.lat, b.lng)} target="_blank" rel="noopener noreferrer"
-                          className="text-xs bg-green-600 text-white px-2 py-1 rounded flex items-center gap-1">
+                          className="text-xs px-2 py-1 rounded flex items-center gap-1" style={{ background: "#16a34a", color: "#fff" }}>
                           <Eye className="w-3 h-3" /> Street View
                         </a>
                       </div>
@@ -364,7 +427,7 @@ export default function PublicSite() {
         </div>
       </section>
 
-      {/* ====== CATALOG ====== */}
+      {/* ====== CATALOG — FAVRETTO STYLE (full-width slides) ====== */}
       <section id="catalog" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -372,6 +435,7 @@ export default function PublicSite() {
             <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
               Pontos <span className="text-primary">disponíveis</span>
             </h2>
+            <p className="text-muted-foreground mt-3">Cada ponto com visão real via Street View, dados técnicos e investimento</p>
           </div>
 
           {/* Filters */}
@@ -395,83 +459,20 @@ export default function PublicSite() {
             <span className="text-xs text-muted-foreground font-medium">{filtered.length} pontos</span>
           </div>
 
-          {/* Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Billboard slides — one per billboard, full-width like Favretto PDF */}
+          <div className="space-y-8">
             {filtered.map(b => (
-              <BillboardCard key={b.id} billboard={b} onClick={() => setSelectedBillboard(b)} />
+              <div key={b.id} id={`billboard-${b.id}`}>
+                <BillboardSlide billboard={b} onContact={scrollToContact} />
+              </div>
             ))}
           </div>
+
+          {filtered.length === 0 && (
+            <p className="text-center text-muted-foreground py-16">Nenhum ponto encontrado com os filtros selecionados.</p>
+          )}
         </div>
       </section>
-
-      {/* ====== DETAIL MODAL ====== */}
-      {selectedBillboard && (
-        <div className="fixed inset-0 bg-background/90 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setSelectedBillboard(null)}>
-          <div className="bg-card border border-border rounded-2xl max-w-2xl w-full animate-slide-up overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
-            {/* Street View embed */}
-            <div className="relative h-64 bg-muted">
-              <iframe
-                src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${selectedBillboard.lat}!2d${selectedBillboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
-                className="w-full h-full border-0"
-                loading="lazy"
-                title="Street View"
-              />
-              <button onClick={() => setSelectedBillboard(null)} className="absolute top-3 right-3 bg-card/80 backdrop-blur-sm p-2 rounded-lg text-muted-foreground hover:text-foreground border border-border/50">
-                <X className="w-5 h-5" />
-              </button>
-              <div className="absolute bottom-3 right-3 flex gap-2">
-                <a href={getStreetViewUrl(selectedBillboard.lat, selectedBillboard.lng)} target="_blank" rel="noopener noreferrer"
-                  className="bg-card/90 backdrop-blur-sm text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-primary hover:text-primary-foreground transition-colors border border-border/50">
-                  <Eye className="w-3.5 h-3.5" /> Abrir Street View
-                </a>
-                <a href={getGoogleMapsUrl(selectedBillboard.lat, selectedBillboard.lng)} target="_blank" rel="noopener noreferrer"
-                  className="bg-card/90 backdrop-blur-sm text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-primary hover:text-primary-foreground transition-colors border border-border/50">
-                  <ExternalLink className="w-3.5 h-3.5" /> Google Maps
-                </a>
-              </div>
-            </div>
-
-            {/* Details */}
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-3">
-                  <h3 className="font-display font-black text-2xl text-primary">#{selectedBillboard.code}</h3>
-                  <span className={`text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-wide ${statusBadge[selectedBillboard.status]}`}>
-                    {statusLabel[selectedBillboard.status]}
-                  </span>
-                </div>
-                <span className="text-sm bg-muted px-3 py-1 rounded-lg font-mono font-semibold">{selectedBillboard.dimension} ({selectedBillboard.area}m²)</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <Detail label="Endereço" value={selectedBillboard.address} />
-                <Detail label="Rodovia" value={selectedBillboard.route} />
-                <Detail label="Cidade / Região" value={`${selectedBillboard.city} - ${selectedBillboard.region}`} />
-                <Detail label="Sentido" value={selectedBillboard.direction} />
-                <Detail label="Fluxo Diário" value={`${selectedBillboard.estimated_flow.toLocaleString()} veículos`} highlight />
-                <Detail label="Impactos/mês" value={`${(selectedBillboard.estimated_flow * 30).toLocaleString()}`} highlight />
-                <Detail label="Tipo" value={typeLabels[selectedBillboard.type] || selectedBillboard.type} />
-                <Detail label="Sazonalidade" value={selectedBillboard.seasonality === "alta" ? "Alta Temporada" : selectedBillboard.seasonality === "baixa" ? "Baixa Temporada" : "Média"} />
-              </div>
-
-              {selectedBillboard.description && (
-                <p className="text-sm text-muted-foreground mt-4 pt-4 border-t border-border">{selectedBillboard.description}</p>
-              )}
-            </div>
-
-            {/* CTA */}
-            <div className="p-6 border-t border-border flex items-center justify-between bg-muted/30">
-              <div>
-                <span className="font-display font-black text-3xl text-primary">R$ {selectedBillboard.price.toLocaleString()}</span>
-                <span className="text-sm text-muted-foreground ml-1">/mês</span>
-              </div>
-              <a href="#contact" onClick={() => setSelectedBillboard(null)} className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
-                Solicitar Proposta
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ====== LANDOWNER ====== */}
       <section id="landowner" className="py-20 px-4 bg-card/50 border-t border-border">
@@ -510,33 +511,30 @@ export default function PublicSite() {
           <form className="space-y-4" onSubmit={handleFormSubmit}>
             {formType === "advertiser" ? (
               <>
-                <input name="company" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Nome da empresa" />
-                <input name="contact" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Responsável" />
-                <div className="grid grid-cols-2 gap-4">
-                  <input name="phone" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Telefone" />
-                  <input name="email" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="E-mail" type="email" />
+                <input name="company" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Empresa / Marca" />
+                <input name="contact" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Seu nome" />
+                <div className="grid grid-cols-2 gap-3">
+                  <input name="phone" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Telefone" />
+                  <input name="email" type="email" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Email" />
                 </div>
-                <textarea name="notes" className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all h-24 resize-none" placeholder="Quais pontos te interessam?" />
+                <textarea name="notes" rows={3} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors resize-none" placeholder="Observações (opcional)" />
               </>
             ) : (
               <>
-                <input name="name" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Seu nome completo" />
-                <div className="grid grid-cols-2 gap-4">
-                  <input name="phone" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Telefone" />
-                  <input name="email" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="E-mail" type="email" />
-                </div>
-                <input name="location" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all" placeholder="Localização do terreno (rodovia, km)" />
-                <textarea name="notes" className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary placeholder:text-muted-foreground transition-all h-24 resize-none" placeholder="Descreva o espaço..." />
+                <input name="owner_name" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Seu nome completo" />
+                <input name="owner_phone" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Telefone" />
+                <input name="owner_email" type="email" className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Email" />
+                <textarea name="owner_location" rows={3} required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors resize-none" placeholder="Descreva a localização do terreno (rodovia, km, cidade...)" />
               </>
             )}
-            <button type="submit" className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-bold hover:opacity-90 transition-opacity text-lg">
-              {formType === "advertiser" ? "Solicitar Proposta" : "Cadastrar Terreno"}
+            <button type="submit" className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+              {formType === "advertiser" ? "Enviar Proposta" : "Cadastrar Terreno"}
             </button>
           </form>
 
-          <div className="mt-10 flex justify-center gap-8 text-sm text-muted-foreground">
-            <a href="tel:+5541984242067" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Phone className="w-4 h-4" /> (41) 98424-2067
+          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+            <a href="tel:+5541999999999" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Phone className="w-4 h-4" /> (41) 99999-9999
             </a>
             <a href="mailto:contato@bj7midia.com.br" className="flex items-center gap-2 hover:text-primary transition-colors">
               <Mail className="w-4 h-4" /> contato@bj7midia.com.br
@@ -545,25 +543,15 @@ export default function PublicSite() {
         </div>
       </section>
 
-      {/* ====== FOOTER ====== */}
-      <footer className="py-10 px-4 border-t border-border">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" />
-            <span className="text-xs text-muted-foreground">Mídia Exterior · Litoral do Paraná</span>
-          </div>
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} BJ7 Mídia OOH. Todos os direitos reservados.</p>
+      {/* Footer */}
+      <footer className="py-8 px-4 border-t border-border text-center">
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" />
         </div>
+        <p className="text-xs text-muted-foreground">
+          © {new Date().getFullYear()} BJ7 Mídia Exterior · Todos os direitos reservados
+        </p>
       </footer>
-    </div>
-  );
-}
-
-function Detail({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div>
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{label}</p>
-      <p className={`font-medium mt-0.5 ${highlight ? "text-primary font-semibold" : ""}`}>{value}</p>
     </div>
   );
 }

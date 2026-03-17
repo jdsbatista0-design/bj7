@@ -59,6 +59,7 @@ function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id
 }
 
 export default function CRM() {
+  const { can } = usePermissions();
   const { leads, billboards, addLead, updateLead, deleteLead, moveLeadStage } = useData();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [formOpen, setFormOpen] = useState(false);

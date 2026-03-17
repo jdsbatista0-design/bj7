@@ -30,7 +30,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { signOut, user } = useAuth();
+  const { signOut, user, isAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
 
   return (

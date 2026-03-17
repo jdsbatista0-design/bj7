@@ -342,33 +342,84 @@ export default function PublicSite() {
           <div className="text-center mb-14">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Por que a BJ7?</span>
             <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
-              A rede que <span className="text-primary">conecta</span> sua marca ao litoral
+              Rede estratégica de <span className="text-primary">mídia exterior</span> no litoral do Paraná
             </h2>
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-              Presença estratégica nas principais rodovias de acesso ao litoral paranaense, com painéis de alto impacto e visibilidade.
+            <p className="text-muted-foreground mt-4 max-w-3xl mx-auto text-lg">
+              10 pontos estratégicos distribuídos em 3 corredores rodoviários — PR-412, PR-508 e BR-277 — cobrindo todos os acessos ao litoral paranaense. De Garuva a Paranaguá, sua marca presente onde o público realmente trafega.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Corredores */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
               {
-                icon: MapPin, title: "Localização Premium",
-                desc: "Pontos selecionados nos trechos de maior visibilidade das rodovias PR-412, PR-508 e BR-277.",
+                icon: Navigation, title: "PR-412 · Rota do Litoral",
+                points: "6 pontos",
+                desc: "Garuva → Guaratuba. Principal corredor rodoviário de acesso ao litoral paranaense. Trevo de Garuva, trechos intermediários e chegada de Guaratuba.",
               },
               {
-                icon: TrendingUp, title: "Máxima Audiência",
-                desc: `Mais de ${Math.round(totalFlow / 1000)}mil veículos por dia cruzam nossos painéis. Milhões de impactos todo mês.`,
+                icon: MapPin, title: "PR-508 · Alexandra-Matinhos",
+                points: "2 pontos",
+                desc: "Corredor turístico de acesso às praias do litoral. Pontos estratégicos na região de Alexandra/Matinhos com visibilidade nos dois sentidos.",
               },
               {
-                icon: Award, title: "Formatos de Impacto",
-                desc: "Painéis de 9x3m a 12x4m com formatos frontlight, backlight e painel sight para máxima visibilidade.",
+                icon: Building2, title: "BR-277 · Corredor Paranaguá",
+                points: "2 pontos",
+                desc: "Fluxo logístico entre o Porto de Paranaguá e Curitiba. Chegada e saída da cidade, impactando tanto turistas quanto o tráfego portuário.",
               },
             ].map(item => (
               <div key={item.title} className="rounded-xl border border-border bg-card p-8 hover:border-primary/30 transition-colors">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
                   <item.icon className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="font-display font-bold text-lg mb-2">{item.title}</h3>
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="font-display font-bold text-lg">{item.title}</h3>
+                </div>
+                <span className="inline-block bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md mb-3">{item.points}</span>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Formatos de Painéis */}
+          <div className="text-center mb-8">
+            <span className="text-primary text-sm font-semibold tracking-widest uppercase">Formatos de Mídia</span>
+            <h3 className="text-2xl md:text-3xl font-display font-black mt-3">
+              Painéis disponíveis para <span className="text-primary">sua campanha</span>
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Painel Padrão",
+                size: "3m × 9m",
+                area: "27m²",
+                desc: "Formato padrão rodoviário com alta frequência visual. Ideal para campanhas institucionais e varejo.",
+                icon: Ruler,
+              },
+              {
+                title: "Painel Ampliado",
+                size: "4m × 12m",
+                area: "48m²",
+                desc: "Formato ampliado de grande impacto. Excelente leitura a longa distância, muito usado para lançamentos imobiliários e marcas nacionais.",
+                icon: Maximize2,
+              },
+              {
+                title: "Painel Gigante",
+                size: "4m × 25m",
+                area: "100m²",
+                desc: "Painel gigante de alto impacto e máxima visibilidade em rodovias. Ideal para campanhas de grande alcance.",
+                icon: Eye,
+              },
+            ].map(item => (
+              <div key={item.title} className="rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent p-8 text-center">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-6 h-6 text-primary" />
+                </div>
+                <h4 className="font-display font-bold text-lg mb-1">{item.title}</h4>
+                <p className="text-2xl font-display font-black text-primary">{item.size}</p>
+                <p className="text-xs text-muted-foreground mb-3">Área: {item.area}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </div>
             ))}

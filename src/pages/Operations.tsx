@@ -61,6 +61,7 @@ function WorkOrderForm({ initial, billboards, onSave, onCancel }: {
 }
 
 export default function Operations() {
+  const { can } = usePermissions();
   const { workOrders, billboards, addWorkOrder, updateWorkOrder, deleteWorkOrder } = useData();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);

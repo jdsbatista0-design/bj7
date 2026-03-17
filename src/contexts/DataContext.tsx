@@ -192,6 +192,12 @@ function mapClient(row: any): Client {
     history: row.history || [],
     billboard_ids: row.billboard_ids || [],
     contract_ids: row.contract_ids || [],
+    segment: row.segment || "",
+    notes: row.notes || "",
+    contact_person: row.contact_person || "",
+    land_registry: row.land_registry || "",
+    property_area: row.property_area || "",
+    bank_info: row.bank_info || "",
   };
 }
 

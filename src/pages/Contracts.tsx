@@ -19,7 +19,7 @@ const emptyContract: Partial<Contract> = {
 };
 
 function ContractForm({ initial, clients, onSave, onCancel }: {
-  initial: Partial<Contract> & { id?: string }; clients: { id: string; name: string }[]; onSave: (d: any) => void; onCancel: () => void;
+  initial: Partial<Contract> & { id?: string }; clients: { id: string; name: string; type: string }[]; onSave: (d: any) => void; onCancel: () => void;
 }) {
   const [form, setForm] = useState(initial);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));

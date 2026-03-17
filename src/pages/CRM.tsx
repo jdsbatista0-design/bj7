@@ -95,6 +95,9 @@ export default function CRM() {
     }
   };
 
+  const block = <PermissionPageBlock module="comercial" label="o CRM" />;
+  if (!can("comercial", "can_view")) return block;
+
   return (
     <div className="h-screen flex flex-col">
       <div className="p-4 border-b border-border bg-card/60 backdrop-blur-sm flex items-center justify-between">
@@ -104,9 +107,11 @@ export default function CRM() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">{leads.length} leads</span>
-          <Button size="sm" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
-            <Plus className="w-4 h-4" /> Novo Lead
-          </Button>
+          <PermissionGate module="comercial" action="can_create" hide>
+            <Button size="sm" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
+              <Plus className="w-4 h-4" /> Novo Lead
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 

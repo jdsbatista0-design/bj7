@@ -1,4 +1,6 @@
 import { useData, Client } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Users, Building2, Phone, Mail, MapPin, FileText, Search, Plus, Edit, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

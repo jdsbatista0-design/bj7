@@ -81,7 +81,7 @@ export default function Contracts() {
   const [editingContract, setEditingContract] = useState<any>(null);
 
   const filtered = typeFilter === "all" ? contracts : contracts.filter(c => c.type === typeFilter);
-  const clientList = clients.map(c => ({ id: c.id, name: c.name }));
+  const clientList = clients.map(c => ({ id: c.id, name: c.name, type: c.type }));
 
   const handleSave = async (data: any) => {
     if (data.id) { await updateContract(data.id, data); toast.success("Contrato atualizado"); }

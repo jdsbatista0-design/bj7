@@ -128,8 +128,12 @@ export default function Operations() {
                 </div>
                 <div className="flex items-center gap-1">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${cfg.style}`}><StatusIcon className="w-3 h-3" />{cfg.label}</span>
-                  <button onClick={() => { setEditingOS({ ...os }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(os)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="operacao" action="can_edit" hide>
+                    <button onClick={() => { setEditingOS({ ...os }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="operacao" action="can_delete" hide>
+                    <button onClick={() => handleDelete(os)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="mt-3">

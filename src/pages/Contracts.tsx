@@ -135,8 +135,12 @@ export default function Contracts() {
                 <div className="flex items-center gap-1">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusStyles[c.status]}`}>{statusLabels[c.status]}</span>
                   <button onClick={() => handleDownload(c)} className="text-muted-foreground hover:text-primary p-1" title="Baixar contrato"><Download className="w-4 h-4" /></button>
-                  <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="contratos" action="can_edit" hide>
+                    <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="contratos" action="can_delete" hide>
+                    <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">

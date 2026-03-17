@@ -8,7 +8,6 @@ import {
   FileText,
   Wrench,
   DollarSign,
-  Globe,
   Kanban,
   ChevronLeft,
   ChevronRight,

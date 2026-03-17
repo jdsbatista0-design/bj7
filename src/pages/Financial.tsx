@@ -1,4 +1,6 @@
 import { useData } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionPageBlock } from "@/components/PermissionGate";
 import { DollarSign, TrendingUp, TrendingDown, Percent, MapPin } from "lucide-react";
 import { useMemo } from "react";
 

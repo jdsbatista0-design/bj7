@@ -58,6 +58,9 @@ function PublicNav() {
           <a href="#contact" className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition-opacity">
             Solicitar Proposta
           </a>
+          <a href="/login" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-2">
+            Acesso Interno
+          </a>
         </div>
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

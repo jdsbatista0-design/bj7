@@ -15,6 +15,7 @@ import Operations from "./pages/Operations";
 import Financial from "./pages/Financial";
 import PublicSite from "./pages/PublicSite";
 import Auth from "./pages/Auth";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();

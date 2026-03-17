@@ -216,6 +216,7 @@ function Row({ label, value, highlight }: { label: string; value: string; highli
 }
 
 export default function Inventory() {
+  const { can } = usePermissions();
   const { billboards, addBillboard, updateBillboard, deleteBillboard } = useData();
   const [selected, setSelected] = useState<Billboard | null>(null);
   const [search, setSearch] = useState("");

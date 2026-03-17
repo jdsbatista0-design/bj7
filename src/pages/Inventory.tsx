@@ -259,6 +259,7 @@ export default function Inventory() {
   };
 
   const handleDelete = async () => {
+    if (!can("inventario", "can_delete")) { toast.error("Você não tem permissão para excluir pontos"); return; }
     if (selected && confirm(`Excluir ponto #${selected.code}?`)) {
       await deleteBillboard(selected.id);
       setSelected(null);

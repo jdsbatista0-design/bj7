@@ -77,10 +77,24 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* User + Logout */}
+      {/* User + Settings + Logout */}
       <div className="border-t border-sidebar-border p-2 space-y-1">
         {!collapsed && user && (
           <p className="text-[10px] text-muted-foreground truncate px-2">{user.email}</p>
+        )}
+        {isAdmin && (
+          <RouterNavLink
+            to="/settings"
+            className={cn(
+              "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
+              location.pathname === "/settings"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+            )}
+          >
+            <Settings className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && <span>Configurações</span>}
+          </RouterNavLink>
         )}
         <button onClick={signOut} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full">
           <LogOut className="w-4 h-4 flex-shrink-0" />

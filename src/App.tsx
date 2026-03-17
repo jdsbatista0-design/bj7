@@ -50,10 +50,10 @@ const AppRoutes = () => {
   return (
     <Routes>
       {/* Public */}
-      <Route path="/site" element={<PublicSite />} />
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Auth />} />
+      <Route path="/" element={<PublicSite />} />
+      <Route path="/login" element={user ? <Navigate to="/painel" replace /> : <Auth />} />
       {/* Protected */}
-      <Route path="/" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/painel" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory" element={<ProtectedRoute><AppLayout><Inventory /></AppLayout></ProtectedRoute>} />
       <Route path="/crm" element={<ProtectedRoute><AppLayout><CRM /></AppLayout></ProtectedRoute>} />
       <Route path="/clients" element={<ProtectedRoute><AppLayout><Clients /></AppLayout></ProtectedRoute>} />

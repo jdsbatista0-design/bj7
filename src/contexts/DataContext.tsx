@@ -58,6 +58,12 @@ export interface Client {
   history: string[];
   billboard_ids: string[];
   contract_ids: string[];
+  segment: string;
+  notes: string;
+  contact_person: string;
+  land_registry: string;
+  property_area: string;
+  bank_info: string;
 }
 
 export interface Contract {

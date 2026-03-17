@@ -14,16 +14,373 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      billboards: {
+        Row: {
+          address: string | null
+          area: number | null
+          audience_profile: string | null
+          city: string
+          code: string
+          cost: number | null
+          created_at: string
+          description: string | null
+          dimension: string | null
+          direction: string | null
+          estimated_flow: number | null
+          formats: string[] | null
+          id: string
+          land_owner: string | null
+          land_owner_id: string | null
+          lat: number
+          lng: number
+          photos: string[] | null
+          price: number | null
+          production_cost: number | null
+          region: string
+          route: string
+          seasonality: string | null
+          status: string
+          traffic_type: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          area?: number | null
+          audience_profile?: string | null
+          city?: string
+          code: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          dimension?: string | null
+          direction?: string | null
+          estimated_flow?: number | null
+          formats?: string[] | null
+          id?: string
+          land_owner?: string | null
+          land_owner_id?: string | null
+          lat: number
+          lng: number
+          photos?: string[] | null
+          price?: number | null
+          production_cost?: number | null
+          region?: string
+          route?: string
+          seasonality?: string | null
+          status?: string
+          traffic_type?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          area?: number | null
+          audience_profile?: string | null
+          city?: string
+          code?: string
+          cost?: number | null
+          created_at?: string
+          description?: string | null
+          dimension?: string | null
+          direction?: string | null
+          estimated_flow?: number | null
+          formats?: string[] | null
+          id?: string
+          land_owner?: string | null
+          land_owner_id?: string | null
+          lat?: number
+          lng?: number
+          photos?: string[] | null
+          price?: number | null
+          production_cost?: number | null
+          region?: string
+          route?: string
+          seasonality?: string | null
+          status?: string
+          traffic_type?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      clients: {
+        Row: {
+          address: string | null
+          billboard_ids: string[] | null
+          company: string | null
+          contract_ids: string[] | null
+          created_at: string
+          document: string | null
+          email: string | null
+          history: string[] | null
+          id: string
+          name: string
+          phone: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          billboard_ids?: string[] | null
+          company?: string | null
+          contract_ids?: string[] | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          history?: string[] | null
+          id?: string
+          name: string
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          billboard_ids?: string[] | null
+          company?: string | null
+          contract_ids?: string[] | null
+          created_at?: string
+          document?: string | null
+          email?: string | null
+          history?: string[] | null
+          id?: string
+          name?: string
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contracts: {
+        Row: {
+          billboard_ids: string[] | null
+          client_id: string | null
+          client_name: string | null
+          created_at: string
+          document_url: string | null
+          end_date: string
+          id: string
+          monthly_value: number | null
+          payment_method: string | null
+          renewal_type: string | null
+          start_date: string
+          status: string
+          total_value: number | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          billboard_ids?: string[] | null
+          client_id?: string | null
+          client_name?: string | null
+          created_at?: string
+          document_url?: string | null
+          end_date: string
+          id?: string
+          monthly_value?: number | null
+          payment_method?: string | null
+          renewal_type?: string | null
+          start_date: string
+          status?: string
+          total_value?: number | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          billboard_ids?: string[] | null
+          client_id?: string | null
+          client_name?: string | null
+          created_at?: string
+          document_url?: string | null
+          end_date?: string
+          id?: string
+          monthly_value?: number | null
+          payment_method?: string | null
+          renewal_type?: string | null
+          start_date?: string
+          status?: string
+          total_value?: number | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          billboard_ids: string[] | null
+          company: string
+          contact: string | null
+          created_at: string
+          email: string | null
+          id: string
+          interactions: Json | null
+          notes: string | null
+          origin: string | null
+          phone: string | null
+          stage: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          billboard_ids?: string[] | null
+          company: string
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interactions?: Json | null
+          notes?: string | null
+          origin?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          billboard_ids?: string[] | null
+          company?: string
+          contact?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          interactions?: Json | null
+          notes?: string | null
+          origin?: string | null
+          phone?: string | null
+          stage?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      work_orders: {
+        Row: {
+          assignee: string | null
+          billboard_code: string | null
+          billboard_id: string | null
+          checklist: Json | null
+          client_name: string | null
+          completed_date: string | null
+          created_at: string
+          due_date: string
+          id: string
+          photos_after: string[] | null
+          photos_before: string[] | null
+          sla_hours: number | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          assignee?: string | null
+          billboard_code?: string | null
+          billboard_id?: string | null
+          checklist?: Json | null
+          client_name?: string | null
+          completed_date?: string | null
+          created_at?: string
+          due_date: string
+          id?: string
+          photos_after?: string[] | null
+          photos_before?: string[] | null
+          sla_hours?: number | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          assignee?: string | null
+          billboard_code?: string | null
+          billboard_id?: string | null
+          checklist?: Json | null
+          client_name?: string | null
+          completed_date?: string | null
+          created_at?: string
+          due_date?: string
+          id?: string
+          photos_after?: string[] | null
+          photos_before?: string[] | null
+          sla_hours?: number | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "work_orders_billboard_id_fkey"
+            columns: ["billboard_id"]
+            isOneToOne: false
+            referencedRelation: "billboards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "comercial" | "operacao" | "financeiro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +507,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "comercial", "operacao", "financeiro"],
+    },
   },
 } as const

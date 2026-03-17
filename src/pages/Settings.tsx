@@ -249,9 +249,9 @@ export default function Settings() {
                 <div className="flex flex-wrap gap-2 mt-1">
                   {(Object.keys(ROLE_LABELS) as AppRole[]).map(role => (
                     <button key={role} type="button"
-                      onClick={() => setNewRoles(prev => prev.includes(role) ? prev.filter(r => r !== role) : [...prev, role])}
+                      onClick={() => setNewRole(role)}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${
-                        newRoles.includes(role) ? ROLE_COLORS[role] + " border-current" : "bg-muted text-muted-foreground border-transparent hover:border-border"
+                        newRole === role ? ROLE_COLORS[role] + " border-current" : "bg-muted text-muted-foreground border-transparent hover:border-border"
                       }`}
                     >{ROLE_LABELS[role]}</button>
                   ))}

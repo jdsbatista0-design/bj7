@@ -45,7 +45,7 @@ export function AppSidebar() {
         {collapsed ? (
           <img src={logoBj7Icon} alt="BJ7" className="w-10 h-10 rounded-lg object-contain" />
         ) : (
-          <img src={logoBj7} alt="BJ7 Mídia" className="h-9 w-auto object-contain invert" />
+          <img src={logoBj7} alt="BJ7 Mídia" className="h-9 w-auto object-contain" />
         )}
       </div>
 

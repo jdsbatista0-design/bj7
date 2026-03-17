@@ -25,7 +25,7 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={logoBj7} alt="BJ7 Mídia" className="h-14 w-auto mx-auto mb-3 invert" />
+          <img src={logoBj7} alt="BJ7 Mídia" className="h-14 w-auto mx-auto mb-3" />
           <p className="text-muted-foreground text-sm">Sistema de Gestão OOH</p>
         </div>
 

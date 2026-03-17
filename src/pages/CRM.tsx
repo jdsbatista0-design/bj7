@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useData } from "@/contexts/DataContext";
 import { Lead } from "@/data/mockData";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2 } from "lucide-react";
+import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useData } from "@/contexts/DataContext";
-import { revenueByMonth } from "@/data/mockData";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { TrendingUp, MapPin, FileText, AlertTriangle, Users, DollarSign, Target, Percent, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { useMemo } from "react";
 
@@ -22,8 +21,8 @@ export default function Dashboard() {
     const available = billboards.filter(b => b.status === "available").length;
     const reserved = billboards.filter(b => b.status === "reserved").length;
     const occupancyRate = billboards.length > 0 ? Math.round((occupied / billboards.length) * 100) : 0;
-    const totalRevenue = contracts.filter(c => c.status === "active" && c.type === "veiculacao").reduce((s, c) => s + c.monthlyValue, 0);
-    const totalCost = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").reduce((s, c) => s + c.monthlyValue, 0);
+    const totalRevenue = contracts.filter(c => c.status === "active" && c.type === "veiculacao").reduce((s, c) => s + c.monthly_value, 0);
+    const totalCost = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").reduce((s, c) => s + c.monthly_value, 0);
     const margin = totalRevenue - totalCost;
     const activeVeiculacao = contracts.filter(c => c.status === "active" && c.type === "veiculacao").length;
     const avgTicket = activeVeiculacao > 0 ? Math.round(totalRevenue / activeVeiculacao) : 0;
@@ -73,10 +72,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 space-y-6 max-w-[1400px]">
-      <div>
-        <h1 className="text-2xl font-display font-bold">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1">BJ7 Mídia · {billboards.length} pontos</p>
-      </div>
+      <div><h1 className="text-2xl font-display font-bold">Dashboard</h1><p className="text-muted-foreground text-sm mt-1">BJ7 Mídia · {billboards.length} pontos</p></div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stats.map((s, i) => (
           <motion.div key={s.label} className={`stat-card ${s.variant}`} variants={fadeIn} initial="hidden" animate="visible" custom={i}>
@@ -89,20 +85,6 @@ export default function Dashboard() {
         ))}
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <motion.div className="stat-card lg:col-span-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-          <h3 className="font-display font-semibold mb-4 text-sm">Receita vs Custo Mensal</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={revenueByMonth}>
-              <defs><linearGradient id="fillRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(45, 95%, 55%)" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(45, 95%, 55%)" stopOpacity={0} /></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 15%)" />
-              <XAxis dataKey="month" stroke="hsl(220, 10%, 48%)" fontSize={11} />
-              <YAxis stroke="hsl(220, 10%, 48%)" fontSize={11} tickFormatter={v => `${v/1000}k`} />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`R$ ${v.toLocaleString()}`, ""]} />
-              <Area type="monotone" dataKey="revenue" stroke="hsl(45, 95%, 55%)" fill="url(#fillRevenue)" strokeWidth={2} name="Receita" />
-              <Area type="monotone" dataKey="cost" stroke="hsl(0, 72%, 50%)" fill="transparent" strokeWidth={1.5} strokeDasharray="4 4" name="Custo" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </motion.div>
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
           <h3 className="font-display font-semibold mb-4 text-sm">Status dos Pontos</h3>
           <ResponsiveContainer width="100%" height={180}>
@@ -110,8 +92,6 @@ export default function Dashboard() {
           </ResponsiveContainer>
           <div className="flex justify-center gap-4 mt-1">{pieData.map(p => <div key={p.name} className="flex items-center gap-1.5 text-xs"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: p.color }} /><span className="text-muted-foreground">{p.name} ({p.value})</span></div>)}</div>
         </motion.div>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.45 }}>
           <h3 className="font-display font-semibold mb-4 text-sm">Ocupação por Região</h3>
           <div className="space-y-3">
@@ -132,21 +112,25 @@ export default function Dashboard() {
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
           <h3 className="font-display font-semibold mb-4 text-sm">Contratos Ativos</h3>
           <div className="space-y-2.5">
             {contracts.filter(c => c.status === "active" && c.type === "veiculacao").map(c => (
               <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
-                <div><p className="font-medium text-sm">{c.clientName}</p><p className="text-[11px] text-muted-foreground">{c.billboards.length} ponto(s) · até {new Date(c.endDate).toLocaleDateString("pt-BR")}</p></div>
-                <span className="text-sm font-display font-semibold text-primary">R$ {c.monthlyValue.toLocaleString()}/mês</span>
+                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <span className="text-sm font-display font-semibold text-primary">R$ {c.monthly_value.toLocaleString()}/mês</span>
               </div>
             ))}
           </div>
-          {workOrders.filter(o => o.status === "overdue").length > 0 && (
-            <div className="mt-4 pt-3 border-t border-border">
-              <p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
-              {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboardCode} · Prazo: {new Date(os.dueDate).toLocaleDateString("pt-BR")}</div>)}
-            </div>
+        </motion.div>
+        <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+          {workOrders.filter(o => o.status === "overdue").length > 0 ? (
+            <><p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
+            {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}</div>)}</>
+          ) : (
+            <p className="text-sm text-muted-foreground">Nenhuma OS atrasada 🎉</p>
           )}
         </motion.div>
       </div>

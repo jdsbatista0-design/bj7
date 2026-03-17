@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
-import { useData } from "@/contexts/DataContext";
-import { Billboard } from "@/data/mockData";
+import { useData, Billboard } from "@/contexts/DataContext";
 import { Search, X, Plus, Trash2, Edit, Car, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -12,7 +11,7 @@ const typeLabels: Record<string, string> = {
   painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight", backlight: "Backlight",
   painel_sight: "Painel Sight", painel_vip: "Painel VIP",
 };
-const seasonLabels = { alta: "Alta Temporada", media: "Média", baixa: "Baixa Temporada" };
+const seasonLabels: Record<string, string> = { alta: "Alta Temporada", media: "Média", baixa: "Baixa Temporada" };
 
 function createLabelIcon(code: string, status: Billboard["status"]) {
   const colors = { available: "#3b82f6", occupied: "#ef4444", reserved: "#eab308" };
@@ -24,11 +23,11 @@ function createLabelIcon(code: string, status: Billboard["status"]) {
   });
 }
 
-const emptyBillboard: Omit<Billboard, "id"> = {
+const emptyBillboard: Partial<Billboard> = {
   code: "", lat: -25.85, lng: -48.65, city: "", region: "Litoral PR", route: "PR-412",
   address: "", type: "painel_rodoviario", dimension: "9x3m", area: 27, direction: "",
-  estimatedFlow: 0, audienceProfile: "", seasonality: "media", trafficType: "",
-  landOwner: "", landOwnerId: "", cost: 0, price: 0, productionCost: 0,
+  estimated_flow: 0, audience_profile: "", seasonality: "media", traffic_type: "",
+  land_owner: "", land_owner_id: null, cost: 0, price: 0, production_cost: 0,
   status: "available", photos: [], description: "", formats: ["Lona impressa"],
 };
 
@@ -38,8 +37,8 @@ function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number
 }
 
 function BillboardForm({ initial, onSave, onCancel, title }: {
-  initial: Omit<Billboard, "id"> & { id?: string };
-  onSave: (data: Omit<Billboard, "id"> & { id?: string }) => void;
+  initial: Partial<Billboard> & { id?: string };
+  onSave: (data: any) => void;
   onCancel: () => void;
   title: string;
 }) {
@@ -56,11 +55,11 @@ function BillboardForm({ initial, onSave, onCancel, title }: {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Código</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.code} onChange={e => set("code", e.target.value)} />
+            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.code || ""} onChange={e => set("code", e.target.value)} />
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Status</label>
-            <select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.status} onChange={e => set("status", e.target.value)}>
+            <select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.status || "available"} onChange={e => set("status", e.target.value)}>
               <option value="available">Disponível</option>
               <option value="occupied">Ocupado</option>
               <option value="reserved">Reservado</option>
@@ -69,69 +68,69 @@ function BillboardForm({ initial, onSave, onCancel, title }: {
         </div>
         <div>
           <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Endereço</label>
-          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.address} onChange={e => set("address", e.target.value)} />
+          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.address || ""} onChange={e => set("address", e.target.value)} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Cidade</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.city} onChange={e => set("city", e.target.value)} />
+            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.city || ""} onChange={e => set("city", e.target.value)} />
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Rodovia</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.route} onChange={e => set("route", e.target.value)} />
+            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.route || ""} onChange={e => set("route", e.target.value)} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Latitude</label>
-            <input type="number" step="any" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.lat} onChange={e => set("lat", parseFloat(e.target.value) || 0)} />
+            <input type="number" step="any" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.lat || 0} onChange={e => set("lat", parseFloat(e.target.value) || 0)} />
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Longitude</label>
-            <input type="number" step="any" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.lng} onChange={e => set("lng", parseFloat(e.target.value) || 0)} />
+            <input type="number" step="any" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.lng || 0} onChange={e => set("lng", parseFloat(e.target.value) || 0)} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tipo</label>
-            <select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.type} onChange={e => set("type", e.target.value)}>
+            <select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.type || "painel_rodoviario"} onChange={e => set("type", e.target.value)}>
               {Object.entries(typeLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Dimensão</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.dimension} onChange={e => set("dimension", e.target.value)} />
+            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.dimension || ""} onChange={e => set("dimension", e.target.value)} />
           </div>
         </div>
         <div>
           <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Sentido</label>
-          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.direction} onChange={e => set("direction", e.target.value)} />
+          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.direction || ""} onChange={e => set("direction", e.target.value)} />
         </div>
         <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Preço/mês</label>
-            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.price} onChange={e => set("price", parseFloat(e.target.value) || 0)} />
+            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.price || 0} onChange={e => set("price", parseFloat(e.target.value) || 0)} />
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Custo terreno</label>
-            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.cost} onChange={e => set("cost", parseFloat(e.target.value) || 0)} />
+            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.cost || 0} onChange={e => set("cost", parseFloat(e.target.value) || 0)} />
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Produção</label>
-            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.productionCost} onChange={e => set("productionCost", parseFloat(e.target.value) || 0)} />
+            <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.production_cost || 0} onChange={e => set("production_cost", parseFloat(e.target.value) || 0)} />
           </div>
         </div>
         <div>
           <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Fluxo estimado (veíc/dia)</label>
-          <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.estimatedFlow} onChange={e => set("estimatedFlow", parseInt(e.target.value) || 0)} />
+          <input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.estimated_flow || 0} onChange={e => set("estimated_flow", parseInt(e.target.value) || 0)} />
         </div>
         <div>
           <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Proprietário do terreno</label>
-          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.landOwner} onChange={e => set("landOwner", e.target.value)} />
+          <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.land_owner || ""} onChange={e => set("land_owner", e.target.value)} />
         </div>
         <div>
           <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Descrição</label>
-          <textarea className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary h-20 resize-none" value={form.description} onChange={e => set("description", e.target.value)} />
+          <textarea className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary h-20 resize-none" value={form.description || ""} onChange={e => set("description", e.target.value)} />
         </div>
       </div>
       <div className="p-4 border-t border-border flex justify-end gap-2">
@@ -183,20 +182,20 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
         <div>
           <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5"><Car className="w-3 h-3" /> Audiência</h4>
           <div className="space-y-1 text-sm">
-            <Row label="Fluxo estimado" value={`${billboard.estimatedFlow.toLocaleString()} veíc/dia`} highlight />
-            <Row label="Impactos/mês" value={`${(billboard.estimatedFlow * 30).toLocaleString()}`} highlight />
-            <Row label="Sazonalidade" value={seasonLabels[billboard.seasonality]} />
-            <Row label="Tipo de tráfego" value={billboard.trafficType} />
+            <Row label="Fluxo estimado" value={`${billboard.estimated_flow.toLocaleString()} veíc/dia`} highlight />
+            <Row label="Impactos/mês" value={`${(billboard.estimated_flow * 30).toLocaleString()}`} highlight />
+            <Row label="Sazonalidade" value={seasonLabels[billboard.seasonality] || billboard.seasonality} />
+            <Row label="Tipo de tráfego" value={billboard.traffic_type} />
           </div>
         </div>
         <div>
           <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5"><DollarSign className="w-3 h-3" /> Comercial</h4>
           <div className="space-y-1 text-sm">
             <Row label="Veiculação mensal" value={`R$ ${billboard.price.toLocaleString()}`} highlight />
-            <Row label="Produção" value={`R$ ${billboard.productionCost.toLocaleString()}`} />
+            <Row label="Produção" value={`R$ ${billboard.production_cost.toLocaleString()}`} />
             <Row label="Custo terreno" value={`R$ ${billboard.cost.toLocaleString()}/mês`} />
             <Row label="Margem" value={`R$ ${(billboard.price - billboard.cost).toLocaleString()}/mês`} highlight />
-            <Row label="Proprietário" value={billboard.landOwner} />
+            <Row label="Proprietário" value={billboard.land_owner} />
           </div>
         </div>
         <p className="text-xs text-muted-foreground pt-2 border-t border-border">{billboard.description}</p>
@@ -239,23 +238,22 @@ export default function Inventory() {
     setAddingByClick(false);
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = async (data: any) => {
     if (mode === "add") {
-      const id = `b${Date.now()}`;
-      addBillboard({ ...data, id });
+      await addBillboard(data);
       toast.success(`Ponto #${data.code} adicionado`);
     } else if (mode === "edit" && data.id) {
-      updateBillboard(data.id, data);
-      setSelected({ ...selected!, ...data });
+      await updateBillboard(data.id, data);
+      setSelected(null);
       toast.success(`Ponto #${data.code} atualizado`);
     }
     setMode("view");
     setFormData(null);
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selected && confirm(`Excluir ponto #${selected.code}?`)) {
-      deleteBillboard(selected.id);
+      await deleteBillboard(selected.id);
       setSelected(null);
       toast.success("Ponto excluído");
     }
@@ -311,28 +309,6 @@ export default function Inventory() {
             onSave={handleSave}
             onCancel={() => { setMode("view"); setFormData(null); }}
           />
-        )}
-
-        <div className="absolute bottom-4 left-4 glass-panel px-4 py-2.5 z-[1000] flex gap-4">
-          {[{ label: "Disponível", color: "bg-info" }, { label: "Ocupado", color: "bg-destructive" }, { label: "Reservado", color: "bg-primary" }].map(l => (
-            <div key={l.label} className="flex items-center gap-1.5 text-xs">
-              <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} /><span className="text-muted-foreground">{l.label}</span>
-            </div>
-          ))}
-        </div>
-        <div className="absolute top-4 left-4 glass-panel px-4 py-3 z-[1000]">
-          <p className="font-display font-bold text-sm text-primary">BJ7 Mídia</p>
-          <p className="text-[11px] text-muted-foreground">Litoral do Paraná · {billboards.length} pontos</p>
-          <div className="flex gap-3 mt-2 text-[11px]">
-            <span className="text-info">{billboards.filter(b => b.status === "available").length} disponíveis</span>
-            <span className="text-destructive">{billboards.filter(b => b.status === "occupied").length} ocupados</span>
-            <span className="text-primary">{billboards.filter(b => b.status === "reserved").length} reservados</span>
-          </div>
-        </div>
-        {addingByClick && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 glass-panel px-4 py-2 z-[1000] text-sm text-primary font-semibold animate-slide-up">
-            📍 Clique no mapa para posicionar o ponto
-          </div>
         )}
       </div>
     </div>

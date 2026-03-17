@@ -1,19 +1,13 @@
 import { useData } from "@/contexts/DataContext";
-import { revenueByMonth } from "@/data/mockData";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { DollarSign, TrendingUp, TrendingDown, Percent, MapPin } from "lucide-react";
 import { useMemo } from "react";
-
-const tooltipStyle = {
-  contentStyle: { background: "hsl(220, 18%, 9%)", border: "1px solid hsl(220, 14%, 15%)", borderRadius: "8px", color: "hsl(40, 10%, 92%)" },
-};
 
 export default function Financial() {
   const { billboards, contracts } = useData();
 
   const { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData } = useMemo(() => {
-    const totalRevenue = contracts.filter(c => c.status === "active" && c.type === "veiculacao").reduce((s, c) => s + c.monthlyValue, 0);
-    const totalCost = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").reduce((s, c) => s + c.monthlyValue, 0);
+    const totalRevenue = contracts.filter(c => c.status === "active" && c.type === "veiculacao").reduce((s, c) => s + c.monthly_value, 0);
+    const totalCost = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").reduce((s, c) => s + c.monthly_value, 0);
     const margin = totalRevenue - totalCost;
     const marginPct = totalRevenue > 0 ? Math.round((margin / totalRevenue) * 100) : 0;
     const totalLandCosts = totalCost;
@@ -42,32 +36,16 @@ export default function Financial() {
         <div className="stat-card stat-card-success"><div className="flex items-center gap-2 mb-2"><Percent className="w-4 h-4 text-muted-foreground" /><span className="text-xs text-muted-foreground">% Margem</span></div><p className="text-xl font-display font-bold text-success">{marginPct}%</p></div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="stat-card">
-          <h3 className="font-display font-semibold mb-4 text-sm">Evolução Receita vs Custo</h3>
-          <ResponsiveContainer width="100%" height={240}>
-            <AreaChart data={revenueByMonth}>
-              <defs><linearGradient id="fillRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(45, 95%, 55%)" stopOpacity={0.3} /><stop offset="100%" stopColor="hsl(45, 95%, 55%)" stopOpacity={0} /></linearGradient></defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 14%, 15%)" />
-              <XAxis dataKey="month" stroke="hsl(220, 10%, 48%)" fontSize={11} />
-              <YAxis stroke="hsl(220, 10%, 48%)" fontSize={11} tickFormatter={v => `${v/1000}k`} />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`R$ ${v.toLocaleString()}`, ""]} />
-              <Area type="monotone" dataKey="revenue" stroke="hsl(45, 95%, 55%)" fill="url(#fillRev)" strokeWidth={2} name="Receita" />
-              <Area type="monotone" dataKey="cost" stroke="hsl(0, 72%, 50%)" fill="transparent" strokeWidth={1.5} strokeDasharray="4 4" name="Custo" />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="stat-card">
-          <h3 className="font-display font-semibold mb-4 text-sm">Receita por Rodovia</h3>
-          <div className="space-y-4">
-            {routeData.map(r => (
-              <div key={r.route}>
-                <div className="flex justify-between text-sm mb-1.5"><span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-muted-foreground" />{r.route}</span><span className="font-display font-semibold text-primary">R$ {r.revenue.toLocaleString()}/mês</span></div>
-                <div className="flex gap-2 text-xs text-muted-foreground mb-1.5"><span>{r.count} pontos</span><span>Custo: R$ {r.cost.toLocaleString()}</span><span className="text-success">Margem: R$ {r.margin.toLocaleString()}</span></div>
-                <div className="h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${r.revenue > 0 ? Math.min((r.revenue / 10000) * 100, 100) : 0}%` }} /></div>
-              </div>
-            ))}
-          </div>
+      <div className="stat-card">
+        <h3 className="font-display font-semibold mb-4 text-sm">Receita por Rodovia</h3>
+        <div className="space-y-4">
+          {routeData.map(r => (
+            <div key={r.route}>
+              <div className="flex justify-between text-sm mb-1.5"><span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-muted-foreground" />{r.route}</span><span className="font-display font-semibold text-primary">R$ {r.revenue.toLocaleString()}/mês</span></div>
+              <div className="flex gap-2 text-xs text-muted-foreground mb-1.5"><span>{r.count} pontos</span><span>Custo: R$ {r.cost.toLocaleString()}</span><span className="text-success">Margem: R$ {r.margin.toLocaleString()}</span></div>
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full" style={{ width: `${r.revenue > 0 ? Math.min((r.revenue / 10000) * 100, 100) : 0}%` }} /></div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -99,11 +77,11 @@ export default function Financial() {
             <tbody>
               {contracts.filter(c => c.status === "active" && c.type === "veiculacao").map(c => (
                 <tr key={c.id} className="border-b border-border/50">
-                  <td className="py-3 font-medium">{c.clientName}</td>
-                  <td className="py-3">{c.billboards.map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-muted px-1.5 py-0.5 rounded mr-1 font-mono">#{b.code}</span> : null; })}</td>
-                  <td className="py-3 text-right font-display font-semibold text-primary">R$ {c.monthlyValue.toLocaleString()}</td>
-                  <td className="py-3 text-right">R$ {c.totalValue.toLocaleString()}</td>
-                  <td className="py-3 text-right text-muted-foreground">{new Date(c.endDate).toLocaleDateString("pt-BR")}</td>
+                  <td className="py-3 font-medium">{c.client_name}</td>
+                  <td className="py-3">{(c.billboard_ids || []).map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-muted px-1.5 py-0.5 rounded mr-1 font-mono">#{b.code}</span> : null; })}</td>
+                  <td className="py-3 text-right font-display font-semibold text-primary">R$ {c.monthly_value.toLocaleString()}</td>
+                  <td className="py-3 text-right">R$ {c.total_value.toLocaleString()}</td>
+                  <td className="py-3 text-right text-muted-foreground">{new Date(c.end_date).toLocaleDateString("pt-BR")}</td>
                 </tr>
               ))}
             </tbody>
@@ -119,10 +97,10 @@ export default function Financial() {
             <tbody>
               {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").map(c => (
                 <tr key={c.id} className="border-b border-border/50">
-                  <td className="py-3 font-medium">{c.clientName}</td>
-                  <td className="py-3">{c.billboards.map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-muted px-1.5 py-0.5 rounded mr-1 font-mono">#{b.code}</span> : null; })}</td>
-                  <td className="py-3 text-right font-display font-semibold">R$ {c.monthlyValue.toLocaleString()}</td>
-                  <td className="py-3 text-right text-muted-foreground text-xs">{c.paymentMethod}</td>
+                  <td className="py-3 font-medium">{c.client_name}</td>
+                  <td className="py-3">{(c.billboard_ids || []).map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-muted px-1.5 py-0.5 rounded mr-1 font-mono">#{b.code}</span> : null; })}</td>
+                  <td className="py-3 text-right font-display font-semibold">R$ {c.monthly_value.toLocaleString()}</td>
+                  <td className="py-3 text-right text-muted-foreground text-xs">{c.payment_method}</td>
                 </tr>
               ))}
             </tbody>

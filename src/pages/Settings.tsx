@@ -224,19 +224,21 @@ export default function Settings() {
             <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
               <UserPlus className="w-5 h-5 text-primary" />Criar Novo Usuário
             </h3>
-            <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <form onSubmit={handleCreateUser} autoComplete="off" className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input type="text" name="fake_username" autoComplete="username" className="hidden" tabIndex={-1} aria-hidden="true" />
+              <input type="password" name="fake_password" autoComplete="new-password" className="hidden" tabIndex={-1} aria-hidden="true" />
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome completo</label>
-                <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nome do colaborador" required />
+                <input name="new_user_full_name" autoComplete="off" data-lpignore="true" data-1p-ignore="true" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nome do colaborador" required />
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</label>
-                <input type="email" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="email@empresa.com" required />
+                <input type="email" name="new_user_email" autoComplete="off" data-lpignore="true" data-1p-ignore="true" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="email@empresa.com" required />
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Senha inicial</label>
                 <div className="relative">
-                  <input type={showPass ? "text" : "password"} className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary pr-10" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required minLength={6} />
+                  <input type={showPass ? "text" : "password"} name="new_user_password" autoComplete="new-password" data-lpignore="true" data-1p-ignore="true" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary pr-10" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" required minLength={6} />
                   <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                     {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>

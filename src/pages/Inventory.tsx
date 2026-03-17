@@ -33,6 +33,14 @@ const emptyBillboard: Partial<Billboard> = {
   status: "available", photos: [], description: "", formats: ["Lona impressa"],
 };
 
+// Red pin icon for new point placement
+const newPinIcon = L.divIcon({
+  className: "",
+  html: `<div style="display:flex;flex-direction:column;align-items:center;"><div style="width:24px;height:24px;border-radius:50% 50% 50% 0;background:#EAB308;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.4);"></div><div style="width:2px;height:8px;background:rgba(0,0,0,0.3);margin-top:2px;border-radius:1px;"></div></div>`,
+  iconSize: [24, 36],
+  iconAnchor: [12, 36],
+});
+
 function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
   useMapEvents({ click: (e) => onMapClick(e.latlng.lat, e.latlng.lng) });
   return null;

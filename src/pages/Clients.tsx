@@ -80,13 +80,18 @@ export default function Clients() {
     }
   };
 
+  const block = <PermissionPageBlock module="clientes" label="Clientes" />;
+  if (!can("clientes", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-display font-bold">Relacionamento</h1><p className="text-muted-foreground text-sm mt-1">Gestão de anunciantes e proprietários</p></div>
-        <Button onClick={() => { setEditingClient(emptyClient(tab)); setFormOpen(true); }}>
-          <Plus className="w-4 h-4" /> Novo {tab === "advertiser" ? "Anunciante" : "Proprietário"}
-        </Button>
+        <PermissionGate module="clientes" action="can_create" hide>
+          <Button onClick={() => { setEditingClient(emptyClient(tab)); setFormOpen(true); }}>
+            <Plus className="w-4 h-4" /> Novo {tab === "advertiser" ? "Anunciante" : "Proprietário"}
+          </Button>
+        </PermissionGate>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex bg-muted rounded-lg p-1">

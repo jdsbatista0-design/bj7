@@ -48,6 +48,7 @@ function ClientForm({ initial, onSave, onCancel, title }: {
 }
 
 export default function Clients() {
+  const { can } = usePermissions();
   const { clients, contracts, billboards, addClient, updateClient, deleteClient } = useData();
   const [tab, setTab] = useState<"advertiser" | "landowner">("advertiser");
   const [search, setSearch] = useState("");

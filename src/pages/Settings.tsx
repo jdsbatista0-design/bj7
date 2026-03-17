@@ -12,7 +12,7 @@ import {
   type PermissionModule, type PermissionAction, type UserPermission,
 } from "@/contexts/PermissionsContext";
 
-type AppRole = "admin" | "comercial" | "operacao" | "financeiro";
+type AppRole = "admin" | "usuario";
 
 interface UserProfile {
   id: string;
@@ -32,16 +32,12 @@ interface AccessLog {
 
 const ROLE_LABELS: Record<AppRole, string> = {
   admin: "Administrador",
-  comercial: "Comercial",
-  operacao: "Operação",
-  financeiro: "Financeiro",
+  usuario: "Usuário",
 };
 
 const ROLE_COLORS: Record<AppRole, string> = {
   admin: "bg-destructive/10 text-destructive",
-  comercial: "bg-primary/10 text-primary",
-  operacao: "bg-orange-500/10 text-orange-600",
-  financeiro: "bg-emerald-500/10 text-emerald-600",
+  usuario: "bg-primary/10 text-primary",
 };
 
 export default function Settings() {
@@ -127,9 +123,9 @@ export default function Settings() {
       return;
     }
     if (hasRole) {
-      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any);
     } else {
-      await supabase.from("user_roles").insert({ user_id: userId, role });
+      await supabase.from("user_roles").insert({ user_id: userId, role } as any);
     }
     loadUsers();
     toast.success("Perfil atualizado");

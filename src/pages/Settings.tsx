@@ -101,7 +101,7 @@ export default function Settings() {
     const token = sessionData?.session?.access_token;
 
     const res = await supabase.functions.invoke("admin-create-user", {
-      body: { email: newEmail, password: newPassword, fullName: newName, roles: newRoles },
+      body: { email: newEmail, password: newPassword, fullName: newName, roles: [newRole] },
       headers: { Authorization: `Bearer ${token}` },
     });
 

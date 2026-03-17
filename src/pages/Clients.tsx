@@ -116,8 +116,12 @@ export default function Clients() {
                 <div className="flex gap-2 items-center">
                   {clientContracts.length > 0 && <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full flex items-center gap-1"><FileText className="w-3 h-3" /> {clientContracts.length}</span>}
                   {clientBillboards.length > 0 && <span className="text-xs bg-info/10 text-info px-2.5 py-1 rounded-full flex items-center gap-1"><MapPin className="w-3 h-3" /> {clientBillboards.length}</span>}
-                  <button onClick={() => { setEditingClient({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="clientes" action="can_edit" hide>
+                    <button onClick={() => { setEditingClient({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="clientes" action="can_delete" hide>
+                    <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">

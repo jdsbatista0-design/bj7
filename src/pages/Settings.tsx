@@ -53,7 +53,7 @@ export default function Settings() {
   const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
-  const [newRoles, setNewRoles] = useState<AppRole[]>([]);
+  const [newRole, setNewRole] = useState<AppRole>("usuario");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {

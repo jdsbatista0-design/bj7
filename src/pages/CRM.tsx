@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useData } from "@/contexts/DataContext";
-import { Lead } from "@/data/mockData";
+import { useData, Lead } from "@/contexts/DataContext";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,12 +17,12 @@ const stages = [
 const originIcons: Record<string, React.ElementType> = { site: Globe, indicacao: Users, trafego_pago: Megaphone, prospecção: Zap, evento: Calendar };
 const originLabels: Record<string, string> = { site: "Site", indicacao: "Indicação", trafego_pago: "Tráfego Pago", prospecção: "Prospecção", evento: "Evento" };
 
-const emptyLead: Omit<Lead, "id"> = {
+const emptyLead: Partial<Lead> = {
   company: "", contact: "", phone: "", email: "", stage: "lead", value: 0,
-  billboards: [], notes: "", origin: "site", createdAt: new Date().toISOString().split("T")[0], interactions: [],
+  billboard_ids: [], notes: "", origin: "site", interactions: [],
 };
 
-function LeadForm({ initial, onSave, onCancel }: { initial: Omit<Lead, "id"> & { id?: string }; onSave: (d: any) => void; onCancel: () => void }) {
+function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id?: string }; onSave: (d: any) => void; onCancel: () => void }) {
   const [form, setForm] = useState(initial);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
   return (
@@ -34,19 +33,19 @@ function LeadForm({ initial, onSave, onCancel }: { initial: Omit<Lead, "id"> & {
           <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-5 space-y-3">
-          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Empresa</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.company} onChange={e => set("company", e.target.value)} /></div>
-          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Contato</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.contact} onChange={e => set("contact", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Empresa</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.company || ""} onChange={e => set("company", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Contato</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.contact || ""} onChange={e => set("contact", e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.phone} onChange={e => set("phone", e.target.value)} /></div>
-            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.email} onChange={e => set("email", e.target.value)} /></div>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.phone || ""} onChange={e => set("phone", e.target.value)} /></div>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.email || ""} onChange={e => set("email", e.target.value)} /></div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Valor estimado</label><input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.value} onChange={e => set("value", parseFloat(e.target.value) || 0)} /></div>
-            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Origem</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.origin} onChange={e => set("origin", e.target.value)}>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Valor estimado</label><input type="number" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.value || 0} onChange={e => set("value", parseFloat(e.target.value) || 0)} /></div>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Origem</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.origin || "site"} onChange={e => set("origin", e.target.value)}>
               {Object.entries(originLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select></div>
           </div>
-          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Notas</label><textarea className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary h-20 resize-none" value={form.notes} onChange={e => set("notes", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Notas</label><textarea className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary h-20 resize-none" value={form.notes || ""} onChange={e => set("notes", e.target.value)} /></div>
         </div>
         <div className="p-4 border-t border-border flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel}>Cancelar</Button>
@@ -72,21 +71,21 @@ export default function CRM() {
     toast.success(`Lead movido para ${stages.find(s => s.key === stage)?.label}`);
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = async (data: any) => {
     if (data.id) {
-      updateLead(data.id, data);
+      await updateLead(data.id, data);
       toast.success("Lead atualizado");
     } else {
-      addLead({ ...data, id: `l${Date.now()}` });
+      await addLead(data);
       toast.success("Lead adicionado");
     }
     setFormOpen(false);
     setEditingLead(null);
   };
 
-  const handleDeleteLead = (id: string) => {
+  const handleDeleteLead = async (id: string) => {
     if (confirm("Excluir este lead?")) {
-      deleteLead(id);
+      await deleteLead(id);
       setSelectedLead(null);
       toast.success("Lead excluído");
     }
@@ -137,11 +136,11 @@ export default function CRM() {
                                   <p className="text-xs text-muted-foreground">{lead.contact}</p>
                                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1 text-primary font-semibold"><DollarSign className="w-3 h-3" />R$ {lead.value.toLocaleString()}</span>
-                                    {lead.billboards.length > 0 && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.billboards.length}</span>}
+                                    {lead.billboard_ids.length > 0 && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.billboard_ids.length}</span>}
                                   </div>
                                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-border text-[10px] text-muted-foreground">
                                     <span className="flex items-center gap-1"><OriginIcon className="w-3 h-3" />{originLabels[lead.origin]}</span>
-                                    <span>{new Date(lead.createdAt).toLocaleDateString("pt-BR")}</span>
+                                    <span>{new Date(lead.created_at).toLocaleDateString("pt-BR")}</span>
                                   </div>
                                 </div>
                               )}
@@ -177,9 +176,9 @@ export default function CRM() {
                 <span className="flex items-center gap-1.5 text-muted-foreground"><Mail className="w-3.5 h-3.5" />{selectedLead.email}</span>
               </div>
               <span className="font-display font-bold text-primary text-lg">R$ {selectedLead.value.toLocaleString()}</span>
-              {selectedLead.billboards.length > 0 && (
+              {selectedLead.billboard_ids.length > 0 && (
                 <div className="flex flex-wrap gap-1.5">
-                  {selectedLead.billboards.map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">#{b.code}</span> : null; })}
+                  {selectedLead.billboard_ids.map(bid => { const b = billboards.find(x => x.id === bid); return b ? <span key={bid} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded font-mono">#{b.code}</span> : null; })}
                 </div>
               )}
               {selectedLead.interactions.length > 0 && (
@@ -201,4 +200,3 @@ export default function CRM() {
     </div>
   );
 }
-

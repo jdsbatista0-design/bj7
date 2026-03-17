@@ -1,17 +1,16 @@
-import { useData } from "@/contexts/DataContext";
-import { Client } from "@/data/mockData";
+import { useData, Client } from "@/contexts/DataContext";
 import { Users, Building2, Phone, Mail, MapPin, FileText, Search, Plus, Edit, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const emptyClient = (type: "advertiser" | "landowner"): Omit<Client, "id"> => ({
+const emptyClient = (type: "advertiser" | "landowner"): Partial<Client> => ({
   name: "", company: "", document: "", phone: "", email: "", type,
-  contracts: [], billboards: [], history: [], address: "",
+  contract_ids: [], billboard_ids: [], history: [], address: "",
 });
 
 function ClientForm({ initial, onSave, onCancel, title }: {
-  initial: Omit<Client, "id"> & { id?: string }; onSave: (c: any) => void; onCancel: () => void; title: string;
+  initial: Partial<Client> & { id?: string }; onSave: (c: any) => void; onCancel: () => void; title: string;
 }) {
   const [form, setForm] = useState(initial);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
@@ -24,39 +23,18 @@ function ClientForm({ initial, onSave, onCancel, title }: {
           <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-5 space-y-3">
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome completo</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.name} onChange={e => set("name", e.target.value)} />
-          </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Empresa</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.company} onChange={e => set("company", e.target.value)} />
-          </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">CPF/CNPJ</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.document} onChange={e => set("document", e.target.value)} />
-          </div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Nome completo</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.name || ""} onChange={e => set("name", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Empresa</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.company || ""} onChange={e => set("company", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">CPF/CNPJ</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.document || ""} onChange={e => set("document", e.target.value)} /></div>
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label>
-              <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.phone} onChange={e => set("phone", e.target.value)} />
-            </div>
-            <div>
-              <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</label>
-              <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.email} onChange={e => set("email", e.target.value)} />
-            </div>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Telefone</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.phone || ""} onChange={e => set("phone", e.target.value)} /></div>
+            <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Email</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.email || ""} onChange={e => set("email", e.target.value)} /></div>
           </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Endereço</label>
-            <input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.address} onChange={e => set("address", e.target.value)} />
-          </div>
-          <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tipo</label>
-            <select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.type} onChange={e => set("type", e.target.value)}>
-              <option value="advertiser">Anunciante</option>
-              <option value="landowner">Proprietário</option>
-            </select>
-          </div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Endereço</label><input className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.address || ""} onChange={e => set("address", e.target.value)} /></div>
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tipo</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.type || "advertiser"} onChange={e => set("type", e.target.value)}>
+            <option value="advertiser">Anunciante</option>
+            <option value="landowner">Proprietário</option>
+          </select></div>
         </div>
         <div className="p-4 border-t border-border flex justify-end gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel}>Cancelar</Button>
@@ -72,7 +50,7 @@ export default function Clients() {
   const [tab, setTab] = useState<"advertiser" | "landowner">("advertiser");
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<(Omit<Client, "id"> & { id?: string }) | null>(null);
+  const [editingClient, setEditingClient] = useState<(Partial<Client> & { id?: string }) | null>(null);
 
   const filtered = clients.filter(c => {
     const matchType = c.type === tab;
@@ -80,21 +58,21 @@ export default function Clients() {
     return matchType && matchSearch;
   });
 
-  const handleSave = (data: any) => {
+  const handleSave = async (data: any) => {
     if (data.id) {
-      updateClient(data.id, data);
+      await updateClient(data.id, data);
       toast.success("Cliente atualizado");
     } else {
-      addClient({ ...data, id: `c${Date.now()}` });
+      await addClient(data);
       toast.success("Cliente cadastrado");
     }
     setFormOpen(false);
     setEditingClient(null);
   };
 
-  const handleDelete = (c: Client) => {
+  const handleDelete = async (c: Client) => {
     if (confirm(`Excluir ${c.name}?`)) {
-      deleteClient(c.id);
+      await deleteClient(c.id);
       toast.success("Cliente excluído");
     }
   };
@@ -102,35 +80,23 @@ export default function Clients() {
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-display font-bold">Relacionamento</h1>
-          <p className="text-muted-foreground text-sm mt-1">Gestão de anunciantes e proprietários</p>
-        </div>
+        <div><h1 className="text-2xl font-display font-bold">Relacionamento</h1><p className="text-muted-foreground text-sm mt-1">Gestão de anunciantes e proprietários</p></div>
         <Button onClick={() => { setEditingClient(emptyClient(tab)); setFormOpen(true); }}>
           <Plus className="w-4 h-4" /> Novo {tab === "advertiser" ? "Anunciante" : "Proprietário"}
         </Button>
       </div>
-
       <div className="flex items-center gap-4">
         <div className="flex bg-muted rounded-lg p-1">
-          <button onClick={() => setTab("advertiser")} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${tab === "advertiser" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-            <Building2 className="w-4 h-4" /> Anunciantes
-          </button>
-          <button onClick={() => setTab("landowner")} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${tab === "landowner" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-            <Users className="w-4 h-4" /> Proprietários
-          </button>
+          <button onClick={() => setTab("advertiser")} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${tab === "advertiser" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Building2 className="w-4 h-4" /> Anunciantes</button>
+          <button onClick={() => setTab("landowner")} className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${tab === "landowner" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Users className="w-4 h-4" /> Proprietários</button>
         </div>
-        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 flex-1 max-w-xs">
-          <Search className="w-4 h-4 text-muted-foreground" />
-          <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
+        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-2 flex-1 max-w-xs"><Search className="w-4 h-4 text-muted-foreground" /><input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} /></div>
         <span className="text-xs text-muted-foreground">{filtered.length} registros</span>
       </div>
-
       <div className="space-y-3">
         {filtered.map(c => {
-          const clientContracts = contracts.filter(ct => ct.clientId === c.id);
-          const clientBillboards = c.billboards.map(bid => billboards.find(b => b.id === bid)).filter(Boolean);
+          const clientContracts = contracts.filter(ct => ct.client_id === c.id);
+          const clientBillboards = (c.billboard_ids || []).map(bid => billboards.find(b => b.id === bid)).filter(Boolean);
           return (
             <div key={c.id} className={`stat-card ${tab === "landowner" ? "stat-card-accent" : ""}`}>
               <div className="flex items-start justify-between">
@@ -156,7 +122,7 @@ export default function Clients() {
                   {clientBillboards.map(b => b && <span key={b.id} className="text-xs bg-muted px-2 py-0.5 rounded font-mono">#{b.code} · {b.route}</span>)}
                 </div>
               )}
-              {c.history.length > 0 && (
+              {(c.history || []).length > 0 && (
                 <div className="mt-3 pt-3 border-t border-border">
                   {c.history.map((h, i) => <p key={i} className="text-xs text-muted-foreground">{h}</p>)}
                 </div>
@@ -166,14 +132,8 @@ export default function Clients() {
         })}
         {filtered.length === 0 && <p className="text-center text-muted-foreground py-8">Nenhum registro encontrado</p>}
       </div>
-
       {formOpen && editingClient && (
-        <ClientForm
-          initial={editingClient}
-          title={editingClient.id ? `Editar ${editingClient.name}` : `Novo ${tab === "advertiser" ? "Anunciante" : "Proprietário"}`}
-          onSave={handleSave}
-          onCancel={() => { setFormOpen(false); setEditingClient(null); }}
-        />
+        <ClientForm initial={editingClient} title={editingClient.id ? `Editar ${editingClient.name}` : `Novo ${tab === "advertiser" ? "Anunciante" : "Proprietário"}`} onSave={handleSave} onCancel={() => { setFormOpen(false); setEditingClient(null); }} />
       )}
     </div>
   );

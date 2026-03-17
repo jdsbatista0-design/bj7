@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useData } from "@/contexts/DataContext";
-import { Billboard } from "@/data/mockData";
+import { useData, Billboard } from "@/contexts/DataContext";
+import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import L from "leaflet";
 import { Search, MapPin, ArrowRight, Menu, X, Phone, Mail, Car, Ruler, Eye, Building2, User } from "lucide-react";
@@ -67,11 +67,23 @@ export default function PublicSite() {
   });
 
   const available = filtered.filter(b => b.status === "available");
-  const statusLabel = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
-  const statusBadge = { available: "badge-available", occupied: "badge-occupied", reserved: "badge-reserved" };
+  const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
+  const statusBadge: Record<string, string> = { available: "badge-available", occupied: "badge-occupied", reserved: "badge-reserved" };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    if (formType === "advertiser") {
+      await supabase.from("leads").insert({
+        company: formData.get("company") as string,
+        contact: formData.get("contact") as string,
+        phone: formData.get("phone") as string,
+        email: formData.get("email") as string,
+        notes: formData.get("notes") as string || "",
+        stage: "lead",
+        origin: "site",
+      } as any);
+    }
     toast.success(formType === "advertiser" ? "Proposta solicitada! Entraremos em contato." : "Terreno cadastrado! Avaliaremos o local.");
     (e.target as HTMLFormElement).reset();
   };
@@ -94,7 +106,7 @@ export default function PublicSite() {
 
       <section className="py-8 px-4 border-t border-border">
         <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[{ value: billboards.length, label: "Pontos Estratégicos" }, { value: routes.length, label: "Rodovias Cobertas" }, { value: `${Math.round(billboards.reduce((s, b) => s + b.estimatedFlow, 0) / 1000)}k+`, label: "Impactos Diários" }, { value: "3", label: "Formatos Disponíveis" }].map(s => (
+          {[{ value: billboards.length, label: "Pontos Estratégicos" }, { value: routes.length, label: "Rodovias Cobertas" }, { value: `${Math.round(billboards.reduce((s, b) => s + b.estimated_flow, 0) / 1000)}k+`, label: "Impactos Diários" }, { value: "3", label: "Formatos Disponíveis" }].map(s => (
             <div key={s.label} className="text-center py-4"><p className="text-3xl font-display font-bold text-primary">{s.value}</p><p className="text-xs text-muted-foreground mt-1">{s.label}</p></div>
           ))}
         </div>
@@ -145,7 +157,7 @@ export default function PublicSite() {
                 <div className="space-y-1.5 text-sm text-muted-foreground">
                   <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3 flex-shrink-0" />{b.address}</p>
                   <p className="flex items-center gap-1.5"><Ruler className="w-3 h-3 flex-shrink-0" />{b.route} · {b.city}</p>
-                  <p className="flex items-center gap-1.5"><Car className="w-3 h-3 flex-shrink-0" />{b.estimatedFlow.toLocaleString()} veíc/dia</p>
+                  <p className="flex items-center gap-1.5"><Car className="w-3 h-3 flex-shrink-0" />{b.estimated_flow.toLocaleString()} veíc/dia</p>
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-3 border-t border-border">
                   <span className="font-display font-bold text-primary text-lg">R$ {b.price.toLocaleString()}<span className="text-xs font-normal text-muted-foreground">/mês</span></span>
@@ -168,7 +180,7 @@ export default function PublicSite() {
               <div className="grid grid-cols-2 gap-3">
                 <Detail label="Rodovia" value={selectedBillboard.route} /><Detail label="Cidade" value={selectedBillboard.city} />
                 <Detail label="Sentido" value={selectedBillboard.direction} /><Detail label="Dimensão" value={`${selectedBillboard.dimension} (${selectedBillboard.area}m²)`} />
-                <Detail label="Fluxo diário" value={`${selectedBillboard.estimatedFlow.toLocaleString()} veículos`} /><Detail label="Impactos/mês" value={(selectedBillboard.estimatedFlow * 30).toLocaleString()} />
+                <Detail label="Fluxo diário" value={`${selectedBillboard.estimated_flow.toLocaleString()} veículos`} /><Detail label="Impactos/mês" value={(selectedBillboard.estimated_flow * 30).toLocaleString()} />
               </div>
               <p className="text-muted-foreground pt-2">{selectedBillboard.description}</p>
             </div>
@@ -198,23 +210,23 @@ export default function PublicSite() {
           <form className="space-y-4" onSubmit={handleFormSubmit}>
             {formType === "advertiser" ? (
               <>
-                <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Nome da empresa" />
-                <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Responsável" />
+                <input name="company" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Nome da empresa" />
+                <input name="contact" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Responsável" />
                 <div className="grid grid-cols-2 gap-4">
-                  <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Telefone" />
-                  <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="E-mail" type="email" />
+                  <input name="phone" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Telefone" />
+                  <input name="email" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="E-mail" type="email" />
                 </div>
-                <textarea className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground h-24 resize-none" placeholder="Quais pontos te interessam?" />
+                <textarea name="notes" className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground h-24 resize-none" placeholder="Quais pontos te interessam?" />
               </>
             ) : (
               <>
-                <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Seu nome completo" />
+                <input name="name" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Seu nome completo" />
                 <div className="grid grid-cols-2 gap-4">
-                  <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Telefone" />
-                  <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="E-mail" type="email" />
+                  <input name="phone" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Telefone" />
+                  <input name="email" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="E-mail" type="email" />
                 </div>
-                <input required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Localização do terreno" />
-                <textarea className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground h-24 resize-none" placeholder="Descreva o espaço..." />
+                <input name="location" required className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground" placeholder="Localização do terreno" />
+                <textarea name="notes" className="w-full bg-muted rounded-lg px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary placeholder:text-muted-foreground h-24 resize-none" placeholder="Descreva o espaço..." />
               </>
             )}
             <button type="submit" className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity">{formType === "advertiser" ? "Solicitar Proposta" : "Cadastrar Terreno"}</button>
@@ -226,16 +238,13 @@ export default function PublicSite() {
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 px-4">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2"><div className="w-7 h-7 rounded bg-primary flex items-center justify-center"><span className="font-display font-bold text-primary-foreground text-xs">B7</span></div><span className="font-display font-semibold">BJ7 Mídia</span></div>
-          <p className="text-xs text-muted-foreground">© 2026 BJ7 Mídia · Litoral do Paraná · Todos os direitos reservados</p>
-        </div>
+      <footer className="py-8 px-4 border-t border-border text-center text-xs text-muted-foreground">
+        <p>BJ7 Mídia OOH © {new Date().getFullYear()} · Litoral do Paraná</p>
       </footer>
     </div>
   );
 }
 
 function Detail({ label, value }: { label: string; value: string }) {
-  return <div><p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p><p className="font-medium text-sm">{value}</p></div>;
+  return <div><p className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</p><p className="font-medium mt-0.5">{value}</p></div>;
 }

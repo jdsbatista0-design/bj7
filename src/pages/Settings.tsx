@@ -111,7 +111,7 @@ export default function Settings() {
       toast.error(res.data.error);
     } else {
       toast.success(`Usuário ${newEmail} criado com sucesso!`);
-      setNewEmail(""); setNewName(""); setNewPassword(""); setNewRoles([]);
+      setNewEmail(""); setNewName(""); setNewPassword(""); setNewRole("usuario");
       loadUsers();
     }
     setCreating(false);

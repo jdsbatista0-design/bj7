@@ -64,7 +64,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = roles.includes("admin");
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error, data } = await supabase.auth.signInWithPassword({ email, password });
+    if (!error && data.user) {
+      // Log access
+      supabase.from("access_logs").insert({
+        user_id: data.user.id,
+        user_email: email,
+        action: "login",
+        details: "Login via plataforma",
+      }).then(() => {});
+    }
     return { error };
   };
 

@@ -5,6 +5,7 @@ import { DollarSign, TrendingUp, TrendingDown, Percent, MapPin } from "lucide-re
 import { useMemo } from "react";
 
 export default function Financial() {
+  const { can } = usePermissions();
   const { billboards, contracts } = useData();
 
   const { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData } = useMemo(() => {

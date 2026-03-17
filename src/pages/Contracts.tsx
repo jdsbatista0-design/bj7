@@ -19,7 +19,7 @@ const emptyContract: Partial<Contract> = {
 };
 
 function ContractForm({ initial, clients, onSave, onCancel }: {
-  initial: Partial<Contract> & { id?: string }; clients: { id: string; name: string }[]; onSave: (d: any) => void; onCancel: () => void;
+  initial: Partial<Contract> & { id?: string }; clients: { id: string; name: string; type: string }[]; onSave: (d: any) => void; onCancel: () => void;
 }) {
   const [form, setForm] = useState(initial);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
@@ -40,8 +40,8 @@ function ContractForm({ initial, clients, onSave, onCancel }: {
           <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Tipo</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.type || "veiculacao"} onChange={e => set("type", e.target.value)}>
             <option value="veiculacao">Veiculação</option><option value="locacao_terreno">Locação de Terreno</option>
           </select></div>
-          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Cliente</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.client_id || ""} onChange={e => { const c = clients.find(x => x.id === e.target.value); set("client_id", e.target.value); set("client_name", c?.name || ""); }}>
-            <option value="">Selecione...</option>{clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+          <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">{form.type === "veiculacao" ? "Anunciante" : "Proprietário"}</label><select className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none" value={form.client_id || ""} onChange={e => { const c = clients.find(x => x.id === e.target.value); set("client_id", e.target.value); set("client_name", c?.name || ""); }}>
+            <option value="">Selecione...</option>{clients.filter(c => form.type === "veiculacao" ? c.type === "advertiser" : c.type === "landowner").map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select></div>
           <div className="grid grid-cols-2 gap-3">
             <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Início</label><input type="date" className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary" value={form.start_date || ""} onChange={e => { set("start_date", e.target.value); set("total_value", updateTotal(form.monthly_value || 0, e.target.value, form.end_date || "")); }} /></div>
@@ -81,7 +81,7 @@ export default function Contracts() {
   const [editingContract, setEditingContract] = useState<any>(null);
 
   const filtered = typeFilter === "all" ? contracts : contracts.filter(c => c.type === typeFilter);
-  const clientList = clients.map(c => ({ id: c.id, name: c.name }));
+  const clientList = clients.map(c => ({ id: c.id, name: c.name, type: c.type }));
 
   const handleSave = async (data: any) => {
     if (data.id) { await updateContract(data.id, data); toast.success("Contrato atualizado"); }

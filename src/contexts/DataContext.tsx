@@ -58,6 +58,12 @@ export interface Client {
   history: string[];
   billboard_ids: string[];
   contract_ids: string[];
+  segment: string;
+  notes: string;
+  contact_person: string;
+  land_registry: string;
+  property_area: string;
+  bank_info: string;
 }
 
 export interface Contract {
@@ -186,6 +192,12 @@ function mapClient(row: any): Client {
     history: row.history || [],
     billboard_ids: row.billboard_ids || [],
     contract_ids: row.contract_ids || [],
+    segment: row.segment || "",
+    notes: row.notes || "",
+    contact_person: row.contact_person || "",
+    land_registry: row.land_registry || "",
+    property_area: row.property_area || "",
+    bank_info: row.bank_info || "",
   };
 }
 

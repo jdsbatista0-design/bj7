@@ -134,46 +134,64 @@ export type Database = {
       clients: {
         Row: {
           address: string | null
+          bank_info: string | null
           billboard_ids: string[] | null
           company: string | null
+          contact_person: string | null
           contract_ids: string[] | null
           created_at: string
           document: string | null
           email: string | null
           history: string[] | null
           id: string
+          land_registry: string | null
           name: string
+          notes: string | null
           phone: string | null
+          property_area: string | null
+          segment: string | null
           type: string
           updated_at: string
         }
         Insert: {
           address?: string | null
+          bank_info?: string | null
           billboard_ids?: string[] | null
           company?: string | null
+          contact_person?: string | null
           contract_ids?: string[] | null
           created_at?: string
           document?: string | null
           email?: string | null
           history?: string[] | null
           id?: string
+          land_registry?: string | null
           name: string
+          notes?: string | null
           phone?: string | null
+          property_area?: string | null
+          segment?: string | null
           type?: string
           updated_at?: string
         }
         Update: {
           address?: string | null
+          bank_info?: string | null
           billboard_ids?: string[] | null
           company?: string | null
+          contact_person?: string | null
           contract_ids?: string[] | null
           created_at?: string
           document?: string | null
           email?: string | null
           history?: string[] | null
           id?: string
+          land_registry?: string | null
           name?: string
+          notes?: string | null
           phone?: string | null
+          property_area?: string | null
+          segment?: string | null
           type?: string
           updated_at?: string
         }

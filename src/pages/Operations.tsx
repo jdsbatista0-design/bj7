@@ -1,4 +1,6 @@
 import { useData, WorkOrder } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Wrench, Clock, CheckCircle2, AlertTriangle, Play, Plus, X, Trash2, Edit } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

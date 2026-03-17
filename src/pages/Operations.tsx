@@ -89,11 +89,16 @@ export default function Operations() {
     await updateWorkOrder(osId, { checklist: newChecklist });
   };
 
+  const block = <PermissionPageBlock module="operacao" label="Operação" />;
+  if (!can("operacao", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-display font-bold">Operação</h1><p className="text-muted-foreground text-sm mt-1">Ordens de serviço e SLA</p></div>
-        <Button onClick={() => { setEditingOS({ ...emptyWorkOrder }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Nova OS</Button>
+        <PermissionGate module="operacao" action="can_create" hide>
+          <Button onClick={() => { setEditingOS({ ...emptyWorkOrder }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Nova OS</Button>
+        </PermissionGate>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Object.entries(statusConfig).map(([key, cfg]) => {

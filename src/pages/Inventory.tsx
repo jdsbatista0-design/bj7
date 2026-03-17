@@ -268,6 +268,7 @@ export default function Inventory() {
 
   return (
     <div className="h-screen flex flex-col relative">
+      <PermissionPageBlock module="inventario" label="o Inventário" />
       <div className="p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-10 flex-wrap">
         <h1 className="font-display font-bold text-lg mr-2">Inventário</h1>
         <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-1 max-w-[200px]">

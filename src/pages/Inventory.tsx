@@ -311,12 +311,29 @@ export default function Inventory() {
 
       <div className="flex-1 relative">
         <MapContainer center={[-25.85, -48.65]} zoom={10} className="w-full h-full" zoomControl={true}>
-          <TileLayer attribution='&copy; <a href="https://carto.com/">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+          <TileLayer
+            attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          />
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+          />
           <MapClickHandler onMapClick={handleMapClick} />
           {filtered.map(b => (
             <Marker key={b.id} position={[b.lat, b.lng]} icon={createLabelIcon(b.code, b.status)} eventHandlers={{ click: () => { if (!addingByClick) { setSelected(b); setMode("view"); } } }} />
           ))}
+          {/* Temporary pin for new point placement */}
+          {tempPin && (
+            <Marker position={[tempPin.lat, tempPin.lng]} icon={newPinIcon} />
+          )}
         </MapContainer>
+
+        {/* Adding mode cursor hint */}
+        {addingByClick && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-semibold animate-pulse">
+            <MapPin className="w-4 h-4" /> Clique no mapa para posicionar o ponto
+          </div>
+        )}
 
         {mode === "view" && selected && (
           <BillboardDetail billboard={selected} onClose={() => setSelected(null)}
@@ -330,7 +347,7 @@ export default function Inventory() {
             initial={formData}
             title={mode === "add" ? "Novo Ponto" : `Editar #${formData.code}`}
             onSave={handleSave}
-            onCancel={() => { setMode("view"); setFormData(null); }}
+            onCancel={() => { setMode("view"); setFormData(null); setTempPin(null); }}
           />
         )}
       </div>

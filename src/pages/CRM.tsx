@@ -87,6 +87,7 @@ export default function CRM() {
   };
 
   const handleDeleteLead = async (id: string) => {
+    if (!can("comercial", "can_delete")) { toast.error("Sem permissão para excluir leads"); return; }
     if (confirm("Excluir este lead?")) {
       await deleteLead(id);
       setSelectedLead(null);

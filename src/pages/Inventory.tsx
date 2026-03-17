@@ -286,11 +286,13 @@ export default function Inventory() {
         ))}
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-muted-foreground">{filtered.length} pontos</span>
-          <Button size="sm" variant={addingByClick ? "destructive" : "default"} onClick={() => {
-            if (addingByClick) { setAddingByClick(false); } else { setAddingByClick(true); toast.info("Clique no mapa para posicionar o novo ponto"); }
-          }}>
-            {addingByClick ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Novo Ponto</>}
-          </Button>
+          {can("inventario", "can_create") && (
+            <Button size="sm" variant={addingByClick ? "destructive" : "default"} onClick={() => {
+              if (addingByClick) { setAddingByClick(false); } else { setAddingByClick(true); toast.info("Clique no mapa para posicionar o novo ponto"); }
+            }}>
+              {addingByClick ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Novo Ponto</>}
+            </Button>
+          )}
         </div>
       </div>
 

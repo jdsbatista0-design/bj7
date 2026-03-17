@@ -27,6 +27,9 @@ export default function Financial() {
     return { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData };
   }, [billboards, contracts]);
 
+  const block = <PermissionPageBlock module="financeiro" label="o Financeiro" />;
+  if (!can("financeiro", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div><h1 className="text-2xl font-display font-bold">Financeiro</h1><p className="text-muted-foreground text-sm mt-1">Visão financeira do negócio</p></div>

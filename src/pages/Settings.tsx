@@ -123,9 +123,9 @@ export default function Settings() {
       return;
     }
     if (hasRole) {
-      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+      await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any);
     } else {
-      await supabase.from("user_roles").insert({ user_id: userId, role });
+      await supabase.from("user_roles").insert({ user_id: userId, role } as any);
     }
     loadUsers();
     toast.success("Perfil atualizado");

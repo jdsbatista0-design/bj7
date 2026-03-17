@@ -78,6 +78,7 @@ export default function Operations() {
   };
 
   const handleDelete = async (os: WorkOrder) => {
+    if (!can("operacao", "can_delete")) { toast.error("Sem permissão para excluir OS"); return; }
     if (confirm("Excluir esta OS?")) { await deleteWorkOrder(os.id); toast.success("OS excluída"); }
   };
 

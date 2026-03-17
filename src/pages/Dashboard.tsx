@@ -10,7 +10,9 @@ const fadeIn = {
 };
 
 const tooltipStyle = {
-  contentStyle: { background: "hsl(220, 18%, 9%)", border: "1px solid hsl(220, 14%, 15%)", borderRadius: "8px", color: "hsl(40, 10%, 92%)" },
+  contentStyle: { background: "hsl(0, 0%, 98%)", border: "1px solid hsl(220, 14%, 85%)", borderRadius: "8px", color: "hsl(220, 18%, 12%)", fontSize: "13px", fontWeight: 500 },
+  itemStyle: { color: "hsl(220, 18%, 20%)" },
+  labelStyle: { color: "hsl(220, 18%, 20%)", fontWeight: 600 },
 };
 
 export default function Dashboard() {
@@ -35,8 +37,8 @@ export default function Dashboard() {
   }, [billboards, contracts, leads, workOrders]);
 
   const pieData = [
-    { name: "Ocupado", value: computed.occupied, color: "hsl(0, 72%, 50%)" },
-    { name: "Disponível", value: computed.available, color: "hsl(210, 90%, 55%)" },
+    { name: "Ocupado", value: computed.occupied, color: "hsl(0, 85%, 60%)" },
+    { name: "Disponível", value: computed.available, color: "hsl(142, 70%, 50%)" },
     { name: "Reservado", value: computed.reserved, color: "hsl(45, 95%, 55%)" },
   ];
 

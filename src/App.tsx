@@ -42,7 +42,7 @@ const AppRoutes = () => {
   if (loading) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <h1 className="font-display text-2xl font-bold text-primary mb-2">BJ7 MÍDIA</h1>
+        <img src={logoBj7Icon} alt="BJ7" className="w-12 h-12 mx-auto mb-3 animate-pulse" />
         <p className="text-muted-foreground text-sm">Carregando...</p>
       </div>
     </div>

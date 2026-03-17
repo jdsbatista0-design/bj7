@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 import logoBj7 from "@/assets/logo-bj7.png";
 import heroBillboard from "@/assets/hero-billboard.jpg";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const typeLabels: Record<string, string> = {
   painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight",
@@ -274,7 +275,16 @@ export default function PublicSite() {
       {/* ====== HERO ====== */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBillboard} alt="" className="w-full h-full object-cover" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={heroBillboard}
+            className="w-full h-full object-cover"
+          >
+            <source src={heroVideoAsset.url} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
         </div>
 

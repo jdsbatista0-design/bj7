@@ -1,27 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import { billboards, Billboard } from "@/data/mockData";
-import { Search, Filter, Plus, X } from "lucide-react";
+import { Search, X, Eye, MapPin, Car, Calendar, DollarSign, Layers } from "lucide-react";
 import "leaflet/dist/leaflet.css";
 
-// Custom colored markers
-function createIcon(status: Billboard["status"]) {
-  const colors = { available: "#3b82f6", occupied: "#ef4444", reserved: "#eab308" };
-  const color = colors[status];
-  return L.divIcon({
-    className: "",
-    html: `<div style="
-      width:32px;height:32px;border-radius:50%;background:${color};
-      display:flex;align-items:center;justify-content:center;
-      color:white;font-weight:700;font-size:11px;font-family:Inter;
-      border:2px solid rgba(255,255,255,0.3);
-      box-shadow:0 2px 8px ${color}88;
-    "></div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-  });
-}
+const typeLabels: Record<string, string> = {
+  painel_rodoviario: "Painel Rodoviário",
+  frontlight: "Frontlight",
+  backlight: "Backlight",
+  painel_sight: "Painel Sight",
+  painel_vip: "Painel VIP",
+};
+
+const seasonLabels = { alta: "Alta Temporada", media: "Média", baixa: "Baixa Temporada" };
 
 function createLabelIcon(code: string, status: Billboard["status"]) {
   const colors = { available: "#3b82f6", occupied: "#ef4444", reserved: "#eab308" };
@@ -30,7 +22,7 @@ function createLabelIcon(code: string, status: Billboard["status"]) {
     className: "",
     html: `<div style="
       padding:4px 10px;border-radius:8px;background:${color};
-      color:white;font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;
+      color:${status === 'reserved' ? '#000' : '#fff'};font-weight:700;font-size:12px;font-family:'Space Grotesk',sans-serif;
       white-space:nowrap;border:2px solid rgba(255,255,255,0.2);
       box-shadow:0 2px 12px ${color}66;
     ">${code}</div>`,
@@ -41,40 +33,88 @@ function createLabelIcon(code: string, status: Billboard["status"]) {
 
 function BillboardDetail({ billboard, onClose }: { billboard: Billboard; onClose: () => void }) {
   const statusLabels = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
-  const statusColors = { available: "text-primary", occupied: "text-destructive", reserved: "text-warning" };
+  const statusBadge = {
+    available: "badge-available",
+    occupied: "badge-occupied",
+    reserved: "badge-reserved",
+  };
 
   return (
-    <div className="absolute top-4 right-4 w-80 glass-panel p-5 z-[1000] animate-slide-up">
-      <div className="flex items-center justify-between mb-3">
-        <span className="font-display font-bold text-lg">#{billboard.code}</span>
-        <button onClick={onClose} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
+    <div className="absolute top-4 right-4 w-96 glass-panel z-[1000] animate-slide-up overflow-hidden">
+      {/* Header */}
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="font-display font-bold text-xl text-primary">#{billboard.code}</span>
+          <span className={statusBadge[billboard.status]}>{statusLabels[billboard.status]}</span>
+        </div>
+        <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+          <X className="w-5 h-5" />
+        </button>
       </div>
-      <div className={`text-xs font-semibold mb-3 ${statusColors[billboard.status]}`}>
-        ● {statusLabels[billboard.status]}
+
+      <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+        {/* Location */}
+        <div>
+          <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Localização</h4>
+          <div className="space-y-1 text-sm">
+            <Row label="Endereço" value={billboard.address} />
+            <Row label="Rodovia" value={billboard.route} />
+            <Row label="Cidade" value={`${billboard.city} - ${billboard.region}`} />
+            <Row label="Sentido" value={billboard.direction} />
+            <Row label="Coordenadas" value={`${billboard.lat}, ${billboard.lng}`} />
+          </div>
+        </div>
+
+        {/* Technical */}
+        <div>
+          <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2">Dados Técnicos</h4>
+          <div className="space-y-1 text-sm">
+            <Row label="Tipo" value={typeLabels[billboard.type] || billboard.type} />
+            <Row label="Dimensão" value={billboard.dimension} />
+            <Row label="Área" value={`${billboard.area} m²`} />
+            <Row label="Formatos" value={billboard.formats.join(", ")} />
+          </div>
+        </div>
+
+        {/* Audience */}
+        <div>
+          <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+            <Car className="w-3 h-3" /> Audiência
+          </h4>
+          <div className="space-y-1 text-sm">
+            <Row label="Fluxo estimado" value={`${billboard.estimatedFlow.toLocaleString()} veíc/dia`} highlight />
+            <Row label="Impactos/mês" value={`${(billboard.estimatedFlow * 30).toLocaleString()}`} highlight />
+            <Row label="Perfil" value={billboard.audienceProfile} />
+            <Row label="Sazonalidade" value={seasonLabels[billboard.seasonality]} />
+            <Row label="Tipo de tráfego" value={billboard.trafficType} />
+          </div>
+        </div>
+
+        {/* Commercial */}
+        <div>
+          <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+            <DollarSign className="w-3 h-3" /> Comercial
+          </h4>
+          <div className="space-y-1 text-sm">
+            <Row label="Veiculação mensal" value={`R$ ${billboard.price.toLocaleString()}`} highlight />
+            <Row label="Produção (lona)" value={`R$ ${billboard.productionCost.toLocaleString()}`} />
+            <Row label="Custo terreno" value={`R$ ${billboard.cost.toLocaleString()}/mês`} />
+            <Row label="Margem" value={`R$ ${(billboard.price - billboard.cost).toLocaleString()}/mês`} highlight />
+            <Row label="Proprietário" value={billboard.landOwner} />
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground pt-2 border-t border-border">{billboard.description}</p>
       </div>
-      <div className="space-y-2 text-sm">
-        <Row label="Endereço" value={billboard.address} />
-        <Row label="Cidade" value={`${billboard.city} - ${billboard.region}`} />
-        <Row label="Tipo" value={billboard.type} />
-        <Row label="Dimensão" value={billboard.dimension} />
-        <Row label="Sentido" value={billboard.direction} />
-        <Row label="Fluxo Est." value={`${billboard.estimatedFlow.toLocaleString()} veíc/dia`} />
-        <Row label="Proprietário" value={billboard.landOwner} />
-        <div className="border-t border-border pt-2 mt-2" />
-        <Row label="Custo" value={`R$ ${billboard.cost.toLocaleString()}`} />
-        <Row label="Preço" value={`R$ ${billboard.price.toLocaleString()}`} highlight />
-        <Row label="Margem" value={`R$ ${(billboard.price - billboard.cost).toLocaleString()}`} highlight />
-      </div>
-      <p className="text-xs text-muted-foreground mt-3">{billboard.description}</p>
     </div>
   );
 }
 
 function Row({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-muted-foreground">{label}</span>
-      <span className={highlight ? "font-semibold text-accent" : ""}>{value}</span>
+    <div className="flex justify-between gap-2">
+      <span className="text-muted-foreground whitespace-nowrap">{label}</span>
+      <span className={`text-right ${highlight ? "font-semibold text-primary" : ""}`}>{value}</span>
     </div>
   );
 }
@@ -83,27 +123,41 @@ export default function Inventory() {
   const [selected, setSelected] = useState<Billboard | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [routeFilter, setRouteFilter] = useState<string>("all");
+
+  const routes = [...new Set(billboards.map(b => b.route))];
 
   const filtered = billboards.filter(b => {
     const matchSearch = b.code.includes(search) || b.city.toLowerCase().includes(search.toLowerCase()) || b.address.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter === "all" || b.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchRoute = routeFilter === "all" || b.route === routeFilter;
+    return matchSearch && matchStatus && matchRoute;
   });
 
   return (
     <div className="h-screen flex flex-col relative">
       {/* Toolbar */}
-      <div className="p-4 flex items-center gap-3 border-b border-border bg-card/50 backdrop-blur-sm z-10">
-        <h1 className="font-display font-bold text-lg mr-4">Inventário</h1>
-        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-1 max-w-xs">
+      <div className="p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-10 flex-wrap">
+        <h1 className="font-display font-bold text-lg mr-2">Inventário</h1>
+        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-1 max-w-[200px]">
           <Search className="w-4 h-4 text-muted-foreground" />
           <input
             className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground"
-            placeholder="Buscar código, cidade..."
+            placeholder="Código, cidade..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
+        
+        <select
+          className="bg-muted text-sm px-3 py-1.5 rounded-lg text-foreground outline-none"
+          value={routeFilter}
+          onChange={e => setRouteFilter(e.target.value)}
+        >
+          <option value="all">Todas Rodovias</option>
+          {routes.map(r => <option key={r} value={r}>{r}</option>)}
+        </select>
+
         {["all", "available", "occupied", "reserved"].map(s => (
           <button
             key={s}
@@ -121,8 +175,8 @@ export default function Inventory() {
       {/* Map */}
       <div className="flex-1 relative">
         <MapContainer
-          center={[-23.55, -46.63]}
-          zoom={12}
+          center={[-25.85, -48.65]}
+          zoom={10}
           className="w-full h-full"
           zoomControl={true}
         >
@@ -145,15 +199,26 @@ export default function Inventory() {
         {/* Legend */}
         <div className="absolute bottom-4 left-4 glass-panel px-4 py-2.5 z-[1000] flex gap-4">
           {[
-            { label: "Disponível", color: "bg-primary" },
+            { label: "Disponível", color: "bg-info" },
             { label: "Ocupado", color: "bg-destructive" },
-            { label: "Reservado", color: "bg-warning" },
+            { label: "Reservado", color: "bg-primary" },
           ].map(l => (
             <div key={l.label} className="flex items-center gap-1.5 text-xs">
               <div className={`w-2.5 h-2.5 rounded-full ${l.color}`} />
               <span className="text-muted-foreground">{l.label}</span>
             </div>
           ))}
+        </div>
+
+        {/* Summary */}
+        <div className="absolute top-4 left-4 glass-panel px-4 py-3 z-[1000]">
+          <p className="font-display font-bold text-sm text-primary">BJ7 Mídia</p>
+          <p className="text-[11px] text-muted-foreground">Litoral do Paraná · {billboards.length} pontos estratégicos</p>
+          <div className="flex gap-3 mt-2 text-[11px]">
+            <span className="text-info">{billboards.filter(b => b.status === "available").length} disponíveis</span>
+            <span className="text-destructive">{billboards.filter(b => b.status === "occupied").length} ocupados</span>
+            <span className="text-primary">{billboards.filter(b => b.status === "reserved").length} reservados</span>
+          </div>
         </div>
       </div>
     </div>

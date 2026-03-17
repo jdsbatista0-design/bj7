@@ -8,7 +8,6 @@ import {
   FileText,
   Wrench,
   DollarSign,
-  Globe,
   Kanban,
   ChevronLeft,
   ChevronRight,
@@ -18,14 +17,13 @@ import {
 import { useState } from "react";
 
 const navItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/painel", label: "Dashboard", icon: LayoutDashboard },
   { path: "/inventory", label: "Inventário", icon: Map },
   { path: "/crm", label: "Comercial", icon: Kanban },
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/contracts", label: "Contratos", icon: FileText },
   { path: "/operations", label: "Operação", icon: Wrench },
   { path: "/financial", label: "Financeiro", icon: DollarSign },
-  { path: "/site", label: "Site Público", icon: Globe },
 ];
 
 export function AppSidebar() {

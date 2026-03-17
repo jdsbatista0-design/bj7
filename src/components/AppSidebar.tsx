@@ -41,17 +41,11 @@ export function AppSidebar() {
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-sidebar-border gap-3">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-          <span className="font-display font-bold text-primary-foreground text-sm">B7</span>
-        </div>
-        {!collapsed && (
-          <div className="min-w-0">
-            <span className="font-display font-bold text-foreground text-base tracking-tight block">
-              BJ7 Mídia
-            </span>
-            <span className="text-[10px] text-muted-foreground">Mídia Exterior</span>
-          </div>
+      <div className="h-16 flex items-center px-3 border-b border-sidebar-border gap-2">
+        {collapsed ? (
+          <img src={logoBj7Icon} alt="BJ7" className="w-10 h-10 rounded-lg object-contain" />
+        ) : (
+          <img src={logoBj7} alt="BJ7 Mídia" className="h-9 w-auto object-contain invert" />
         )}
       </div>
 

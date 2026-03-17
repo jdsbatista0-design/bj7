@@ -246,8 +246,11 @@ export default function Inventory() {
     return matchSearch && matchStatus && matchRoute;
   });
 
+  const [tempPin, setTempPin] = useState<{ lat: number; lng: number } | null>(null);
+
   const handleMapClick = (lat: number, lng: number) => {
     if (!addingByClick) return;
+    setTempPin({ lat, lng });
     setFormData({ ...emptyBillboard, lat, lng, code: String(Math.max(...billboards.map(b => parseInt(b.code) || 0), 0) + 1) });
     setMode("add");
     setAddingByClick(false);

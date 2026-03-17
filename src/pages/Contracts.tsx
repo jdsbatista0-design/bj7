@@ -1,4 +1,6 @@
 import { useData, Contract } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { FileText, Plus, Trash2, Edit, X, Download } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -72,6 +74,7 @@ function generateContractText(contract: Contract): string {
 }
 
 export default function Contracts() {
+  const { can } = usePermissions();
   const { contracts, clients, billboards, addContract, updateContract, deleteContract } = useData();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);
@@ -87,6 +90,7 @@ export default function Contracts() {
   };
 
   const handleDelete = async (c: Contract) => {
+    if (!can("contratos", "can_delete")) { toast.error("Sem permissão para excluir contratos"); return; }
     if (confirm(`Excluir contrato de ${c.client_name}?`)) { await deleteContract(c.id); toast.success("Contrato excluído"); }
   };
 
@@ -98,11 +102,16 @@ export default function Contracts() {
     URL.revokeObjectURL(url); toast.success("Contrato baixado");
   };
 
+  const block = <PermissionPageBlock module="contratos" label="Contratos" />;
+  if (!can("contratos", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-display font-bold">Contratos</h1><p className="text-muted-foreground text-sm mt-1">Gestão de contratos</p></div>
-        <Button onClick={() => { setEditingContract({ ...emptyContract }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        <PermissionGate module="contratos" action="can_create" hide>
+          <Button onClick={() => { setEditingContract({ ...emptyContract }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Novo Contrato</Button>
+        </PermissionGate>
       </div>
       <div className="flex items-center gap-3">
         {["all", "veiculacao", "locacao_terreno"].map(t => (
@@ -126,8 +135,12 @@ export default function Contracts() {
                 <div className="flex items-center gap-1">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${statusStyles[c.status]}`}>{statusLabels[c.status]}</span>
                   <button onClick={() => handleDownload(c)} className="text-muted-foreground hover:text-primary p-1" title="Baixar contrato"><Download className="w-4 h-4" /></button>
-                  <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="contratos" action="can_edit" hide>
+                    <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="contratos" action="can_delete" hide>
+                    <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-4">

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useData, Lead } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -57,6 +59,7 @@ function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id
 }
 
 export default function CRM() {
+  const { can } = usePermissions();
   const { leads, billboards, addLead, updateLead, deleteLead, moveLeadStage } = useData();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [formOpen, setFormOpen] = useState(false);
@@ -84,12 +87,16 @@ export default function CRM() {
   };
 
   const handleDeleteLead = async (id: string) => {
+    if (!can("comercial", "can_delete")) { toast.error("Sem permissão para excluir leads"); return; }
     if (confirm("Excluir este lead?")) {
       await deleteLead(id);
       setSelectedLead(null);
       toast.success("Lead excluído");
     }
   };
+
+  const block = <PermissionPageBlock module="comercial" label="o CRM" />;
+  if (!can("comercial", "can_view")) return block;
 
   return (
     <div className="h-screen flex flex-col">
@@ -100,9 +107,11 @@ export default function CRM() {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">{leads.length} leads</span>
-          <Button size="sm" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
-            <Plus className="w-4 h-4" /> Novo Lead
-          </Button>
+          <PermissionGate module="comercial" action="can_create" hide>
+            <Button size="sm" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
+              <Plus className="w-4 h-4" /> Novo Lead
+            </Button>
+          </PermissionGate>
         </div>
       </div>
 

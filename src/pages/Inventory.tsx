@@ -2,6 +2,8 @@ import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useData, Billboard } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Search, X, Plus, Trash2, Edit, Car, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -154,8 +156,12 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
           <span className={statusBadge[billboard.status]}>{statusLabels[billboard.status]}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={onEdit} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-          <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+          <PermissionGate module="inventario" action="can_edit" hide>
+            <button onClick={onEdit} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+          </PermissionGate>
+          <PermissionGate module="inventario" action="can_delete" hide>
+            <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+          </PermissionGate>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
         </div>
       </div>
@@ -214,6 +220,7 @@ function Row({ label, value, highlight }: { label: string; value: string; highli
 }
 
 export default function Inventory() {
+  const { can } = usePermissions();
   const { billboards, addBillboard, updateBillboard, deleteBillboard } = useData();
   const [selected, setSelected] = useState<Billboard | null>(null);
   const [search, setSearch] = useState("");
@@ -252,6 +259,7 @@ export default function Inventory() {
   };
 
   const handleDelete = async () => {
+    if (!can("inventario", "can_delete")) { toast.error("Você não tem permissão para excluir pontos"); return; }
     if (selected && confirm(`Excluir ponto #${selected.code}?`)) {
       await deleteBillboard(selected.id);
       setSelected(null);
@@ -261,6 +269,7 @@ export default function Inventory() {
 
   return (
     <div className="h-screen flex flex-col relative">
+      <PermissionPageBlock module="inventario" label="o Inventário" />
       <div className="p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-10 flex-wrap">
         <h1 className="font-display font-bold text-lg mr-2">Inventário</h1>
         <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-1 max-w-[200px]">
@@ -278,11 +287,13 @@ export default function Inventory() {
         ))}
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-muted-foreground">{filtered.length} pontos</span>
-          <Button size="sm" variant={addingByClick ? "destructive" : "default"} onClick={() => {
-            if (addingByClick) { setAddingByClick(false); } else { setAddingByClick(true); toast.info("Clique no mapa para posicionar o novo ponto"); }
-          }}>
-            {addingByClick ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Novo Ponto</>}
-          </Button>
+          {can("inventario", "can_create") && (
+            <Button size="sm" variant={addingByClick ? "destructive" : "default"} onClick={() => {
+              if (addingByClick) { setAddingByClick(false); } else { setAddingByClick(true); toast.info("Clique no mapa para posicionar o novo ponto"); }
+            }}>
+              {addingByClick ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Novo Ponto</>}
+            </Button>
+          )}
         </div>
       </div>
 

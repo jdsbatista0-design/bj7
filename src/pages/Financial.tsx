@@ -1,8 +1,11 @@
 import { useData } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionPageBlock } from "@/components/PermissionGate";
 import { DollarSign, TrendingUp, TrendingDown, Percent, MapPin } from "lucide-react";
 import { useMemo } from "react";
 
 export default function Financial() {
+  const { can } = usePermissions();
   const { billboards, contracts } = useData();
 
   const { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData } = useMemo(() => {
@@ -23,6 +26,9 @@ export default function Financial() {
 
     return { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData };
   }, [billboards, contracts]);
+
+  const block = <PermissionPageBlock module="financeiro" label="o Financeiro" />;
+  if (!can("financeiro", "can_view")) return block;
 
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">

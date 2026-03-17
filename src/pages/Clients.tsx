@@ -1,4 +1,6 @@
 import { useData, Client } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Users, Building2, Phone, Mail, MapPin, FileText, Search, Plus, Edit, Trash2, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -46,6 +48,7 @@ function ClientForm({ initial, onSave, onCancel, title }: {
 }
 
 export default function Clients() {
+  const { can } = usePermissions();
   const { clients, contracts, billboards, addClient, updateClient, deleteClient } = useData();
   const [tab, setTab] = useState<"advertiser" | "landowner">("advertiser");
   const [search, setSearch] = useState("");
@@ -71,19 +74,25 @@ export default function Clients() {
   };
 
   const handleDelete = async (c: Client) => {
+    if (!can("clientes", "can_delete")) { toast.error("Sem permissão para excluir"); return; }
     if (confirm(`Excluir ${c.name}?`)) {
       await deleteClient(c.id);
       toast.success("Cliente excluído");
     }
   };
 
+  const block = <PermissionPageBlock module="clientes" label="Clientes" />;
+  if (!can("clientes", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-display font-bold">Relacionamento</h1><p className="text-muted-foreground text-sm mt-1">Gestão de anunciantes e proprietários</p></div>
-        <Button onClick={() => { setEditingClient(emptyClient(tab)); setFormOpen(true); }}>
-          <Plus className="w-4 h-4" /> Novo {tab === "advertiser" ? "Anunciante" : "Proprietário"}
-        </Button>
+        <PermissionGate module="clientes" action="can_create" hide>
+          <Button onClick={() => { setEditingClient(emptyClient(tab)); setFormOpen(true); }}>
+            <Plus className="w-4 h-4" /> Novo {tab === "advertiser" ? "Anunciante" : "Proprietário"}
+          </Button>
+        </PermissionGate>
       </div>
       <div className="flex items-center gap-4">
         <div className="flex bg-muted rounded-lg p-1">
@@ -108,8 +117,12 @@ export default function Clients() {
                 <div className="flex gap-2 items-center">
                   {clientContracts.length > 0 && <span className="text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full flex items-center gap-1"><FileText className="w-3 h-3" /> {clientContracts.length}</span>}
                   {clientBillboards.length > 0 && <span className="text-xs bg-info/10 text-info px-2.5 py-1 rounded-full flex items-center gap-1"><MapPin className="w-3 h-3" /> {clientBillboards.length}</span>}
-                  <button onClick={() => { setEditingClient({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="clientes" action="can_edit" hide>
+                    <button onClick={() => { setEditingClient({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="clientes" action="can_delete" hide>
+                    <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="flex flex-wrap gap-4 mt-3 text-xs text-muted-foreground">

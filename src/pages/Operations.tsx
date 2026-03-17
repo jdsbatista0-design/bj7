@@ -1,4 +1,6 @@
 import { useData, WorkOrder } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Wrench, Clock, CheckCircle2, AlertTriangle, Play, Plus, X, Trash2, Edit } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -59,6 +61,7 @@ function WorkOrderForm({ initial, billboards, onSave, onCancel }: {
 }
 
 export default function Operations() {
+  const { can } = usePermissions();
   const { workOrders, billboards, addWorkOrder, updateWorkOrder, deleteWorkOrder } = useData();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);
@@ -75,6 +78,7 @@ export default function Operations() {
   };
 
   const handleDelete = async (os: WorkOrder) => {
+    if (!can("operacao", "can_delete")) { toast.error("Sem permissão para excluir OS"); return; }
     if (confirm("Excluir esta OS?")) { await deleteWorkOrder(os.id); toast.success("OS excluída"); }
   };
 
@@ -85,11 +89,16 @@ export default function Operations() {
     await updateWorkOrder(osId, { checklist: newChecklist });
   };
 
+  const block = <PermissionPageBlock module="operacao" label="Operação" />;
+  if (!can("operacao", "can_view")) return block;
+
   return (
     <div className="p-6 space-y-6 max-w-[1200px]">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-display font-bold">Operação</h1><p className="text-muted-foreground text-sm mt-1">Ordens de serviço e SLA</p></div>
-        <Button onClick={() => { setEditingOS({ ...emptyWorkOrder }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Nova OS</Button>
+        <PermissionGate module="operacao" action="can_create" hide>
+          <Button onClick={() => { setEditingOS({ ...emptyWorkOrder }); setFormOpen(true); }}><Plus className="w-4 h-4" /> Nova OS</Button>
+        </PermissionGate>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Object.entries(statusConfig).map(([key, cfg]) => {
@@ -119,8 +128,12 @@ export default function Operations() {
                 </div>
                 <div className="flex items-center gap-1">
                   <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${cfg.style}`}><StatusIcon className="w-3 h-3" />{cfg.label}</span>
-                  <button onClick={() => { setEditingOS({ ...os }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  <button onClick={() => handleDelete(os)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  <PermissionGate module="operacao" action="can_edit" hide>
+                    <button onClick={() => { setEditingOS({ ...os }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                  </PermissionGate>
+                  <PermissionGate module="operacao" action="can_delete" hide>
+                    <button onClick={() => handleDelete(os)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                  </PermissionGate>
                 </div>
               </div>
               <div className="mt-3">

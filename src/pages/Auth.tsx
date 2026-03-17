@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { LogIn, Eye, EyeOff, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoBj7 from "@/assets/logo-bj7.png";
 
 export default function Auth() {
   const { signIn } = useAuth();

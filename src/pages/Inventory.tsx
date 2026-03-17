@@ -156,8 +156,12 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
           <span className={statusBadge[billboard.status]}>{statusLabels[billboard.status]}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={onEdit} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-          <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+          <PermissionGate module="inventario" action="can_edit" hide>
+            <button onClick={onEdit} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+          </PermissionGate>
+          <PermissionGate module="inventario" action="can_delete" hide>
+            <button onClick={onDelete} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+          </PermissionGate>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>
         </div>
       </div>

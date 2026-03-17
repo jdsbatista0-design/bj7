@@ -76,6 +76,16 @@ export function AppSidebar() {
         })}
       </nav>
 
+      {/* User + Logout */}
+      <div className="border-t border-sidebar-border p-2 space-y-1">
+        {!collapsed && user && (
+          <p className="text-[10px] text-muted-foreground truncate px-2">{user.email}</p>
+        )}
+        <button onClick={signOut} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full">
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          {!collapsed && <span>Sair</span>}
+        </button>
+      </div>
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}

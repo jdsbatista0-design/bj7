@@ -202,5 +202,3 @@ export default function CRM() {
   );
 }
 
-// Small edit icon import
-import { Edit } from "lucide-react";

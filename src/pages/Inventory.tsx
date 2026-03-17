@@ -267,6 +267,7 @@ export default function Inventory() {
     }
     setMode("view");
     setFormData(null);
+    setTempPin(null);
   };
 
   const handleDelete = async () => {

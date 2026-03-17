@@ -90,6 +90,7 @@ export default function Contracts() {
   };
 
   const handleDelete = async (c: Contract) => {
+    if (!can("contratos", "can_delete")) { toast.error("Sem permissão para excluir contratos"); return; }
     if (confirm(`Excluir contrato de ${c.client_name}?`)) { await deleteContract(c.id); toast.success("Contrato excluído"); }
   };
 

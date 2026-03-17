@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: string | null
+          id: string
+          user_email: string
+          user_id: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_email?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          user_email?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       billboards: {
         Row: {
           address: string | null

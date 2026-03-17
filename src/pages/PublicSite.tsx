@@ -342,10 +342,10 @@ export default function PublicSite() {
           <div className="text-center mb-14">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Por que a BJ7?</span>
             <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
-              Rede estratégica de <span className="text-primary">mídia exterior</span> no litoral do Paraná
+              A rede que <span className="text-primary">conecta</span> sua marca ao litoral
             </h2>
-            <p className="text-muted-foreground mt-4 max-w-3xl mx-auto text-lg">
-              10 pontos estratégicos distribuídos em 3 corredores rodoviários — PR-412, PR-508 e BR-277 — cobrindo todos os acessos ao litoral paranaense. De Garuva a Paranaguá, sua marca presente onde o público realmente trafega.
+            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
+              Presença estratégica nas principais rodovias de acesso ao litoral paranaense, com painéis de alto impacto e visibilidade.
             </p>
           </div>
 

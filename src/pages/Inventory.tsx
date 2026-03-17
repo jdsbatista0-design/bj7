@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { useState, useEffect, useRef } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useData, Billboard } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
-import { Search, X, Plus, Trash2, Edit, Car, DollarSign } from "lucide-react";
+import { Search, X, Plus, Trash2, Edit, Car, DollarSign, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
@@ -32,6 +32,14 @@ const emptyBillboard: Partial<Billboard> = {
   land_owner: "", land_owner_id: null, cost: 0, price: 0, production_cost: 0,
   status: "available", photos: [], description: "", formats: ["Lona impressa"],
 };
+
+// Red pin icon for new point placement
+const newPinIcon = L.divIcon({
+  className: "",
+  html: `<div style="display:flex;flex-direction:column;align-items:center;"><div style="width:24px;height:24px;border-radius:50% 50% 50% 0;background:#EAB308;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.4);"></div><div style="width:2px;height:8px;background:rgba(0,0,0,0.3);margin-top:2px;border-radius:1px;"></div></div>`,
+  iconSize: [24, 36],
+  iconAnchor: [12, 36],
+});
 
 function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number) => void }) {
   useMapEvents({ click: (e) => onMapClick(e.latlng.lat, e.latlng.lng) });
@@ -238,8 +246,11 @@ export default function Inventory() {
     return matchSearch && matchStatus && matchRoute;
   });
 
+  const [tempPin, setTempPin] = useState<{ lat: number; lng: number } | null>(null);
+
   const handleMapClick = (lat: number, lng: number) => {
     if (!addingByClick) return;
+    setTempPin({ lat, lng });
     setFormData({ ...emptyBillboard, lat, lng, code: String(Math.max(...billboards.map(b => parseInt(b.code) || 0), 0) + 1) });
     setMode("add");
     setAddingByClick(false);
@@ -256,6 +267,7 @@ export default function Inventory() {
     }
     setMode("view");
     setFormData(null);
+    setTempPin(null);
   };
 
   const handleDelete = async () => {
@@ -299,12 +311,29 @@ export default function Inventory() {
 
       <div className="flex-1 relative">
         <MapContainer center={[-25.85, -48.65]} zoom={10} className="w-full h-full" zoomControl={true}>
-          <TileLayer attribution='&copy; <a href="https://carto.com/">CARTO</a>' url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
+          <TileLayer
+            attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          />
+          <TileLayer
+            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+          />
           <MapClickHandler onMapClick={handleMapClick} />
           {filtered.map(b => (
             <Marker key={b.id} position={[b.lat, b.lng]} icon={createLabelIcon(b.code, b.status)} eventHandlers={{ click: () => { if (!addingByClick) { setSelected(b); setMode("view"); } } }} />
           ))}
+          {/* Temporary pin for new point placement */}
+          {tempPin && (
+            <Marker position={[tempPin.lat, tempPin.lng]} icon={newPinIcon} />
+          )}
         </MapContainer>
+
+        {/* Adding mode cursor hint */}
+        {addingByClick && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-semibold animate-pulse">
+            <MapPin className="w-4 h-4" /> Clique no mapa para posicionar o ponto
+          </div>
+        )}
 
         {mode === "view" && selected && (
           <BillboardDetail billboard={selected} onClose={() => setSelected(null)}
@@ -318,7 +347,7 @@ export default function Inventory() {
             initial={formData}
             title={mode === "add" ? "Novo Ponto" : `Editar #${formData.code}`}
             onSave={handleSave}
-            onCancel={() => { setMode("view"); setFormData(null); }}
+            onCancel={() => { setMode("view"); setFormData(null); setTempPin(null); }}
           />
         )}
       </div>

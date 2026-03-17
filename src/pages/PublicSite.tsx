@@ -73,6 +73,7 @@ function PublicNav() {
           <a href="#catalog" onClick={() => setOpen(false)} className="block text-sm text-muted-foreground py-2">Pontos</a>
           <a href="#landowner" onClick={() => setOpen(false)} className="block text-sm text-muted-foreground py-2">Proprietários</a>
           <a href="#contact" onClick={() => setOpen(false)} className="block text-sm bg-primary text-primary-foreground px-4 py-2.5 rounded-lg text-center font-semibold">Solicitar Proposta</a>
+          <a href="/login" onClick={() => setOpen(false)} className="block text-xs text-muted-foreground/50 py-2 text-center">Acesso Interno</a>
         </div>
       )}
     </nav>

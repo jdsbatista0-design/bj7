@@ -74,6 +74,7 @@ function generateContractText(contract: Contract): string {
 }
 
 export default function Contracts() {
+  const { can } = usePermissions();
   const { contracts, clients, billboards, addContract, updateContract, deleteContract } = useData();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);

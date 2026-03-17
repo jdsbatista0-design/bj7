@@ -73,6 +73,7 @@ export default function Clients() {
   };
 
   const handleDelete = async (c: Client) => {
+    if (!can("clientes", "can_delete")) { toast.error("Sem permissão para excluir"); return; }
     if (confirm(`Excluir ${c.name}?`)) {
       await deleteClient(c.id);
       toast.success("Cliente excluído");

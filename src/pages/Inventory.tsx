@@ -2,6 +2,8 @@ import { useState } from "react";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { useData, Billboard } from "@/contexts/DataContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { Search, X, Plus, Trash2, Edit, Car, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 import logoBj7 from "@/assets/logo-bj7.png";
 import heroBillboard from "@/assets/hero-billboard.jpg";
+import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const typeLabels: Record<string, string> = {
   painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight",

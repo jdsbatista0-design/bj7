@@ -275,7 +275,16 @@ export default function PublicSite() {
       {/* ====== HERO ====== */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroBillboard} alt="" className="w-full h-full object-cover" />
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={heroBillboard}
+            className="w-full h-full object-cover"
+          >
+            <source src={heroVideoAsset.url} type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
         </div>
 

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import {
-  Search, MapPin, ArrowRight, Menu, X, Phone, Mail, Car, Ruler, Eye,
+  Search, MapPin, ArrowRight, Menu, X, Phone, Car, Ruler, Eye,
   Building2, User, Shield, Award, TrendingUp, Navigation, ExternalLink,
   ChevronRight, Maximize2, ChevronLeft, Target, DollarSign, Calendar,
 } from "lucide-react";
@@ -76,183 +76,218 @@ function PublicNav() {
   );
 }
 
-/* ====== BILLBOARD CARD WITH PHOTOS + MAP ====== */
-function BillboardCard({ billboard, onContact }: { billboard: Billboard; onContact: () => void }) {
+/* ====== BILLBOARD POPUP MODAL ====== */
+function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose: () => void }) {
   const [activePhoto, setActivePhoto] = useState(0);
-  const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
-  const statusStyle: Record<string, string> = {
-    available: "bg-primary text-primary-foreground",
-    occupied: "bg-destructive text-destructive-foreground",
-    reserved: "bg-muted text-muted-foreground",
-  };
-  const monthlyImpacts = billboard.estimated_flow * 30;
   const hasPhotos = billboard.photos && billboard.photos.length > 0;
+  const monthlyImpacts = billboard.estimated_flow * 30;
 
   return (
-    <div id={`billboard-${billboard.id}`} className="rounded-2xl border border-border bg-card overflow-hidden">
-      {/* Top section: Photos + Map side by side */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-        {/* Left: Photo carousel or Street View fallback */}
-        <div className="relative aspect-[16/10] bg-muted">
-          {hasPhotos ? (
-            <>
-              <img
-                src={billboard.photos[activePhoto]}
-                alt={`Ponto #${billboard.code}`}
-                className="w-full h-full object-cover"
-              />
-              {billboard.photos.length > 1 && (
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                  {billboard.photos.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setActivePhoto(i)}
-                      className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activePhoto ? 'bg-primary' : 'bg-white/50'}`}
-                    />
-                  ))}
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+      <div
+        className="relative bg-card border border-border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button onClick={onClose} className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors">
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Top: Photo + Map side by side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+          {/* Photo */}
+          <div className="relative aspect-[16/10] bg-muted">
+            {hasPhotos ? (
+              <>
+                <img src={billboard.photos[activePhoto]} alt={`Ponto #${billboard.code}`} className="w-full h-full object-cover" />
+                {billboard.photos.length > 1 && (
+                  <>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {billboard.photos.map((_, i) => (
+                        <button key={i} onClick={() => setActivePhoto(i)}
+                          className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activePhoto ? 'bg-primary' : 'bg-white/50'}`} />
+                      ))}
+                    </div>
+                    <button onClick={() => setActivePhoto(p => p > 0 ? p - 1 : billboard.photos.length - 1)}
+                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90">
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => setActivePhoto(p => p < billboard.photos.length - 1 ? p + 1 : 0)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90">
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </>
+                )}
+                <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-semibold">
+                  {activePhoto + 1}/{billboard.photos.length}
                 </div>
-              )}
-              {billboard.photos.length > 1 && (
-                <>
-                  <button onClick={() => setActivePhoto(p => p > 0 ? p - 1 : billboard.photos.length - 1)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90 transition-colors">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button onClick={() => setActivePhoto(p => p < billboard.photos.length - 1 ? p + 1 : 0)}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90 transition-colors">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </>
-              )}
-            </>
-          ) : (
-            <iframe
-              src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
-              className="w-full h-full border-0"
-              loading="lazy"
-              title={`Street View #${billboard.code}`}
-            />
-          )}
-          {/* Status badge */}
-          <div className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
-            {statusLabel[billboard.status]}
+              </>
+            ) : (
+              <iframe
+                src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
+                className="w-full h-full border-0" loading="lazy" title={`Street View #${billboard.code}`}
+              />
+            )}
           </div>
-          {/* Photo count */}
-          {hasPhotos && (
-            <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-semibold">
-              {activePhoto + 1}/{billboard.photos.length}
+
+          {/* Map */}
+          <div className="relative aspect-[16/10] hidden md:block">
+            <MapContainer center={[billboard.lat, billboard.lng]} zoom={14} className="w-full h-full"
+              scrollWheelZoom={false} zoomControl={false} dragging={false}>
+              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
+              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}>
+                <Popup>#{billboard.code}</Popup>
+              </Marker>
+            </MapContainer>
+            <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
+              <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+                className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1">
+                <ExternalLink className="w-3 h-3" /> Google Maps
+              </a>
+              <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+                className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1">
+                <Eye className="w-3 h-3" /> Street View
+              </a>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Right: Mini map */}
-        <div className="relative aspect-[16/10] hidden md:block">
-          <MapContainer
-            center={[billboard.lat, billboard.lng]}
-            zoom={14}
-            className="w-full h-full"
-            scrollWheelZoom={false}
-            zoomControl={false}
-            dragging={false}
-          >
-            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
-            <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}>
-              <Popup>#{billboard.code}</Popup>
-            </Marker>
-          </MapContainer>
-          {/* Map action buttons */}
-          <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
-            <a
-              href={getGoogleMapsUrl(billboard.lat, billboard.lng)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity flex items-center gap-1"
-            >
-              <ExternalLink className="w-3 h-3" /> Google Maps
+        {/* Data panel */}
+        <div className="p-5 md:p-6">
+          <h3 className="font-display font-black text-xl md:text-2xl text-foreground uppercase tracking-wide">
+            #{billboard.code} · {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            <span className="text-primary font-semibold">{billboard.city}</span>{" "}
+            · {billboard.route}{billboard.address && `, ${billboard.address}`}
+            {billboard.direction && <> · sentido {billboard.direction}</>}
+          </p>
+
+          {billboard.description && (
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed bg-muted/50 rounded-lg p-3 border border-border/50">
+              {billboard.description}
+            </p>
+          )}
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-5 border-t border-border/50">
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span>
+              <span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Fluxo diário</span>
+              <span className="text-sm font-bold text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span>
+              <span className="text-sm font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</span>
+            </div>
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span>
+              <span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span>
+            </div>
+            {billboard.production_cost > 0 && (
+              <div>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Produção (lona)</span>
+                <span className="text-sm font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile map links */}
+          <div className="flex gap-2 mt-4 md:hidden">
+            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+              className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
+              <MapPin className="w-3 h-3" /> Ver no Mapa
             </a>
-            <a
-              href={getStreetViewUrl(billboard.lat, billboard.lng)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary transition-colors flex items-center gap-1"
-            >
+            <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+              className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
               <Eye className="w-3 h-3" /> Street View
             </a>
           </div>
-        </div>
-      </div>
-
-      {/* Bottom: Data panel */}
-      <div className="p-5 md:p-6">
-        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-          {/* Left: Title + location */}
-          <div className="flex-1">
-            <h3 className="font-display font-black text-lg md:text-xl text-foreground uppercase tracking-wide">
-              #{billboard.code} · {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
-            </h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              <span className="text-primary font-semibold">{billboard.city}</span>{" "}
-              · {billboard.route}{billboard.address && `, ${billboard.address}`}
-              {billboard.direction && <> · sentido {billboard.direction}</>}
-            </p>
-          </div>
-
-          {/* Right: CTA */}
-          <button
-            onClick={onContact}
-            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 whitespace-nowrap"
-          >
-            Solicitar Proposta
-          </button>
-        </div>
-
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-5 border-t border-border/50">
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span>
-            <span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Fluxo diário</span>
-            <span className="text-sm font-bold text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</span>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span>
-            <span className="text-sm font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</span>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span>
-            <span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span>
-          </div>
-          {billboard.production_cost > 0 && (
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Produção (lona)</span>
-              <span className="text-sm font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile map link */}
-        <div className="flex gap-2 mt-4 md:hidden">
-          <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-            className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
-            <MapPin className="w-3 h-3" /> Ver no Mapa
-          </a>
-          <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-            className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
-            <Eye className="w-3 h-3" /> Street View
-          </a>
         </div>
       </div>
     </div>
   );
 }
 
-function Detail({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+/* ====== BILLBOARD CARD (compact — photo + description, click to open modal) ====== */
+function BillboardCard({ billboard, onOpen }: { billboard: Billboard; onOpen: () => void }) {
+  const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
+  const statusStyle: Record<string, string> = {
+    available: "bg-primary text-primary-foreground",
+    occupied: "bg-destructive text-destructive-foreground",
+    reserved: "bg-muted text-muted-foreground",
+  };
+  const hasPhotos = billboard.photos && billboard.photos.length > 0;
+  const thumbSrc = hasPhotos
+    ? billboard.photos[0]
+    : `https://maps.googleapis.com/maps/api/streetview?size=400x300&location=${billboard.lat},${billboard.lng}&key=none`;
+
   return (
-    <div>
-      <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? "text-primary" : "text-foreground"}`}>{value}</span>
+    <div
+      onClick={onOpen}
+      className="group rounded-xl border border-border bg-card overflow-hidden cursor-pointer hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+    >
+      {/* Photo thumbnail */}
+      <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+        {hasPhotos ? (
+          <img src={billboard.photos[0]} alt={`Ponto #${billboard.code}`}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <div className="text-center">
+              <MapPin className="w-8 h-8 text-muted-foreground/40 mx-auto mb-1" />
+              <span className="text-xs text-muted-foreground/60">Sem foto</span>
+            </div>
+          </div>
+        )}
+        {/* Status badge */}
+        <div className={`absolute top-2 left-2 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
+          {statusLabel[billboard.status]}
+        </div>
+        {/* Photo count */}
+        {hasPhotos && billboard.photos.length > 1 && (
+          <div className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-semibold">
+            {billboard.photos.length} fotos
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display font-bold text-sm text-foreground uppercase tracking-wide truncate">
+              #{billboard.code} · {typeLabels[billboard.type] || billboard.type}
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">
+              {billboard.city} · {billboard.route}
+            </p>
+          </div>
+          {billboard.price > 0 && (
+            <span className="text-sm font-display font-black text-primary whitespace-nowrap">
+              R$ {billboard.price.toLocaleString()}
+              <span className="text-[10px] font-normal text-muted-foreground">/mês</span>
+            </span>
+          )}
+        </div>
+
+        {billboard.description && (
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+            {billboard.description}
+          </p>
+        )}
+
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider">
+          <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> {billboard.dimension}</span>
+          <span className="flex items-center gap-1"><Car className="w-3 h-3" /> {billboard.estimated_flow.toLocaleString()}/dia</span>
+          <span className="ml-auto text-primary font-semibold flex items-center gap-1">
+            Ver detalhes <ChevronRight className="w-3 h-3" />
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -264,9 +299,8 @@ export default function PublicSite() {
   const [routeFilter, setRouteFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [formType, setFormType] = useState<"advertiser" | "landowner">("advertiser");
-  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+  const [selectedBillboard, setSelectedBillboard] = useState<Billboard | null>(null);
 
-  // Fetch billboards directly (public RLS policy allows anon SELECT on available)
   useEffect(() => {
     const fetchBillboards = async () => {
       const { data } = await supabase.from("billboards").select("*").order("code");
@@ -288,12 +322,9 @@ export default function PublicSite() {
     };
     fetchBillboards();
 
-    // Realtime subscription for live updates
     const channel = supabase
       .channel('public-billboards')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => {
-        fetchBillboards();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => fetchBillboards())
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
@@ -322,7 +353,7 @@ export default function PublicSite() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     if (formType === "advertiser") {
-      await supabase.from("leads").insert({
+      const { error } = await supabase.from("leads").insert({
         company: formData.get("company") as string,
         contact: formData.get("contact") as string,
         phone: formData.get("phone") as string,
@@ -331,6 +362,17 @@ export default function PublicSite() {
         stage: "lead",
         origin: "site",
       } as any);
+      if (error) { toast.error("Erro ao enviar. Tente novamente."); return; }
+    } else {
+      // Landowner form — save as client type landowner
+      const { error } = await supabase.from("clients").insert({
+        name: formData.get("owner_name") as string,
+        phone: formData.get("owner_phone") as string,
+        email: (formData.get("owner_email") as string) || "",
+        type: "landowner",
+        notes: formData.get("owner_location") as string || "",
+      } as any);
+      if (error) { toast.error("Erro ao enviar. Tente novamente."); return; }
     }
     toast.success(formType === "advertiser" ? "Proposta solicitada! Entraremos em contato." : "Terreno cadastrado! Avaliaremos o local.");
     (e.target as HTMLFormElement).reset();
@@ -340,17 +382,15 @@ export default function PublicSite() {
     <div className="min-h-screen bg-background">
       <PublicNav />
 
+      {/* Billboard detail modal */}
+      {selectedBillboard && (
+        <BillboardModal billboard={selectedBillboard} onClose={() => setSelectedBillboard(null)} />
+      )}
+
       {/* ====== HERO ====== */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={heroBillboard}
-            className="w-full h-full object-cover"
-          >
+          <video autoPlay muted loop playsInline poster={heroBillboard} className="w-full h-full object-cover">
             <source src={heroVideoAsset.url} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
@@ -417,7 +457,6 @@ export default function PublicSite() {
             </p>
           </div>
 
-          {/* Corredores */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
               {
@@ -449,7 +488,6 @@ export default function PublicSite() {
             ))}
           </div>
 
-          {/* Formatos de Painéis */}
           <div className="text-center mb-8">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Formatos de Mídia</span>
             <h3 className="text-2xl md:text-3xl font-display font-black mt-3">
@@ -459,27 +497,9 @@ export default function PublicSite() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                title: "Painel Padrão",
-                size: "3m × 9m",
-                area: "27m²",
-                desc: "Formato padrão rodoviário com alta frequência visual. Ideal para campanhas institucionais e varejo.",
-                icon: Ruler,
-              },
-              {
-                title: "Painel Ampliado",
-                size: "4m × 12m",
-                area: "48m²",
-                desc: "Formato ampliado de grande impacto. Excelente leitura a longa distância, muito usado para lançamentos imobiliários e marcas nacionais.",
-                icon: Maximize2,
-              },
-              {
-                title: "Painel Gigante",
-                size: "4m × 25m",
-                area: "100m²",
-                desc: "Painel gigante de alto impacto e máxima visibilidade em rodovias. Ideal para campanhas de grande alcance.",
-                icon: Eye,
-              },
+              { title: "Painel Padrão", size: "3m × 9m", area: "27m²", desc: "Formato padrão rodoviário com alta frequência visual. Ideal para campanhas institucionais e varejo.", icon: Ruler },
+              { title: "Painel Ampliado", size: "4m × 12m", area: "48m²", desc: "Formato ampliado de grande impacto. Excelente leitura a longa distância, muito usado para lançamentos imobiliários e marcas nacionais.", icon: Maximize2 },
+              { title: "Painel Gigante", size: "4m × 25m", area: "100m²", desc: "Painel gigante de alto impacto e máxima visibilidade em rodovias. Ideal para campanhas de grande alcance.", icon: Eye },
             ].map(item => (
               <div key={item.title} className="rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent p-8 text-center">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
@@ -510,31 +530,13 @@ export default function PublicSite() {
             <MapContainer center={[-25.85, -48.65]} zoom={10} className="w-full h-full">
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
               {filtered.map(b => (
-                <Marker
-                  key={b.id}
-                  position={[b.lat, b.lng]}
-                  icon={createPublicIcon(b.code, b.status)}
-                  eventHandlers={{
-                    click: () => {
-                      document.getElementById(`billboard-${b.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
-                    }
-                  }}
-                >
+                <Marker key={b.id} position={[b.lat, b.lng]} icon={createPublicIcon(b.code, b.status)}
+                  eventHandlers={{ click: () => setSelectedBillboard(b) }}>
                   <Popup>
                     <div className="text-sm min-w-[200px]">
                       <p className="font-bold text-base mb-1">#{b.code} · {b.address}</p>
                       <p>{b.route} · {b.city}</p>
                       <p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p>
-                      <div className="flex gap-2 mt-2">
-                        <a href={getGoogleMapsUrl(b.lat, b.lng)} target="_blank" rel="noopener noreferrer"
-                          className="text-xs px-2 py-1 rounded flex items-center gap-1" style={{ background: "#3b82f6", color: "#fff" }}>
-                          <ExternalLink className="w-3 h-3" /> Google Maps
-                        </a>
-                        <a href={getStreetViewUrl(b.lat, b.lng)} target="_blank" rel="noopener noreferrer"
-                          className="text-xs px-2 py-1 rounded flex items-center gap-1" style={{ background: "#16a34a", color: "#fff" }}>
-                          <Eye className="w-3 h-3" /> Street View
-                        </a>
-                      </div>
                     </div>
                   </Popup>
                 </Marker>
@@ -543,20 +545,14 @@ export default function PublicSite() {
           </div>
 
           <div className="flex justify-center gap-6 mt-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-primary" /> Disponível
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-destructive" /> Ocupado
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-muted-foreground" /> Reservado
-            </span>
+            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-primary" /> Disponível</span>
+            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-destructive" /> Ocupado</span>
+            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-muted-foreground" /> Reservado</span>
           </div>
         </div>
       </section>
 
-      {/* ====== CATALOG — FAVRETTO STYLE (full-width slides) ====== */}
+      {/* ====== CATALOG — Grid of compact cards ====== */}
       <section id="catalog" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -564,7 +560,7 @@ export default function PublicSite() {
             <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
               Pontos <span className="text-primary">disponíveis</span>
             </h2>
-            <p className="text-muted-foreground mt-3">Cada ponto com visão real via Street View, dados técnicos e investimento</p>
+            <p className="text-muted-foreground mt-3">Clique em um ponto para ver fotos, mapa e Street View</p>
           </div>
 
           {/* Filters */}
@@ -588,10 +584,10 @@ export default function PublicSite() {
             <span className="text-xs text-muted-foreground font-medium">{filtered.length} pontos</span>
           </div>
 
-          {/* Billboard slides — one per billboard, full-width like Favretto PDF */}
-          <div className="space-y-8">
+          {/* Billboard grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(b => (
-              <BillboardCard key={b.id} billboard={b} onContact={scrollToContact} />
+              <BillboardCard key={b.id} billboard={b} onOpen={() => setSelectedBillboard(b)} />
             ))}
           </div>
 
@@ -671,13 +667,17 @@ export default function PublicSite() {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-border text-center">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" />
+      <footer className="py-10 px-4 border-t border-border bg-card/30">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" />
+            <span className="text-xs text-muted-foreground">© 2025 BJ7 Mídia Exterior. Todos os direitos reservados.</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <a href="tel:+554184242067" className="hover:text-primary transition-colors">(41) 98424-2067</a>
+            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.bj7.com.br</a>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} BJ7 Mídia Exterior · Todos os direitos reservados
-        </p>
       </footer>
     </div>
   );

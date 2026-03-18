@@ -68,7 +68,7 @@ export default function Dashboard() {
     { label: "Ocupação", value: `${computed.occupancyRate}%`, icon: MapPin, variant: "", delta: `${computed.occupied}/${billboards.length}`, up: true },
     { label: "Receita Mensal", value: `R$ ${(computed.totalRevenue / 1000).toFixed(1)}k`, icon: DollarSign, variant: "stat-card-accent", delta: `${computed.activeVeiculacao} contrato(s)`, up: true },
     { label: "Custo Terrenos", value: `R$ ${(computed.totalCost / 1000).toFixed(1)}k`, icon: LandPlot, variant: "", delta: `${computed.activeLocacao} contrato(s)`, up: false },
-    { label: "Margem Líquida", value: `R$ ${(computed.margin / 1000).toFixed(1)}k`, icon: TrendingUp, variant: "stat-card-success", delta: computed.totalRevenue > 0 ? `${Math.round((computed.margin / computed.totalRevenue) * 100)}%` : "", up: computed.margin > 0 },
+    
     { label: "Ticket Médio", value: `R$ ${(computed.avgTicket / 1000).toFixed(1)}k`, icon: Target, variant: "", delta: "", up: true },
     { label: "Contratos Ativos", value: `${allActive}`, icon: FileText, variant: "", delta: `${computed.activeVeiculacao} veic. · ${computed.activeLocacao} loc.`, up: true },
     { label: "Pipeline", value: `R$ ${(computed.pipelineValue / 1000).toFixed(0)}k`, icon: Users, variant: "stat-card-info", delta: `${computed.openLeads} leads`, up: true },

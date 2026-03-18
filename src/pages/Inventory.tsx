@@ -509,9 +509,16 @@ export default function Inventory() {
               <TileLayer attribution='&copy; Esri' url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
               <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
               <MapClickHandler onMapClick={handleMapClick} />
-              {filtered.map(b => (
-                <Marker key={b.id} position={[b.lat, b.lng]} icon={createLabelIcon(b.code, b.status)} eventHandlers={{ click: () => { if (!addingByClick) { setSelected(b); setMode("view"); } } }} />
-              ))}
+              <MarkerClusterGroup chunkedLoading maxClusterRadius={40} spiderfyOnMaxZoom showCoverageOnHover={false}
+                iconCreateFunction={(cluster: any) => L.divIcon({
+                  className: "",
+                  html: `<div style="background:#EAB308;color:#000;font-weight:800;font-size:13px;font-family:'Space Grotesk',sans-serif;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.4);">${cluster.getChildCount()}</div>`,
+                  iconSize: [36, 36], iconAnchor: [18, 18],
+                })}>
+                {filtered.map(b => (
+                  <Marker key={b.id} position={[b.lat, b.lng]} icon={createPinIcon(b.code, b.status)} eventHandlers={{ click: () => { if (!addingByClick) { setSelected(b); setMode("view"); } } }} />
+                ))}
+              </MarkerClusterGroup>
               {tempPin && <Marker position={[tempPin.lat, tempPin.lng]} icon={newPinIcon} />}
             </MapContainer>
             {addingByClick && (

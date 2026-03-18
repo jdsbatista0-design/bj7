@@ -116,10 +116,12 @@ export default function Dashboard() {
           </ResponsiveContainer>
         </motion.div>
       </div>
+      {/* Contracts split + expiration report */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}>
-          <h3 className="font-display font-semibold mb-4 text-sm">Contratos Ativos</h3>
+          <h3 className="font-display font-semibold mb-4 text-sm flex items-center gap-2"><Building2 className="w-4 h-4 text-primary" />Contratos Anunciantes</h3>
           <div className="space-y-2.5">
+            {contracts.filter(c => c.status === "active" && c.type === "veiculacao").length === 0 && <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>}
             {contracts.filter(c => c.status === "active" && c.type === "veiculacao").map(c => (
               <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
                 <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
@@ -129,14 +131,78 @@ export default function Dashboard() {
           </div>
         </motion.div>
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-          {workOrders.filter(o => o.status === "overdue").length > 0 ? (
-            <><p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
-            {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}</div>)}</>
-          ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma OS atrasada 🎉</p>
-          )}
+          <h3 className="font-display font-semibold mb-4 text-sm flex items-center gap-2"><LandPlot className="w-4 h-4 text-primary" />Contratos Terrenos</h3>
+          <div className="space-y-2.5">
+            {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").length === 0 && <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>}
+            {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").map(c => (
+              <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
+                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <span className="text-sm font-display font-semibold text-destructive">R$ {c.monthly_value.toLocaleString()}/mês</span>
+              </div>
+            ))}
+          </div>
         </motion.div>
       </div>
+
+      {/* Contract expiration report */}
+      <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.65 }}>
+        <h3 className="font-display font-semibold mb-4 text-sm flex items-center gap-2"><CalendarClock className="w-4 h-4 text-primary" />Vencimento de Contratos</h3>
+        {(() => {
+          const today = new Date();
+          const sorted = [...contracts]
+            .filter(c => c.status === "active")
+            .sort((a, b) => new Date(a.end_date).getTime() - new Date(b.end_date).getTime());
+          if (sorted.length === 0) return <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>;
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-2 text-muted-foreground font-medium text-xs">Cliente</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium text-xs">Tipo</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium text-xs">Vencimento</th>
+                    <th className="text-left py-2 text-muted-foreground font-medium text-xs">Dias</th>
+                    <th className="text-right py-2 text-muted-foreground font-medium text-xs">Valor/mês</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map(c => {
+                    const end = new Date(c.end_date);
+                    const diffDays = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    const isUrgent = diffDays <= 30;
+                    const isWarning = diffDays <= 60 && diffDays > 30;
+                    return (
+                      <tr key={c.id} className="border-b border-border/50 hover:bg-muted/30">
+                        <td className="py-2.5 font-medium">{c.client_name}</td>
+                        <td className="py-2.5">
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase ${c.type === "veiculacao" ? "bg-primary/10 text-primary" : "bg-accent text-accent-foreground"}`}>
+                            {c.type === "veiculacao" ? "Anunciante" : "Terreno"}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-muted-foreground">{end.toLocaleDateString("pt-BR")}</td>
+                        <td className="py-2.5">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${isUrgent ? "bg-destructive/15 text-destructive" : isWarning ? "bg-yellow-500/15 text-yellow-500" : "text-muted-foreground"}`}>
+                            {diffDays < 0 ? `${Math.abs(diffDays)}d vencido` : `${diffDays}d`}
+                          </span>
+                        </td>
+                        <td className="py-2.5 text-right font-display font-semibold">R$ {c.monthly_value.toLocaleString()}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
+      </motion.div>
+
+      {/* Overdue work orders */}
+      {workOrders.filter(o => o.status === "overdue").length > 0 && (
+        <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+          <p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
+          {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}</div>)}
+        </motion.div>
+      )}
     </div>
   );
 }

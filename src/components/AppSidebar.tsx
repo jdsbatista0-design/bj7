@@ -28,10 +28,14 @@ const navItems = [
   { path: "/financial", label: "Financeiro", icon: DollarSign },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {
   const location = useLocation();
   const { signOut, user, isAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleNavClick = () => {
+    onNavigate?.();
+  };
 
   return (
     <aside
@@ -57,6 +61,7 @@ export function AppSidebar() {
             <RouterNavLink
               key={item.path}
               to={item.path}
+              onClick={handleNavClick}
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
@@ -79,6 +84,7 @@ export function AppSidebar() {
         {isAdmin && (
           <RouterNavLink
             to="/settings"
+            onClick={handleNavClick}
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
               location.pathname === "/settings"
@@ -90,15 +96,15 @@ export function AppSidebar() {
             {!collapsed && <span>Configurações</span>}
           </RouterNavLink>
         )}
-        <button onClick={signOut} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full">
+        <button onClick={() => { signOut(); handleNavClick(); }} className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors w-full">
           <LogOut className="w-4 h-4 flex-shrink-0" />
           {!collapsed && <span>Sair</span>}
         </button>
       </div>
-      {/* Collapse toggle */}
+      {/* Collapse toggle - hidden on mobile */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="h-10 flex items-center justify-center border-t border-sidebar-border text-muted-foreground hover:text-foreground transition-colors"
+        className="h-10 hidden md:flex items-center justify-center border-t border-sidebar-border text-muted-foreground hover:text-foreground transition-colors"
       >
         {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </button>

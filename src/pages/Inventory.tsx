@@ -470,7 +470,7 @@ export default function Inventory() {
   };
 
   return (
-    <div className="h-screen flex flex-col relative">
+    <div className="h-[calc(100vh-3.5rem)] md:h-screen flex flex-col relative">
       <PermissionPageBlock module="inventario" label="o Inventário" />
 
       {/* Header */}

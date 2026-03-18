@@ -125,7 +125,7 @@ export default function CRM() {
                 <Droppable key={stage.key} droppableId={stage.key}>
                   {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}
-                      className={`kanban-column flex flex-col w-[290px] ${snapshot.isDraggingOver ? "ring-1 ring-primary/50" : ""}`}>
+                      className={`kanban-column flex flex-col w-[240px] md:w-[290px] ${snapshot.isDraggingOver ? "ring-1 ring-primary/50" : ""}`}>
                       <div className="flex items-center gap-2 mb-3 px-1">
                         <div className={`w-2.5 h-2.5 rounded-full ${stage.color}`} />
                         <span className="font-display font-semibold text-sm">{stage.label}</span>

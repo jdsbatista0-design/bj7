@@ -60,6 +60,7 @@ export default function Settings() {
   const [showPass, setShowPass] = useState(false);
   const [newRole, setNewRole] = useState<AppRole>("usuario");
   const [creating, setCreating] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAdmin) { loadUsers(); loadLogs(); }

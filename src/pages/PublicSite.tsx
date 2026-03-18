@@ -404,7 +404,7 @@ export default function PublicSite() {
                 <textarea name="owner_location" rows={3} required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary resize-none" placeholder="Localização do terreno (rodovia, km, cidade...)" />
               </>
             )}
-            <button type="submit" className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-bold text-sm hover:opacity-90 shadow-lg shadow-primary/20">
+            <button type="submit" className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-black text-base tracking-wide hover:opacity-90 shadow-lg shadow-primary/25 uppercase">
               {formType === "advertiser" ? "Enviar Proposta" : "Cadastrar Terreno"}
             </button>
           </form>

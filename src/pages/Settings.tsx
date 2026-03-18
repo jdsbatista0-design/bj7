@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Shield, UserPlus, Eye, EyeOff, Clock, Users, Settings as SettingsIcon,
-  ChevronDown, ChevronRight, Check, X as XIcon,
+  ChevronDown, ChevronRight, Check, X as XIcon, Trash2,
 } from "lucide-react";
 import {
   ALL_MODULES, ALL_ACTIONS, MODULE_LABELS, ACTION_LABELS,

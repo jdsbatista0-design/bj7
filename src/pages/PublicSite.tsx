@@ -627,12 +627,12 @@ export default function PublicSite() {
             </button>
           </form>
 
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
-            <a href="tel:+5541999999999" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Phone className="w-4 h-4" /> (41) 99999-9999
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
+            <a href="tel:+554184242067" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <Phone className="w-4 h-4" /> (41) 98424-2067
             </a>
-            <a href="mailto:contato@bj7midia.com.br" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Mail className="w-4 h-4" /> contato@bj7midia.com.br
+            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
+              <ExternalLink className="w-4 h-4" /> www.bj7.com.br
             </a>
           </div>
         </div>

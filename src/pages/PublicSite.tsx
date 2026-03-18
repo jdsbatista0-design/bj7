@@ -34,8 +34,8 @@ function createPublicPinIcon(code: string, status: Billboard["status"]) {
   });
 }
 
-function getStreetViewUrl(lat: number, lng: number) { return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
-function getGoogleMapsUrl(lat: number, lng: number) { return `https://www.google.com/maps?q=${lat},${lng}`; }
+function getStreetViewUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
+function getGoogleMapsUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`; }
 
 function PublicNav() {
   const [open, setOpen] = useState(false);

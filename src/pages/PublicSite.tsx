@@ -245,7 +245,7 @@ export default function PublicSite() {
       const { error } = await supabase.from("leads").insert({
         company: formData.get("company") as string, contact: formData.get("contact") as string,
         phone: formData.get("phone") as string, email: formData.get("email") as string,
-        notes: formData.get("notes") as string || "", stage: "lead", origin: "site",
+        notes: `[ANUNCIANTE]\n${formData.get("notes") as string || ""}`, stage: "lead", origin: "site_anunciante",
       } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     } else {
@@ -254,8 +254,8 @@ export default function PublicSite() {
         contact: formData.get("owner_name") as string,
         phone: formData.get("owner_phone") as string,
         email: (formData.get("owner_email") as string) || "",
-        notes: `PROPRIETÁRIO DE TERRENO\nLocalização: ${formData.get("owner_location") as string || ""}`,
-        stage: "lead", origin: "site",
+        notes: `[PROPRIETÁRIO]\nLocalização: ${formData.get("owner_location") as string || ""}`,
+        stage: "lead", origin: "site_proprietario",
       } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     }

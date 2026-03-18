@@ -369,6 +369,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await updateLead(id, { stage });
   };
 
+  // Convert Lead to Client
+  const convertLeadToClient = async (lead: Lead) => {
+    const isLandowner = lead.notes?.toLowerCase().includes("proprietário");
+    const { error } = await supabase.from("clients").insert({
+      name: lead.contact || lead.company,
+      company: isLandowner ? "" : lead.company,
+      phone: lead.phone, email: lead.email,
+      type: isLandowner ? "landowner" : "advertiser",
+      notes: `Convertido do lead: ${lead.company}\n${lead.notes || ""}`,
+      billboard_ids: lead.billboard_ids || [],
+    } as any);
+    if (!error) {
+      await updateLead(lead.id, { stage: "closed" as Lead["stage"] });
+      refreshTable("clients");
+    }
+  };
+
   // Client CRUD
   const addClient = async (c: Partial<Client>) => {
     const { error } = await supabase.from("clients").insert({

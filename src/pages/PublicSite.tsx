@@ -34,8 +34,8 @@ function createPublicPinIcon(code: string, status: Billboard["status"]) {
   });
 }
 
-function getStreetViewUrl(lat: number, lng: number) { return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
-function getGoogleMapsUrl(lat: number, lng: number) { return `https://www.google.com/maps?q=${lat},${lng}`; }
+function getStreetViewUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
+function getGoogleMapsUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`; }
 
 function PublicNav() {
   const [open, setOpen] = useState(false);
@@ -106,8 +106,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
               <Marker position={[billboard.lat, billboard.lng]} icon={createPublicPinIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
             </MapContainer>
             <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
-              <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
-              <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
+              <a href={getGoogleMapsUrl(billboard.lat, billboard.lng, billboard.maps_url)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
+              <a href={getStreetViewUrl(billboard.lat, billboard.lng, billboard.google_street_view_url)} target="_blank" rel="noopener noreferrer" className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
             </div>
           </div>
         </div>
@@ -138,8 +138,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
             </a>
           </div>
           <div className="flex gap-2 mt-3 md:hidden">
-            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
-            <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
+            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng, billboard.maps_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
+            <a href={getStreetViewUrl(billboard.lat, billboard.lng, billboard.google_street_view_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
           </div>
         </div>
       </div>

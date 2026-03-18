@@ -41,7 +41,7 @@ export function AppSidebar() {
       )}
     >
       {/* Logo */}
-      <a href="/site" target="_blank" rel="noopener noreferrer" className="h-16 flex items-center px-3 border-b border-sidebar-border gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+      <a href="/" target="_blank" rel="noopener noreferrer" className="h-16 flex items-center px-3 border-b border-sidebar-border gap-2 cursor-pointer hover:opacity-80 transition-opacity">
         {collapsed ? (
           <img src={logoBj7Icon} alt="BJ7" className="w-10 h-10 rounded-lg object-contain" />
         ) : (

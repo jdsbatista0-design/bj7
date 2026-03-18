@@ -138,8 +138,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
             </a>
           </div>
           <div className="flex gap-2 mt-3 md:hidden">
-            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
-            <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
+            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng, billboard.maps_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
+            <a href={getStreetViewUrl(billboard.lat, billboard.lng, billboard.google_street_view_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
           </div>
         </div>
       </div>

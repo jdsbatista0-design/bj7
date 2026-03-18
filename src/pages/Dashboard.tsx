@@ -27,6 +27,7 @@ export default function Dashboard() {
     const totalCost = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").reduce((s, c) => s + c.monthly_value, 0);
     const margin = totalRevenue - totalCost;
     const activeVeiculacao = contracts.filter(c => c.status === "active" && c.type === "veiculacao").length;
+    const activeLocacao = contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").length;
     const avgTicket = activeVeiculacao > 0 ? Math.round(totalRevenue / activeVeiculacao) : 0;
     const openLeads = leads.filter(l => !["closed", "lost"].includes(l.stage)).length;
     const pipelineValue = leads.filter(l => !["closed", "lost"].includes(l.stage)).reduce((s, l) => s + l.value, 0);

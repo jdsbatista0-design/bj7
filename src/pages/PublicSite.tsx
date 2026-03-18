@@ -224,7 +224,7 @@ function Detail({ label, value, highlight }: { label: string; value: string; hig
 }
 
 export default function PublicSite() {
-  const { billboards } = useData();
+  const [billboards, setBillboards] = useState<Billboard[]>([]);
   const [cityFilter, setCityFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [routeFilter, setRouteFilter] = useState("all");

@@ -41,13 +41,13 @@ export function AppSidebar() {
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center px-3 border-b border-sidebar-border gap-2">
+      <a href="/site" target="_blank" rel="noopener noreferrer" className="h-16 flex items-center px-3 border-b border-sidebar-border gap-2 cursor-pointer hover:opacity-80 transition-opacity">
         {collapsed ? (
           <img src={logoBj7Icon} alt="BJ7" className="w-10 h-10 rounded-lg object-contain" />
         ) : (
           <img src={logoBj7} alt="BJ7 Mídia" className="h-9 w-auto object-contain" />
         )}
-      </div>
+      </a>
 
       {/* Nav */}
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">

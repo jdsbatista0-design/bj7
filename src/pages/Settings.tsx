@@ -346,6 +346,30 @@ export default function Settings() {
           )}
         </div>
       )}
+      {/* Delete confirmation dialog */}
+      {deletingUserId && (() => {
+        const target = users.find(u => u.id === deletingUserId);
+        return (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeletingUserId(null)}>
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                </div>
+                <h3 className="font-semibold">Excluir Usuário</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-1">Tem certeza que deseja excluir?</p>
+              <p className="text-sm font-medium mb-6">{target?.full_name} ({target?.email})</p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setDeletingUserId(null)}>Cancelar</Button>
+                <Button variant="destructive" className="flex-1" onClick={() => handleDeleteUser(deletingUserId)}>
+                  <Trash2 className="w-4 h-4 mr-1" />Excluir
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

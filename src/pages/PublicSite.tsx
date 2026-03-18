@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Billboard } from "@/contexts/DataContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
   Search, MapPin, Menu, X, Phone, Car, Ruler, Eye,
@@ -19,13 +20,17 @@ const typeLabels: Record<string, string> = {
   backlight: "Backlight", painel_sight: "Painel Sight", painel_vip: "Painel VIP",
 };
 
-function createPublicIcon(code: string, status: Billboard["status"]) {
+function createPublicPinIcon(code: string, status: Billboard["status"]) {
   const colors = { available: "#EAB308", occupied: "#ef4444", reserved: "#6b7280" };
   const color = colors[status];
+  const textColor = status === 'available' ? '#000' : '#fff';
   return L.divIcon({
     className: "",
-    html: `<div style="padding:4px 10px;border-radius:8px;background:${color};color:${status === 'available' ? '#000' : '#fff'};font-weight:700;font-size:11px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;border:2px solid rgba(255,255,255,0.25);box-shadow:0 2px 12px ${color}55;cursor:pointer;">#${code}</div>`,
-    iconSize: [55, 26], iconAnchor: [27, 13],
+    html: `<div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <div style="background:${color};color:${textColor};font-weight:700;font-size:10px;font-family:'Space Grotesk',sans-serif;padding:2px 6px;border-radius:4px;border:2px solid rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.4);white-space:nowrap;margin-bottom:-2px;">#${code}</div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ${color};filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));"></div>
+    </div>`,
+    iconSize: [50, 36], iconAnchor: [25, 36],
   });
 }
 

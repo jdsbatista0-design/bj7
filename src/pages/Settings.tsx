@@ -149,7 +149,6 @@ export default function Settings() {
       <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit overflow-x-auto">
         {[
           { key: "users" as const, icon: UserPlus, label: "Usuários" },
-          { key: "permissions" as const, icon: Shield, label: "Permissões" },
           { key: "logs" as const, icon: Clock, label: "Acessos" },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}

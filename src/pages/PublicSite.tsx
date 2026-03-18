@@ -102,8 +102,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
           </div>
           <div className="relative aspect-[16/10] hidden md:block">
             <MapContainer center={[billboard.lat, billboard.lng]} zoom={14} className="w-full h-full" scrollWheelZoom={false} zoomControl={false} dragging={false}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
-              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
+              <TileLayer attribution='&copy; Esri' url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicPinIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
             </MapContainer>
             <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
               <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>

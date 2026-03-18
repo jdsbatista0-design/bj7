@@ -378,9 +378,9 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
               <Row label="Sentido" value={billboard.direction} />
             </div>
             <div className="flex gap-2 mt-2">
-              <a href={`https://www.google.com/maps?q=${billboard.lat},${billboard.lng}`} target="_blank" rel="noopener noreferrer"
+              <a href={billboard.maps_url || `https://www.google.com/maps/search/?api=1&query=${billboard.lat},${billboard.lng}`} target="_blank" rel="noopener noreferrer"
                 className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
-              <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${billboard.lat},${billboard.lng}`} target="_blank" rel="noopener noreferrer"
+              <a href={billboard.google_street_view_url || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${billboard.lat},${billboard.lng}&heading=0&pitch=0&fov=90`} target="_blank" rel="noopener noreferrer"
                 className="text-[10px] bg-muted text-muted-foreground px-2 py-1 rounded flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
             </div>
           </div>

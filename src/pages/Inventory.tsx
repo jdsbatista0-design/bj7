@@ -333,8 +333,8 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
   const statusBadge = { available: "badge-available", occupied: "badge-occupied", reserved: "badge-reserved" };
 
   return (
-    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4" onClick={onClose}>
-      <div className="glass-panel max-w-lg w-full animate-slide-up max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-end md:items-center justify-center" onClick={onClose}>
+      <div className="bg-card border border-border rounded-t-2xl md:rounded-2xl w-full md:max-w-lg animate-slide-up max-h-[85vh] flex flex-col shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <span className="font-display font-bold text-xl text-primary">#{billboard.code}</span>

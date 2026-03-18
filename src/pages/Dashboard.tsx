@@ -34,7 +34,7 @@ export default function Dashboard() {
     const conversionRate = leads.length > 0 ? Math.round((leads.filter(l => l.stage === "closed").length / leads.length) * 100) : 0;
     const pendingOS = workOrders.filter(o => o.status !== "completed").length;
     const overdueOS = workOrders.filter(o => o.status === "overdue").length;
-    return { occupied, available, reserved, occupancyRate, totalRevenue, totalCost, margin, activeVeiculacao, avgTicket, openLeads, pipelineValue, conversionRate, pendingOS, overdueOS };
+    return { occupied, available, reserved, occupancyRate, totalRevenue, totalCost, margin, activeVeiculacao, activeLocacao, avgTicket, openLeads, pipelineValue, conversionRate, pendingOS, overdueOS };
   }, [billboards, contracts, leads, workOrders]);
 
   const pieData = [

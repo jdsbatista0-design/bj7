@@ -229,3 +229,13 @@
 .pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
 }
+
+/* Hide scrollbar for filter rows */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Ensure Leaflet controls don't block mobile header/sidebar */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 499 !important;
+}

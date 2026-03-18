@@ -591,9 +591,7 @@ export default function PublicSite() {
           {/* Billboard slides — one per billboard, full-width like Favretto PDF */}
           <div className="space-y-8">
             {filtered.map(b => (
-              <div key={b.id} id={`billboard-${b.id}`}>
-                <BillboardSlide billboard={b} onContact={scrollToContact} />
-              </div>
+              <BillboardCard key={b.id} billboard={b} onContact={scrollToContact} />
             ))}
           </div>
 

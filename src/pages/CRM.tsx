@@ -99,25 +99,25 @@ export default function CRM() {
   if (!can("comercial", "can_view")) return block;
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="p-4 border-b border-border bg-card/60 backdrop-blur-sm flex items-center justify-between">
-        <div>
-          <h1 className="font-display font-bold text-lg">CRM Comercial</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">Pipeline: <span className="text-primary font-semibold">R$ {pipelineValue.toLocaleString()}</span></p>
+    <div className="h-[calc(100vh-3.5rem)] md:h-screen flex flex-col">
+      <div className="p-3 md:p-4 border-b border-border bg-card/60 backdrop-blur-sm flex items-center justify-between gap-2">
+        <div className="min-w-0">
+          <h1 className="font-display font-bold text-base md:text-lg">CRM</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">Pipeline: <span className="text-primary font-semibold">R$ {pipelineValue.toLocaleString()}</span></p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">{leads.length} leads</span>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-[10px] text-muted-foreground hidden sm:block">{leads.length} leads</span>
           <PermissionGate module="comercial" action="can_create" hide>
-            <Button size="sm" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
-              <Plus className="w-4 h-4" /> Novo Lead
+            <Button size="sm" className="h-7 text-xs" onClick={() => { setEditingLead({ ...emptyLead }); setFormOpen(true); }}>
+              <Plus className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Novo Lead</span>
             </Button>
           </PermissionGate>
         </div>
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-1 overflow-x-auto p-4">
-          <div className="flex gap-3 h-full min-w-max">
+        <div className="flex-1 overflow-x-auto p-2 md:p-4">
+          <div className="flex gap-2 md:gap-3 h-full min-w-max">
             {stages.map(stage => {
               const stageLeads = leads.filter(l => l.stage === stage.key);
               const stageValue = stageLeads.reduce((s, l) => s + l.value, 0);
@@ -125,7 +125,7 @@ export default function CRM() {
                 <Droppable key={stage.key} droppableId={stage.key}>
                   {(provided, snapshot) => (
                     <div ref={provided.innerRef} {...provided.droppableProps}
-                      className={`kanban-column flex flex-col w-[290px] ${snapshot.isDraggingOver ? "ring-1 ring-primary/50" : ""}`}>
+                      className={`kanban-column flex flex-col w-[240px] md:w-[290px] ${snapshot.isDraggingOver ? "ring-1 ring-primary/50" : ""}`}>
                       <div className="flex items-center gap-2 mb-3 px-1">
                         <div className={`w-2.5 h-2.5 rounded-full ${stage.color}`} />
                         <span className="font-display font-semibold text-sm">{stage.label}</span>

@@ -77,8 +77,8 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="p-6 space-y-6 max-w-[1400px]">
-      <div><h1 className="text-2xl font-display font-bold">Dashboard</h1><p className="text-muted-foreground text-sm mt-1">BJ7 Mídia · {billboards.length} pontos</p></div>
+    <div className="p-3 md:p-6 space-y-4 md:space-y-6 max-w-[1400px]">
+      <div><h1 className="text-xl md:text-2xl font-display font-bold">Dashboard</h1><p className="text-muted-foreground text-xs md:text-sm mt-1">BJ7 Mídia · {billboards.length} pontos</p></div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {stats.map((s, i) => (
           <motion.div key={s.label} className={`stat-card ${s.variant}`} variants={fadeIn} initial="hidden" animate="visible" custom={i}>

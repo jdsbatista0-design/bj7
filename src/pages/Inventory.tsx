@@ -470,32 +470,35 @@ export default function Inventory() {
   };
 
   return (
-    <div className="h-screen flex flex-col relative">
+    <div className="h-[calc(100vh-3.5rem)] md:h-screen flex flex-col relative">
       <PermissionPageBlock module="inventario" label="o Inventário" />
 
       {/* Header */}
-      <div className="p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-10 flex-wrap">
-        <h1 className="font-display font-bold text-lg mr-2">Inventário</h1>
-        <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-1 max-w-[200px]">
-          <Search className="w-4 h-4 text-muted-foreground" />
+      <div className="p-2 md:p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-[500] relative flex-wrap">
+        <h1 className="font-display font-bold text-base md:text-lg shrink-0">Inventário</h1>
+        <div className="flex items-center gap-1.5 bg-muted rounded-lg px-2 py-1.5 flex-1 min-w-0 max-w-[160px] md:max-w-[200px]">
+          <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        {["all", "available", "occupied", "reserved"].map(s => (
-          <button key={s} onClick={() => setStatusFilter(s)} className={`text-xs px-3 py-1.5 rounded-full font-medium transition-colors hidden md:block ${statusFilter === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-            {s === "all" ? "Todos" : s === "available" ? "Disponível" : s === "occupied" ? "Ocupado" : "Reservado"}
-          </button>
-        ))}
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-muted-foreground hidden md:block">{filtered.length} pontos</span>
+        {/* Status filters - scrollable row on mobile */}
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          {["all", "available", "occupied", "reserved"].map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)} className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0 ${statusFilter === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+              {s === "all" ? "Todos" : s === "available" ? "Disp." : s === "occupied" ? "Ocup." : "Reserv."}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5 ml-auto shrink-0">
+          <span className="text-[10px] text-muted-foreground hidden md:block">{filtered.length} pontos</span>
           <div className="flex bg-muted rounded-lg p-0.5">
-            <button onClick={() => setViewMode("map")} className={`px-2 py-1 rounded text-xs ${viewMode === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Mapa</button>
-            <button onClick={() => setViewMode("list")} className={`px-2 py-1 rounded text-xs ${viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Lista</button>
+            <button onClick={() => setViewMode("map")} className={`px-2 py-1 rounded text-[11px] ${viewMode === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Mapa</button>
+            <button onClick={() => setViewMode("list")} className={`px-2 py-1 rounded text-[11px] ${viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>Lista</button>
           </div>
           {can("inventario", "can_create") && (
-            <Button size="sm" variant={addingByClick ? "destructive" : "default"} onClick={() => {
+            <Button size="sm" className="h-7 text-xs px-2" variant={addingByClick ? "destructive" : "default"} onClick={() => {
               if (addingByClick) { setAddingByClick(false); } else if (viewMode === "map") { setAddingByClick(true); toast.info("Clique no mapa"); } else { setFormData({ ...emptyBillboard, code: String(Math.max(...billboards.map(b => parseInt(b.code) || 0), 0) + 1) }); setMode("add"); }
             }}>
-              {addingByClick ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Novo</>}
+              {addingByClick ? <><X className="w-3.5 h-3.5" /></> : <><Plus className="w-3.5 h-3.5" /></>}
             </Button>
           )}
         </div>

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Shield, UserPlus, Eye, EyeOff, Clock, Users, Settings as SettingsIcon,
-  ChevronDown, ChevronRight, Check, X as XIcon,
+  ChevronDown, ChevronRight, Check, X as XIcon, Trash2,
 } from "lucide-react";
 import {
   ALL_MODULES, ALL_ACTIONS, MODULE_LABELS, ACTION_LABELS,
@@ -60,6 +60,7 @@ export default function Settings() {
   const [showPass, setShowPass] = useState(false);
   const [newRole, setNewRole] = useState<AppRole>("usuario");
   const [creating, setCreating] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAdmin) { loadUsers(); loadLogs(); }
@@ -107,6 +108,21 @@ export default function Settings() {
     if (hasRole) { await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as any); }
     else { await supabase.from("user_roles").insert({ user_id: userId, role } as any); }
     loadUsers(); toast.success("Perfil atualizado");
+  }
+
+  async function handleDeleteUser(userId: string) {
+    const u = users.find(u => u.id === userId);
+    if (userId === user?.id) { toast.error("Não pode excluir sua própria conta"); return; }
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await supabase.functions.invoke("admin-delete-user", {
+      body: { userId },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.error) { toast.error(res.error.message || "Erro ao excluir"); }
+    else if (res.data?.error) { toast.error(res.data.error); }
+    else { toast.success(`Usuário ${u?.email || ""} excluído`); loadUsers(); }
+    setDeletingUserId(null);
   }
 
   async function handleTogglePermission(userId: string, module: PermissionModule, action: PermissionAction, currentValue: boolean) {
@@ -201,16 +217,25 @@ export default function Settings() {
                       <p className="font-medium text-sm truncate">{u.full_name || "Sem nome"}</p>
                       <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                      {(Object.keys(ROLE_LABELS) as AppRole[]).map(role => {
-                        const has = u.roles.includes(role);
-                        return (
-                          <button key={role} onClick={() => handleToggleRole(u.id, role, has)}
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide transition-all border ${has ? ROLE_COLORS[role] + " border-current" : "bg-transparent text-muted-foreground/40 border-border/50 hover:border-border"}`}>
-                            {ROLE_LABELS[role]}
-                          </button>
-                        );
-                      })}
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-1">
+                        {(Object.keys(ROLE_LABELS) as AppRole[]).map(role => {
+                          const has = u.roles.includes(role);
+                          return (
+                            <button key={role} onClick={() => handleToggleRole(u.id, role, has)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide transition-all border ${has ? ROLE_COLORS[role] + " border-current" : "bg-transparent text-muted-foreground/40 border-border/50 hover:border-border"}`}>
+                              {ROLE_LABELS[role]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {u.id !== user?.id && (
+                        <button onClick={() => setDeletingUserId(u.id)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+                          title="Excluir usuário">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -321,6 +346,30 @@ export default function Settings() {
           )}
         </div>
       )}
+      {/* Delete confirmation dialog */}
+      {deletingUserId && (() => {
+        const target = users.find(u => u.id === deletingUserId);
+        return (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setDeletingUserId(null)}>
+            <div className="bg-card border border-border rounded-2xl p-6 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-destructive" />
+                </div>
+                <h3 className="font-semibold">Excluir Usuário</h3>
+              </div>
+              <p className="text-sm text-muted-foreground mb-1">Tem certeza que deseja excluir?</p>
+              <p className="text-sm font-medium mb-6">{target?.full_name} ({target?.email})</p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => setDeletingUserId(null)}>Cancelar</Button>
+                <Button variant="destructive" className="flex-1" onClick={() => handleDeleteUser(deletingUserId)}>
+                  <Trash2 className="w-4 h-4 mr-1" />Excluir
+                </Button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

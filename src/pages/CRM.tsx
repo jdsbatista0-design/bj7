@@ -173,6 +173,12 @@ export default function CRM() {
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-display font-bold text-lg">{selectedLead.company}</h3>
               <div className="flex items-center gap-1">
+                {selectedLead.stage !== "closed" && selectedLead.stage !== "lost" && (
+                  <button onClick={async () => { await convertLeadToClient(selectedLead); setSelectedLead(null); toast.success("Lead convertido em cliente!"); }}
+                    className="text-success hover:bg-success/10 p-1.5 rounded-md flex items-center gap-1 text-xs font-semibold" title="Converter em Cliente">
+                    <UserPlus className="w-4 h-4" />
+                  </button>
+                )}
                 <button onClick={() => { setEditingLead({ ...selectedLead }); setFormOpen(true); setSelectedLead(null); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
                 <button onClick={() => handleDeleteLead(selectedLead.id)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
                 <button onClick={() => setSelectedLead(null)} className="text-muted-foreground hover:text-foreground p-1"><X className="w-5 h-5" /></button>

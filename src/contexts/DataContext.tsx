@@ -145,12 +145,14 @@ interface DataContextType {
   updateLead: (id: string, l: Partial<Lead>) => Promise<void>;
   deleteLead: (id: string) => Promise<void>;
   moveLeadStage: (id: string, stage: Lead["stage"]) => Promise<void>;
+  convertLeadToClient: (lead: Lead) => Promise<void>;
   addClient: (c: Partial<Client>) => Promise<void>;
   updateClient: (id: string, c: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
   addContract: (c: Partial<Contract>) => Promise<void>;
   updateContract: (id: string, c: Partial<Contract>) => Promise<void>;
   deleteContract: (id: string) => Promise<void>;
+  createOSFromContract: (contract: Contract) => Promise<void>;
   addWorkOrder: (w: Partial<WorkOrder>) => Promise<void>;
   updateWorkOrder: (id: string, w: Partial<WorkOrder>) => Promise<void>;
   deleteWorkOrder: (id: string) => Promise<void>;

@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useData } from "@/contexts/DataContext";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, MapPin, FileText, AlertTriangle, Users, DollarSign, Target, Percent, Clock, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { TrendingUp, MapPin, FileText, AlertTriangle, Users, DollarSign, Target, Percent, Clock, ArrowUpRight, ArrowDownRight, CalendarClock, Building2, LandPlot } from "lucide-react";
 import { useMemo } from "react";
 
 const fadeIn = {

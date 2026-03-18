@@ -242,13 +242,24 @@ export default function PublicSite() {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     if (formType === "advertiser") {
-      const { error } = await supabase.from("leads").insert({ company: formData.get("company") as string, contact: formData.get("contact") as string, phone: formData.get("phone") as string, email: formData.get("email") as string, notes: formData.get("notes") as string || "", stage: "lead", origin: "site" } as any);
+      const { error } = await supabase.from("leads").insert({
+        company: formData.get("company") as string, contact: formData.get("contact") as string,
+        phone: formData.get("phone") as string, email: formData.get("email") as string,
+        notes: formData.get("notes") as string || "", stage: "lead", origin: "site",
+      } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     } else {
-      const { error } = await supabase.from("clients").insert({ name: formData.get("owner_name") as string, phone: formData.get("owner_phone") as string, email: (formData.get("owner_email") as string) || "", type: "landowner", notes: formData.get("owner_location") as string || "" } as any);
+      const { error } = await supabase.from("leads").insert({
+        company: `Proprietário: ${formData.get("owner_name") as string}`,
+        contact: formData.get("owner_name") as string,
+        phone: formData.get("owner_phone") as string,
+        email: (formData.get("owner_email") as string) || "",
+        notes: `PROPRIETÁRIO DE TERRENO\nLocalização: ${formData.get("owner_location") as string || ""}`,
+        stage: "lead", origin: "site",
+      } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     }
-    toast.success(formType === "advertiser" ? "Proposta enviada!" : "Terreno cadastrado!");
+    toast.success("Proposta enviada com sucesso!");
     (e.target as HTMLFormElement).reset();
   };
 

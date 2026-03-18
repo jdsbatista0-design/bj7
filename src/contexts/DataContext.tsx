@@ -528,9 +528,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     <DataContext.Provider value={{
       billboards, leads, clients, contracts, workOrders, financialEntries, loading, refresh: fetchAll,
       addBillboard, updateBillboard, deleteBillboard,
-      addLead, updateLead, deleteLead, moveLeadStage,
+      addLead, updateLead, deleteLead, moveLeadStage, convertLeadToClient,
       addClient, updateClient, deleteClient,
-      addContract, updateContract, deleteContract,
+      addContract, updateContract, deleteContract, createOSFromContract,
       addWorkOrder, updateWorkOrder, deleteWorkOrder,
       addFinancialEntry, updateFinancialEntry, deleteFinancialEntry,
     }}>

@@ -135,20 +135,26 @@ export default function CRM() {
                       <div className="flex-1 space-y-2 overflow-y-auto">
                         {stageLeads.map((lead, i) => {
                           const OriginIcon = originIcons[lead.origin] || Globe;
+                          const isProprietario = lead.origin === "site_proprietario" || lead.notes?.includes("[PROPRIETÁRIO]");
+                          const isAnunciante = lead.origin === "site_anunciante" || lead.notes?.includes("[ANUNCIANTE]");
                           return (
                             <Draggable key={lead.id} draggableId={lead.id} index={i}>
                               {(provided, snapshot) => (
                                 <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}
                                   className={`kanban-card ${snapshot.isDragging ? "ring-2 ring-primary shadow-lg" : ""}`}
                                   onClick={() => setSelectedLead(lead)}>
-                                  <p className="font-semibold text-sm">{lead.company}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="font-semibold text-sm flex-1">{lead.company}</p>
+                                    {isProprietario && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-accent text-accent-foreground shrink-0">Terreno</span>}
+                                    {isAnunciante && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-primary/15 text-primary shrink-0">Anunciante</span>}
+                                  </div>
                                   <p className="text-xs text-muted-foreground">{lead.contact}</p>
                                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1 text-primary font-semibold"><DollarSign className="w-3 h-3" />R$ {lead.value.toLocaleString()}</span>
                                     {lead.billboard_ids.length > 0 && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.billboard_ids.length}</span>}
                                   </div>
                                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-border text-[10px] text-muted-foreground">
-                                    <span className="flex items-center gap-1"><OriginIcon className="w-3 h-3" />{originLabels[lead.origin]}</span>
+                                    <span className="flex items-center gap-1"><OriginIcon className="w-3 h-3" />{originLabels[lead.origin] || lead.origin}</span>
                                     <span>{new Date(lead.created_at).toLocaleDateString("pt-BR")}</span>
                                   </div>
                                 </div>

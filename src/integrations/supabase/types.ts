@@ -43,11 +43,14 @@ export type Database = {
       }
       billboards: {
         Row: {
+          active: boolean | null
           address: string | null
           area: number | null
           audience_profile: string | null
           city: string
           code: string
+          commercial_description: string | null
+          commercial_status: string | null
           cost: number | null
           created_at: string
           description: string | null
@@ -55,28 +58,42 @@ export type Database = {
           direction: string | null
           estimated_flow: number | null
           formats: string[] | null
+          gallery: string[] | null
+          google_street_view_url: string | null
+          height: number | null
           id: string
+          illumination: string | null
           land_owner: string | null
           land_owner_id: string | null
           lat: number
           lng: number
+          main_photo: string | null
+          maps_url: string | null
+          operational_status: string | null
           photos: string[] | null
           price: number | null
           production_cost: number | null
           region: string
           route: string
           seasonality: string | null
+          short_description: string | null
+          show_on_site: boolean | null
           status: string
+          title: string | null
           traffic_type: string | null
           type: string
           updated_at: string
+          width: number | null
         }
         Insert: {
+          active?: boolean | null
           address?: string | null
           area?: number | null
           audience_profile?: string | null
           city?: string
           code: string
+          commercial_description?: string | null
+          commercial_status?: string | null
           cost?: number | null
           created_at?: string
           description?: string | null
@@ -84,28 +101,42 @@ export type Database = {
           direction?: string | null
           estimated_flow?: number | null
           formats?: string[] | null
+          gallery?: string[] | null
+          google_street_view_url?: string | null
+          height?: number | null
           id?: string
+          illumination?: string | null
           land_owner?: string | null
           land_owner_id?: string | null
           lat: number
           lng: number
+          main_photo?: string | null
+          maps_url?: string | null
+          operational_status?: string | null
           photos?: string[] | null
           price?: number | null
           production_cost?: number | null
           region?: string
           route?: string
           seasonality?: string | null
+          short_description?: string | null
+          show_on_site?: boolean | null
           status?: string
+          title?: string | null
           traffic_type?: string | null
           type?: string
           updated_at?: string
+          width?: number | null
         }
         Update: {
+          active?: boolean | null
           address?: string | null
           area?: number | null
           audience_profile?: string | null
           city?: string
           code?: string
+          commercial_description?: string | null
+          commercial_status?: string | null
           cost?: number | null
           created_at?: string
           description?: string | null
@@ -113,21 +144,32 @@ export type Database = {
           direction?: string | null
           estimated_flow?: number | null
           formats?: string[] | null
+          gallery?: string[] | null
+          google_street_view_url?: string | null
+          height?: number | null
           id?: string
+          illumination?: string | null
           land_owner?: string | null
           land_owner_id?: string | null
           lat?: number
           lng?: number
+          main_photo?: string | null
+          maps_url?: string | null
+          operational_status?: string | null
           photos?: string[] | null
           price?: number | null
           production_cost?: number | null
           region?: string
           route?: string
           seasonality?: string | null
+          short_description?: string | null
+          show_on_site?: boolean | null
           status?: string
+          title?: string | null
           traffic_type?: string | null
           type?: string
           updated_at?: string
+          width?: number | null
         }
         Relationships: []
       }
@@ -207,6 +249,7 @@ export type Database = {
           end_date: string
           id: string
           monthly_value: number | null
+          notes: string | null
           payment_method: string | null
           renewal_type: string | null
           start_date: string
@@ -224,6 +267,7 @@ export type Database = {
           end_date: string
           id?: string
           monthly_value?: number | null
+          notes?: string | null
           payment_method?: string | null
           renewal_type?: string | null
           start_date: string
@@ -241,6 +285,7 @@ export type Database = {
           end_date?: string
           id?: string
           monthly_value?: number | null
+          notes?: string | null
           payment_method?: string | null
           renewal_type?: string | null
           start_date?: string
@@ -255,6 +300,76 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_entries: {
+        Row: {
+          amount: number
+          billboard_id: string | null
+          category: string
+          client_id: string | null
+          contract_id: string | null
+          created_at: string
+          description: string
+          entry_date: string
+          id: string
+          notes: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          billboard_id?: string | null
+          category?: string
+          client_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          description?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          billboard_id?: string | null
+          category?: string
+          client_id?: string | null
+          contract_id?: string | null
+          created_at?: string
+          description?: string
+          entry_date?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_entries_billboard_id_fkey"
+            columns: ["billboard_id"]
+            isOneToOne: false
+            referencedRelation: "billboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "financial_entries_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]
@@ -391,8 +506,10 @@ export type Database = {
           billboard_code: string | null
           billboard_id: string | null
           checklist: Json | null
+          client_id: string | null
           client_name: string | null
           completed_date: string | null
+          contract_id: string | null
           created_at: string
           due_date: string
           id: string
@@ -408,8 +525,10 @@ export type Database = {
           billboard_code?: string | null
           billboard_id?: string | null
           checklist?: Json | null
+          client_id?: string | null
           client_name?: string | null
           completed_date?: string | null
+          contract_id?: string | null
           created_at?: string
           due_date: string
           id?: string
@@ -425,8 +544,10 @@ export type Database = {
           billboard_code?: string | null
           billboard_id?: string | null
           checklist?: Json | null
+          client_id?: string | null
           client_name?: string | null
           completed_date?: string | null
+          contract_id?: string | null
           created_at?: string
           due_date?: string
           id?: string
@@ -443,6 +564,20 @@ export type Database = {
             columns: ["billboard_id"]
             isOneToOne: false
             referencedRelation: "billboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "work_orders_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
             referencedColumns: ["id"]
           },
         ]

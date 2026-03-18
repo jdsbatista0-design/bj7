@@ -110,6 +110,21 @@ export default function Settings() {
     loadUsers(); toast.success("Perfil atualizado");
   }
 
+  async function handleDeleteUser(userId: string) {
+    const u = users.find(u => u.id === userId);
+    if (userId === user?.id) { toast.error("Não pode excluir sua própria conta"); return; }
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData?.session?.access_token;
+    const res = await supabase.functions.invoke("admin-delete-user", {
+      body: { userId },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.error) { toast.error(res.error.message || "Erro ao excluir"); }
+    else if (res.data?.error) { toast.error(res.data.error); }
+    else { toast.success(`Usuário ${u?.email || ""} excluído`); loadUsers(); }
+    setDeletingUserId(null);
+  }
+
   async function handleTogglePermission(userId: string, module: PermissionModule, action: PermissionAction, currentValue: boolean) {
     const existing = users.find(u => u.id === userId)?.permissions.find(p => p.module === module);
     if (existing) {

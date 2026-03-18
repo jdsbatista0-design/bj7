@@ -89,8 +89,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
         className="relative bg-card border border-border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
         onClick={e => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button onClick={onClose} className="absolute top-4 right-4 z-10 bg-background/80 backdrop-blur-sm rounded-full p-2 hover:bg-background transition-colors">
+        {/* Close button - sticky so it stays visible on scroll */}
+        <button onClick={onClose} className="sticky top-3 float-right mr-3 mt-3 z-50 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-lg border border-border">
           <X className="w-5 h-5" />
         </button>
 

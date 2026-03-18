@@ -16,8 +16,8 @@ const stages = [
   { key: "lost", label: "Perdido", color: "bg-destructive" },
 ] as const;
 
-const originIcons: Record<string, React.ElementType> = { site: Globe, indicacao: Users, trafego_pago: Megaphone, prospecção: Zap, evento: Calendar };
-const originLabels: Record<string, string> = { site: "Site", indicacao: "Indicação", trafego_pago: "Tráfego Pago", prospecção: "Prospecção", evento: "Evento" };
+const originIcons: Record<string, React.ElementType> = { site: Globe, site_anunciante: Globe, site_proprietario: Globe, indicacao: Users, trafego_pago: Megaphone, prospecção: Zap, evento: Calendar };
+const originLabels: Record<string, string> = { site: "Site", site_anunciante: "Site · Anunciante", site_proprietario: "Site · Proprietário", indicacao: "Indicação", trafego_pago: "Tráfego Pago", prospecção: "Prospecção", evento: "Evento" };
 
 const emptyLead: Partial<Lead> = {
   company: "", contact: "", phone: "", email: "", stage: "lead", value: 0,

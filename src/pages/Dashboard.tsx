@@ -63,13 +63,13 @@ export default function Dashboard() {
   }, [billboards]);
 
   const stats = [
-    { label: "Ocupação", value: `${computed.occupancyRate}%`, icon: MapPin, variant: "", delta: "", up: true },
-    { label: "MRR", value: `R$ ${(computed.totalRevenue / 1000).toFixed(1)}k`, icon: DollarSign, variant: "stat-card-accent", delta: "", up: true },
-    { label: "Margem", value: `R$ ${(computed.margin / 1000).toFixed(1)}k`, icon: TrendingUp, variant: "stat-card-success", delta: "", up: true },
+    { label: "Ocupação", value: `${computed.occupancyRate}%`, icon: MapPin, variant: "", delta: `${computed.occupied}/${billboards.length}`, up: true },
+    { label: "Receita Mensal", value: `R$ ${(computed.totalRevenue / 1000).toFixed(1)}k`, icon: DollarSign, variant: "stat-card-accent", delta: `${computed.activeVeiculacao} contrato(s)`, up: true },
+    { label: "Custo Terrenos", value: `R$ ${(computed.totalCost / 1000).toFixed(1)}k`, icon: LandPlot, variant: "", delta: `${computed.activeLocacao} contrato(s)`, up: false },
+    { label: "Margem Líquida", value: `R$ ${(computed.margin / 1000).toFixed(1)}k`, icon: TrendingUp, variant: "stat-card-success", delta: computed.totalRevenue > 0 ? `${Math.round((computed.margin / computed.totalRevenue) * 100)}%` : "", up: computed.margin > 0 },
     { label: "Ticket Médio", value: `R$ ${(computed.avgTicket / 1000).toFixed(1)}k`, icon: Target, variant: "", delta: "", up: true },
     { label: "Pipeline", value: `R$ ${(computed.pipelineValue / 1000).toFixed(0)}k`, icon: Users, variant: "stat-card-info", delta: `${computed.openLeads} leads`, up: true },
     { label: "Conversão", value: `${computed.conversionRate}%`, icon: Percent, variant: "stat-card-success", delta: "", up: true },
-    { label: "Contratos Ativos", value: `${contracts.filter(c => c.status === "active").length}`, icon: FileText, variant: "", delta: `${computed.activeVeiculacao} veic.`, up: true },
     { label: "OS Pendentes", value: `${computed.pendingOS}`, icon: Clock, variant: computed.overdueOS > 0 ? "stat-card-warning" : "", delta: computed.overdueOS > 0 ? `${computed.overdueOS} atrasada(s)` : "", up: false },
   ];
 

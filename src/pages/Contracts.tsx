@@ -2,7 +2,7 @@ import { useData, Contract } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Trash2, Edit, X, Download, Upload, Paperclip, ExternalLink } from "lucide-react";
+import { FileText, Plus, Trash2, Edit, X, Download, Upload, Paperclip, ExternalLink, Wrench } from "lucide-react";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";

@@ -134,107 +134,85 @@ export function useData() {
 
 function mapBillboard(row: any): Billboard {
   return {
-    id: row.id,
-    code: row.code,
-    lat: row.lat,
-    lng: row.lng,
-    city: row.city || "",
-    region: row.region || "",
-    route: row.route || "",
-    address: row.address || "",
-    type: row.type || "painel_rodoviario",
-    dimension: row.dimension || "9x3m",
-    area: Number(row.area) || 27,
-    direction: row.direction || "",
-    estimated_flow: row.estimated_flow || 0,
-    audience_profile: row.audience_profile || "",
-    seasonality: row.seasonality || "media",
-    traffic_type: row.traffic_type || "",
-    land_owner: row.land_owner || "",
-    land_owner_id: row.land_owner_id,
-    cost: Number(row.cost) || 0,
-    price: Number(row.price) || 0,
-    production_cost: Number(row.production_cost) || 0,
-    status: row.status || "available",
-    photos: row.photos || [],
-    description: row.description || "",
-    formats: row.formats || [],
+    id: row.id, code: row.code, lat: row.lat, lng: row.lng,
+    city: row.city || "", region: row.region || "", route: row.route || "",
+    address: row.address || "", type: row.type || "painel_rodoviario",
+    dimension: row.dimension || "9x3m", area: Number(row.area) || 27,
+    direction: row.direction || "", estimated_flow: row.estimated_flow || 0,
+    audience_profile: row.audience_profile || "", seasonality: row.seasonality || "media",
+    traffic_type: row.traffic_type || "", land_owner: row.land_owner || "",
+    land_owner_id: row.land_owner_id, cost: Number(row.cost) || 0,
+    price: Number(row.price) || 0, production_cost: Number(row.production_cost) || 0,
+    status: row.status || "available", photos: row.photos || [],
+    description: row.description || "", formats: row.formats || [],
   };
 }
 
 function mapLead(row: any): Lead {
   return {
-    id: row.id,
-    company: row.company,
-    contact: row.contact || "",
-    phone: row.phone || "",
-    email: row.email || "",
-    stage: row.stage || "lead",
-    value: Number(row.value) || 0,
-    billboard_ids: row.billboard_ids || [],
-    notes: row.notes || "",
-    origin: row.origin || "site",
-    interactions: row.interactions || [],
-    created_at: row.created_at,
+    id: row.id, company: row.company, contact: row.contact || "",
+    phone: row.phone || "", email: row.email || "", stage: row.stage || "lead",
+    value: Number(row.value) || 0, billboard_ids: row.billboard_ids || [],
+    notes: row.notes || "", origin: row.origin || "site",
+    interactions: row.interactions || [], created_at: row.created_at,
   };
 }
 
 function mapClient(row: any): Client {
   return {
-    id: row.id,
-    name: row.name,
-    company: row.company || "",
-    document: row.document || "",
-    phone: row.phone || "",
-    email: row.email || "",
-    type: row.type || "advertiser",
-    address: row.address || "",
-    history: row.history || [],
-    billboard_ids: row.billboard_ids || [],
-    contract_ids: row.contract_ids || [],
-    segment: row.segment || "",
-    notes: row.notes || "",
-    contact_person: row.contact_person || "",
-    land_registry: row.land_registry || "",
-    property_area: row.property_area || "",
+    id: row.id, name: row.name, company: row.company || "",
+    document: row.document || "", phone: row.phone || "", email: row.email || "",
+    type: row.type || "advertiser", address: row.address || "",
+    history: row.history || [], billboard_ids: row.billboard_ids || [],
+    contract_ids: row.contract_ids || [], segment: row.segment || "",
+    notes: row.notes || "", contact_person: row.contact_person || "",
+    land_registry: row.land_registry || "", property_area: row.property_area || "",
     bank_info: row.bank_info || "",
   };
 }
 
 function mapContract(row: any): Contract {
   return {
-    id: row.id,
-    type: row.type || "veiculacao",
-    client_id: row.client_id,
-    client_name: row.client_name || "",
-    billboard_ids: row.billboard_ids || [],
-    start_date: row.start_date,
-    end_date: row.end_date,
-    monthly_value: Number(row.monthly_value) || 0,
-    total_value: Number(row.total_value) || 0,
-    status: row.status || "pending",
-    renewal_type: row.renewal_type || "manual",
-    payment_method: row.payment_method || "",
-    document_url: row.document_url || "",
+    id: row.id, type: row.type || "veiculacao", client_id: row.client_id,
+    client_name: row.client_name || "", billboard_ids: row.billboard_ids || [],
+    start_date: row.start_date, end_date: row.end_date,
+    monthly_value: Number(row.monthly_value) || 0, total_value: Number(row.total_value) || 0,
+    status: row.status || "pending", renewal_type: row.renewal_type || "manual",
+    payment_method: row.payment_method || "", document_url: row.document_url || "",
   };
 }
 
 function mapWorkOrder(row: any): WorkOrder {
   return {
-    id: row.id,
-    type: row.type || "installation",
-    billboard_id: row.billboard_id,
-    billboard_code: row.billboard_code || "",
-    client_name: row.client_name || "",
-    assignee: row.assignee || "",
-    status: row.status || "pending",
-    due_date: row.due_date,
-    completed_date: row.completed_date || undefined,
-    sla_hours: row.sla_hours || 48,
-    checklist: row.checklist || [],
-    photos_before: row.photos_before || [],
-    photos_after: row.photos_after || [],
+    id: row.id, type: row.type || "installation", billboard_id: row.billboard_id,
+    billboard_code: row.billboard_code || "", client_name: row.client_name || "",
+    assignee: row.assignee || "", status: row.status || "pending",
+    due_date: row.due_date, completed_date: row.completed_date || undefined,
+    sla_hours: row.sla_hours || 48, checklist: row.checklist || [],
+    photos_before: row.photos_before || [], photos_after: row.photos_after || [],
   };
+}
+
+// Individual fetch functions
+async function fetchBillboards() {
+  const { data } = await supabase.from("billboards").select("*").order("code");
+  return data ? data.map(mapBillboard) : [];
+}
+async function fetchLeads() {
+  const { data } = await supabase.from("leads").select("*").order("created_at", { ascending: false });
+  return data ? data.map(mapLead) : [];
+}
+async function fetchClients() {
+  const { data } = await supabase.from("clients").select("*").order("name");
+  return data ? data.map(mapClient) : [];
+}
+async function fetchContracts() {
+  const { data } = await supabase.from("contracts").select("*").order("start_date", { ascending: false });
+  return data ? data.map(mapContract) : [];
+}
+async function fetchWorkOrders() {
+  const { data } = await supabase.from("work_orders").select("*").order("due_date");
+  return data ? data.map(mapWorkOrder) : [];
 }
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -248,19 +226,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
-    const [bRes, lRes, cRes, ctRes, woRes] = await Promise.all([
-      supabase.from("billboards").select("*").order("code"),
-      supabase.from("leads").select("*").order("created_at", { ascending: false }),
-      supabase.from("clients").select("*").order("name"),
-      supabase.from("contracts").select("*").order("start_date", { ascending: false }),
-      supabase.from("work_orders").select("*").order("due_date"),
+    const [b, l, c, ct, wo] = await Promise.all([
+      fetchBillboards(), fetchLeads(), fetchClients(), fetchContracts(), fetchWorkOrders(),
     ]);
-    if (bRes.data) setBillboards(bRes.data.map(mapBillboard));
-    if (lRes.data) setLeads(lRes.data.map(mapLead));
-    if (cRes.data) setClients(cRes.data.map(mapClient));
-    if (ctRes.data) setContracts(ctRes.data.map(mapContract));
-    if (woRes.data) setWorkOrders(woRes.data.map(mapWorkOrder));
+    setBillboards(b); setLeads(l); setClients(c); setContracts(ct); setWorkOrders(wo);
     setLoading(false);
+  }, []);
+
+  const refreshTable = useCallback(async (table: "billboards" | "leads" | "clients" | "contracts" | "work_orders") => {
+    switch (table) {
+      case "billboards": setBillboards(await fetchBillboards()); break;
+      case "leads": setLeads(await fetchLeads()); break;
+      case "clients": setClients(await fetchClients()); break;
+      case "contracts": setContracts(await fetchContracts()); break;
+      case "work_orders": setWorkOrders(await fetchWorkOrders()); break;
+    }
   }, []);
 
   useEffect(() => {
@@ -276,19 +256,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
       traffic_type: b.traffic_type, land_owner: b.land_owner, cost: b.cost, price: b.price,
       production_cost: b.production_cost, status: b.status, description: b.description, formats: b.formats, photos: b.photos || [],
     } as any);
-    if (!error) fetchAll();
+    if (!error) refreshTable("billboards");
   };
 
   const updateBillboard = async (id: string, updates: Partial<Billboard>) => {
     const dbUpdates: any = { ...updates };
     delete dbUpdates.id;
     const { error } = await supabase.from("billboards").update(dbUpdates).eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("billboards");
   };
 
   const deleteBillboard = async (id: string) => {
     const { error } = await supabase.from("billboards").delete().eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("billboards");
   };
 
   // Lead CRUD
@@ -298,7 +278,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       stage: l.stage, value: l.value, billboard_ids: l.billboard_ids || [],
       notes: l.notes, origin: l.origin, interactions: l.interactions || [],
     } as any);
-    if (!error) fetchAll();
+    if (!error) refreshTable("leads");
   };
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
@@ -306,12 +286,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
     delete dbUpdates.id;
     delete dbUpdates.created_at;
     const { error } = await supabase.from("leads").update(dbUpdates).eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("leads");
   };
 
   const deleteLead = async (id: string) => {
     const { error } = await supabase.from("leads").delete().eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("leads");
   };
 
   const moveLeadStage = async (id: string, stage: Lead["stage"]) => {
@@ -325,19 +305,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
       email: c.email, type: c.type, address: c.address, history: c.history || [],
       billboard_ids: c.billboard_ids || [], contract_ids: c.contract_ids || [],
     } as any);
-    if (!error) fetchAll();
+    if (!error) refreshTable("clients");
   };
 
   const updateClient = async (id: string, updates: Partial<Client>) => {
     const dbUpdates: any = { ...updates };
     delete dbUpdates.id;
     const { error } = await supabase.from("clients").update(dbUpdates).eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("clients");
   };
 
   const deleteClient = async (id: string) => {
     const { error } = await supabase.from("clients").delete().eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("clients");
   };
 
   // Contract CRUD
@@ -348,19 +328,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
       monthly_value: c.monthly_value, total_value: c.total_value, status: c.status,
       renewal_type: c.renewal_type, payment_method: c.payment_method, document_url: c.document_url || "",
     } as any);
-    if (!error) fetchAll();
+    if (!error) refreshTable("contracts");
   };
 
   const updateContract = async (id: string, updates: Partial<Contract>) => {
     const dbUpdates: any = { ...updates };
     delete dbUpdates.id;
     const { error } = await supabase.from("contracts").update(dbUpdates).eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("contracts");
   };
 
   const deleteContract = async (id: string) => {
     const { error } = await supabase.from("contracts").delete().eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("contracts");
   };
 
   // Work Order CRUD
@@ -371,19 +351,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
       due_date: w.due_date, sla_hours: w.sla_hours, checklist: w.checklist || [],
       photos_before: w.photos_before || [], photos_after: w.photos_after || [],
     } as any);
-    if (!error) fetchAll();
+    if (!error) refreshTable("work_orders");
   };
 
   const updateWorkOrder = async (id: string, updates: Partial<WorkOrder>) => {
     const dbUpdates: any = { ...updates };
     delete dbUpdates.id;
     const { error } = await supabase.from("work_orders").update(dbUpdates).eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("work_orders");
   };
 
   const deleteWorkOrder = async (id: string) => {
     const { error } = await supabase.from("work_orders").delete().eq("id", id);
-    if (!error) fetchAll();
+    if (!error) refreshTable("work_orders");
   };
 
   return (

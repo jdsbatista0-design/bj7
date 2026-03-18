@@ -76,8 +76,9 @@ function PublicNav() {
   );
 }
 
-/* ====== FAVRETTO-STYLE BILLBOARD SLIDE ====== */
-function BillboardSlide({ billboard, onContact }: { billboard: Billboard; onContact: () => void }) {
+/* ====== BILLBOARD CARD WITH PHOTOS + MAP ====== */
+function BillboardCard({ billboard, onContact }: { billboard: Billboard; onContact: () => void }) {
+  const [activePhoto, setActivePhoto] = useState(0);
   const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
   const statusStyle: Record<string, string> = {
     available: "bg-primary text-primary-foreground",
@@ -85,129 +86,162 @@ function BillboardSlide({ billboard, onContact }: { billboard: Billboard; onCont
     reserved: "bg-muted text-muted-foreground",
   };
   const monthlyImpacts = billboard.estimated_flow * 30;
+  const hasPhotos = billboard.photos && billboard.photos.length > 0;
 
   return (
-    <div className="relative w-full min-h-[70vh] md:min-h-[80vh] overflow-hidden rounded-2xl border border-border">
-      {/* Full background - Street View embed */}
-      <div className="absolute inset-0">
-        <iframe
-          src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
-          className="w-full h-full border-0"
-          loading="lazy"
-          title={`Street View #${billboard.code}`}
-        />
-      </div>
-
-      {/* Gradient overlays for readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/40 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-transparent to-background/30" />
-
-      {/* Top-right: Coordinates + Status */}
-      <div className="absolute top-4 right-4 md:top-6 md:right-6 text-right z-10">
-        <p className="text-xs text-muted-foreground font-mono mb-1">
-          Lat/Lng: {billboard.lat.toFixed(6)}, {billboard.lng.toFixed(6)}
-        </p>
-        <div className="flex items-center gap-2 justify-end">
-          <a
-            href={getGoogleMapsUrl(billboard.lat, billboard.lng)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity"
-          >
-            MAPA
-          </a>
-          <a
-            href={getStreetViewUrl(billboard.lat, billboard.lng)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-card/80 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary transition-colors"
-          >
-            STREET VIEW
-          </a>
-        </div>
-        <div className={`inline-block mt-3 px-4 py-1.5 rounded-md text-xs font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
-          {statusLabel[billboard.status]}
-        </div>
-      </div>
-
-      {/* Left panel: Data overlay (Favretto style) */}
-      <div className="absolute left-4 md:left-8 top-20 md:top-24 z-10 space-y-5 max-w-xs">
-        {/* Impacts */}
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-            <Target className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Impactos Mensais</p>
-            <p className="text-2xl md:text-3xl font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</p>
-            <p className="text-[10px] text-muted-foreground">(Fluxo diário × 30)</p>
-          </div>
-        </div>
-
-        {/* Flow */}
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-            <Car className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Fluxo Diário</p>
-            <p className="text-xl font-display font-black text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</p>
-          </div>
-        </div>
-
-        {/* Investment */}
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-            <DollarSign className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Investimento</p>
-            <div className="space-y-1 mt-1">
-              <div className="flex justify-between gap-4 text-sm">
-                <span className="text-primary font-semibold">Veiculação Mensal:</span>
-                <span className="font-bold text-foreground">R$ {billboard.price.toLocaleString()}</span>
-              </div>
-              {billboard.production_cost > 0 && (
-                <div className="flex justify-between gap-4 text-sm">
-                  <span className="text-primary font-semibold">Produção (lona):</span>
-                  <span className="font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
+    <div id={`billboard-${billboard.id}`} className="rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Top section: Photos + Map side by side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
+        {/* Left: Photo carousel or Street View fallback */}
+        <div className="relative aspect-[16/10] bg-muted">
+          {hasPhotos ? (
+            <>
+              <img
+                src={billboard.photos[activePhoto]}
+                alt={`Ponto #${billboard.code}`}
+                className="w-full h-full object-cover"
+              />
+              {billboard.photos.length > 1 && (
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                  {billboard.photos.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActivePhoto(i)}
+                      className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activePhoto ? 'bg-primary' : 'bg-white/50'}`}
+                    />
+                  ))}
                 </div>
               )}
-            </div>
+              {billboard.photos.length > 1 && (
+                <>
+                  <button onClick={() => setActivePhoto(p => p > 0 ? p - 1 : billboard.photos.length - 1)}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90 transition-colors">
+                    <ChevronLeft className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setActivePhoto(p => p < billboard.photos.length - 1 ? p + 1 : 0)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90 transition-colors">
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </>
+          ) : (
+            <iframe
+              src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
+              className="w-full h-full border-0"
+              loading="lazy"
+              title={`Street View #${billboard.code}`}
+            />
+          )}
+          {/* Status badge */}
+          <div className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
+            {statusLabel[billboard.status]}
           </div>
+          {/* Photo count */}
+          {hasPhotos && (
+            <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-semibold">
+              {activePhoto + 1}/{billboard.photos.length}
+            </div>
+          )}
         </div>
 
-        {/* Dimension */}
-        <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
-            <Ruler className="w-5 h-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Dimensões</p>
-            <p className="text-lg font-display font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</p>
+        {/* Right: Mini map */}
+        <div className="relative aspect-[16/10] hidden md:block">
+          <MapContainer
+            center={[billboard.lat, billboard.lng]}
+            zoom={14}
+            className="w-full h-full"
+            scrollWheelZoom={false}
+            zoomControl={false}
+            dragging={false}
+          >
+            <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
+            <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}>
+              <Popup>#{billboard.code}</Popup>
+            </Marker>
+          </MapContainer>
+          {/* Map action buttons */}
+          <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
+            <a
+              href={getGoogleMapsUrl(billboard.lat, billboard.lng)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 transition-opacity flex items-center gap-1"
+            >
+              <ExternalLink className="w-3 h-3" /> Google Maps
+            </a>
+            <a
+              href={getStreetViewUrl(billboard.lat, billboard.lng)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary transition-colors flex items-center gap-1"
+            >
+              <Eye className="w-3 h-3" /> Street View
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Bottom bar: Type + Location (Favretto footer style) */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 md:p-6">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3">
-          <div>
-            <h3 className="font-display font-black text-xl md:text-2xl text-foreground uppercase tracking-wide">
-              {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
+      {/* Bottom: Data panel */}
+      <div className="p-5 md:p-6">
+        <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          {/* Left: Title + location */}
+          <div className="flex-1">
+            <h3 className="font-display font-black text-lg md:text-xl text-foreground uppercase tracking-wide">
+              #{billboard.code} · {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              <span className="text-primary font-semibold">{billboard.city} ({billboard.code})</span>{" "}
-              {billboard.route}, {billboard.address}
-              {billboard.direction && <>, sentido {billboard.direction}</>}
+              <span className="text-primary font-semibold">{billboard.city}</span>{" "}
+              · {billboard.route}{billboard.address && `, ${billboard.address}`}
+              {billboard.direction && <> · sentido {billboard.direction}</>}
             </p>
           </div>
+
+          {/* Right: CTA */}
           <button
             onClick={onContact}
-            className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-bold hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 whitespace-nowrap"
+            className="bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/25 whitespace-nowrap"
           >
             Solicitar Proposta
           </button>
+        </div>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-5 border-t border-border/50">
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span>
+            <span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Fluxo diário</span>
+            <span className="text-sm font-bold text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span>
+            <span className="text-sm font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span>
+            <span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span>
+          </div>
+          {billboard.production_cost > 0 && (
+            <div>
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Produção (lona)</span>
+              <span className="text-sm font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile map link */}
+        <div className="flex gap-2 mt-4 md:hidden">
+          <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+            className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
+            <MapPin className="w-3 h-3" /> Ver no Mapa
+          </a>
+          <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
+            className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
+            <Eye className="w-3 h-3" /> Street View
+          </a>
         </div>
       </div>
     </div>

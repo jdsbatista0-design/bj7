@@ -3,7 +3,7 @@ import { useData, Lead } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit } from "lucide-react";
+import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

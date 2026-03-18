@@ -4,9 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import {
-  Search, MapPin, ArrowRight, Menu, X, Phone, Car, Ruler, Eye,
-  Building2, User, Shield, Award, TrendingUp, Navigation, ExternalLink,
-  ChevronRight, Maximize2, ChevronLeft, Target, DollarSign, Calendar,
+  Search, MapPin, Menu, X, Phone, Car, Ruler, Eye,
+  Building2, User, Shield, TrendingUp, Navigation, ExternalLink,
+  ChevronRight, Maximize2, ChevronLeft, DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
@@ -25,42 +25,28 @@ function createPublicIcon(code: string, status: Billboard["status"]) {
   return L.divIcon({
     className: "",
     html: `<div style="padding:4px 10px;border-radius:8px;background:${color};color:${status === 'available' ? '#000' : '#fff'};font-weight:700;font-size:11px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;border:2px solid rgba(255,255,255,0.25);box-shadow:0 2px 12px ${color}55;cursor:pointer;">#${code}</div>`,
-    iconSize: [55, 26],
-    iconAnchor: [27, 13],
+    iconSize: [55, 26], iconAnchor: [27, 13],
   });
 }
 
-function getStreetViewUrl(lat: number, lng: number) {
-  return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`;
-}
-
-function getGoogleMapsUrl(lat: number, lng: number) {
-  return `https://www.google.com/maps?q=${lat},${lng}`;
-}
+function getStreetViewUrl(lat: number, lng: number) { return `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
+function getGoogleMapsUrl(lat: number, lng: number) { return `https://www.google.com/maps?q=${lat},${lng}`; }
 
 function PublicNav() {
   const [open, setOpen] = useState(false);
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-background/95 backdrop-blur-xl border-b border-border/30">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <a href="#" className="flex items-center gap-3">
-          <img src={logoBj7} alt="BJ7 Mídia" className="h-10 w-auto" />
-        </a>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 md:h-16 flex items-center justify-between">
+        <a href="#" className="flex items-center gap-3"><img src={logoBj7} alt="BJ7 Mídia" className="h-8 md:h-10 w-auto" /></a>
         <div className="hidden md:flex items-center gap-8 text-sm">
           <a href="#about" className="text-muted-foreground hover:text-primary transition-colors font-medium">Sobre</a>
           <a href="#map" className="text-muted-foreground hover:text-primary transition-colors font-medium">Mapa</a>
           <a href="#catalog" className="text-muted-foreground hover:text-primary transition-colors font-medium">Pontos</a>
           <a href="#landowner" className="text-muted-foreground hover:text-primary transition-colors font-medium">Proprietários</a>
-          <a href="#contact" className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition-opacity">
-            Solicitar Proposta
-          </a>
-          <a href="/login" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-2">
-            Acesso Interno
-          </a>
+          <a href="#contact" className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg font-semibold hover:opacity-90 transition-opacity">Solicitar Proposta</a>
+          <a href="/login" className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors ml-2">Acesso Interno</a>
         </div>
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <button className="md:hidden text-foreground p-2" onClick={() => setOpen(!open)}>{open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}</button>
       </div>
       {open && (
         <div className="md:hidden border-t border-border/30 bg-background/98 backdrop-blur-xl p-4 space-y-3">
@@ -76,135 +62,79 @@ function PublicNav() {
   );
 }
 
-/* ====== BILLBOARD POPUP MODAL ====== */
 function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose: () => void }) {
   const [activePhoto, setActivePhoto] = useState(0);
-  const hasPhotos = billboard.photos && billboard.photos.length > 0;
+  const allPhotos = [billboard.main_photo, ...(billboard.gallery || []), ...(billboard.photos || [])].filter(Boolean);
+  const hasPhotos = allPhotos.length > 0;
   const monthlyImpacts = billboard.estimated_flow * 30;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-      <div
-        className="relative bg-card border border-border rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Close button - sticky so it stays visible on scroll */}
+      <div className="relative bg-card border border-border rounded-t-2xl md:rounded-2xl w-full md:max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
         <button onClick={onClose} className="sticky top-3 float-right mr-3 mt-3 z-50 bg-background/90 backdrop-blur-sm rounded-full p-2 hover:bg-destructive hover:text-destructive-foreground transition-colors shadow-lg border border-border">
           <X className="w-5 h-5" />
         </button>
 
-        {/* Top: Photo + Map side by side */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
-          {/* Photo */}
           <div className="relative aspect-[16/10] bg-muted">
             {hasPhotos ? (
               <>
-                <img src={billboard.photos[activePhoto]} alt={`Ponto #${billboard.code}`} className="w-full h-full object-cover" />
-                {billboard.photos.length > 1 && (
+                <img src={allPhotos[activePhoto]} alt={`Ponto #${billboard.code}`} className="w-full h-full object-cover" />
+                {allPhotos.length > 1 && (
                   <>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {billboard.photos.map((_, i) => (
-                        <button key={i} onClick={() => setActivePhoto(i)}
-                          className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activePhoto ? 'bg-primary' : 'bg-white/50'}`} />
-                      ))}
+                      {allPhotos.map((_, i) => (<button key={i} onClick={() => setActivePhoto(i)} className={`w-2.5 h-2.5 rounded-full transition-colors ${i === activePhoto ? 'bg-primary' : 'bg-white/50'}`} />))}
                     </div>
-                    <button onClick={() => setActivePhoto(p => p > 0 ? p - 1 : billboard.photos.length - 1)}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90">
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => setActivePhoto(p => p < billboard.photos.length - 1 ? p + 1 : 0)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5 hover:bg-background/90">
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                    <button onClick={() => setActivePhoto(p => p > 0 ? p - 1 : allPhotos.length - 1)} className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5"><ChevronLeft className="w-4 h-4" /></button>
+                    <button onClick={() => setActivePhoto(p => p < allPhotos.length - 1 ? p + 1 : 0)} className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 backdrop-blur-sm rounded-full p-1.5"><ChevronRight className="w-4 h-4" /></button>
                   </>
                 )}
-                <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm px-2.5 py-1 rounded-md text-xs font-semibold">
-                  {activePhoto + 1}/{billboard.photos.length}
-                </div>
               </>
             ) : (
-              <iframe
-                src={`https://www.google.com/maps/embed?pb=!4v0!6m8!1m7!1s!2m2!1d${billboard.lat}!2d${billboard.lng}!3f0!4f0!5f0.7820865974627469&output=svembed`}
-                className="w-full h-full border-0" loading="lazy" title={`Street View #${billboard.code}`}
-              />
+              <div className="w-full h-full flex items-center justify-center"><MapPin className="w-10 h-10 text-muted-foreground/30" /></div>
             )}
           </div>
-
-          {/* Map */}
           <div className="relative aspect-[16/10] hidden md:block">
-            <MapContainer center={[billboard.lat, billboard.lng]} zoom={14} className="w-full h-full"
-              scrollWheelZoom={false} zoomControl={false} dragging={false}>
+            <MapContainer center={[billboard.lat, billboard.lng]} zoom={14} className="w-full h-full" scrollWheelZoom={false} zoomControl={false} dragging={false}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
-              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}>
-                <Popup>#{billboard.code}</Popup>
-              </Marker>
+              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
             </MapContainer>
             <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
-              <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-                className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1">
-                <ExternalLink className="w-3 h-3" /> Google Maps
-              </a>
-              <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-                className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1">
-                <Eye className="w-3 h-3" /> Street View
-              </a>
+              <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
+              <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
             </div>
           </div>
         </div>
 
-        {/* Data panel */}
-        <div className="p-5 md:p-6">
-          <h3 className="font-display font-black text-xl md:text-2xl text-foreground uppercase tracking-wide">
-            #{billboard.code} · {typeLabels[billboard.type] || billboard.type} {billboard.dimension}
+        <div className="p-4 md:p-6">
+          <h3 className="font-display font-black text-xl md:text-2xl uppercase tracking-wide">
+            #{billboard.code} · {billboard.title || typeLabels[billboard.type] || billboard.type} {billboard.dimension}
           </h3>
           <p className="text-sm text-muted-foreground mt-1">
-            <span className="text-primary font-semibold">{billboard.city}</span>{" "}
-            · {billboard.route}{billboard.address && `, ${billboard.address}`}
-            {billboard.direction && <> · sentido {billboard.direction}</>}
+            <span className="text-primary font-semibold">{billboard.city}</span> · {billboard.route}{billboard.address && `, ${billboard.address}`}{billboard.direction && <> · sentido {billboard.direction}</>}
           </p>
-
-          {billboard.description && (
-            <p className="text-sm text-muted-foreground mt-3 leading-relaxed bg-muted/50 rounded-lg p-3 border border-border/50">
-              {billboard.description}
-            </p>
+          {(billboard.commercial_description || billboard.description) && (
+            <p className="text-sm text-muted-foreground mt-3 leading-relaxed bg-muted/50 rounded-lg p-3 border border-border/50">{billboard.commercial_description || billboard.description}</p>
           )}
-
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-5 pt-5 border-t border-border/50">
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span>
-              <span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Fluxo diário</span>
-              <span className="text-sm font-bold text-foreground">{billboard.estimated_flow.toLocaleString()} veíc/dia</span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span>
-              <span className="text-sm font-bold text-foreground">{billboard.dimension} ({billboard.area}m²)</span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span>
-              <span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span>
-            </div>
-            {billboard.production_cost > 0 && (
-              <div>
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Produção (lona)</span>
-                <span className="text-sm font-bold text-foreground">R$ {billboard.production_cost.toLocaleString()}</span>
-              </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-border/50">
+            <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span><span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span></div>
+            <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span><span className="text-sm font-bold">{billboard.dimension} ({billboard.area}m²)</span></div>
+            <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span><span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span></div>
+            {billboard.illumination && billboard.illumination !== "nao" && (
+              <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Iluminação</span><span className="text-sm font-bold">{billboard.illumination}</span></div>
             )}
           </div>
-
-          {/* Mobile map links */}
-          <div className="flex gap-2 mt-4 md:hidden">
-            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-              className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
-              <MapPin className="w-3 h-3" /> Ver no Mapa
+          <div className="flex flex-col sm:flex-row gap-3 mt-5">
+            <a href="#contact" onClick={onClose} className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl font-bold text-sm text-center hover:opacity-90">Solicitar Proposta</a>
+            <a href={`https://wa.me/554184242067?text=Olá! Tenho interesse no ponto %23${billboard.code}`} target="_blank" rel="noopener noreferrer"
+              className="flex-1 bg-success text-success-foreground py-3 rounded-xl font-bold text-sm text-center hover:opacity-90 flex items-center justify-center gap-2">
+              <Phone className="w-4 h-4" /> WhatsApp
             </a>
-            <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer"
-              className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1">
-              <Eye className="w-3 h-3" /> Street View
-            </a>
+          </div>
+          <div className="flex gap-2 mt-3 md:hidden">
+            <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
+            <a href={getStreetViewUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
           </div>
         </div>
       </div>
@@ -212,80 +142,38 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
   );
 }
 
-/* ====== BILLBOARD CARD (compact — photo + description, click to open modal) ====== */
 function BillboardCard({ billboard, onOpen }: { billboard: Billboard; onOpen: () => void }) {
   const statusLabel: Record<string, string> = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
-  const statusStyle: Record<string, string> = {
-    available: "bg-primary text-primary-foreground",
-    occupied: "bg-destructive text-destructive-foreground",
-    reserved: "bg-muted text-muted-foreground",
-  };
-  const hasPhotos = billboard.photos && billboard.photos.length > 0;
-  const thumbSrc = hasPhotos
-    ? billboard.photos[0]
-    : `https://maps.googleapis.com/maps/api/streetview?size=400x300&location=${billboard.lat},${billboard.lng}&key=none`;
+  const statusStyle: Record<string, string> = { available: "bg-primary text-primary-foreground", occupied: "bg-destructive text-destructive-foreground", reserved: "bg-muted text-muted-foreground" };
+  const thumbSrc = billboard.main_photo || (billboard.photos && billboard.photos[0]) || "";
 
   return (
-    <div
-      onClick={onOpen}
-      className="group rounded-xl border border-border bg-card overflow-hidden cursor-pointer hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
-    >
-      {/* Photo thumbnail */}
+    <div onClick={onOpen} className="group rounded-xl border border-border bg-card overflow-hidden cursor-pointer hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
       <div className="relative aspect-[16/9] bg-muted overflow-hidden">
-        {hasPhotos ? (
-          <img src={billboard.photos[0]} alt={`Ponto #${billboard.code}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        {thumbSrc ? (
+          <img src={thumbSrc} alt={`#${billboard.code}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <div className="text-center">
-              <MapPin className="w-8 h-8 text-muted-foreground/40 mx-auto mb-1" />
-              <span className="text-xs text-muted-foreground/60">Sem foto</span>
-            </div>
-          </div>
+          <div className="w-full h-full flex items-center justify-center bg-muted"><MapPin className="w-8 h-8 text-muted-foreground/40" /></div>
         )}
-        {/* Status badge */}
-        <div className={`absolute top-2 left-2 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>
-          {statusLabel[billboard.status]}
-        </div>
-        {/* Photo count */}
-        {hasPhotos && billboard.photos.length > 1 && (
-          <div className="absolute top-2 right-2 bg-background/70 backdrop-blur-sm px-2 py-0.5 rounded-md text-[10px] font-semibold">
-            {billboard.photos.length} fotos
-          </div>
-        )}
+        <div className={`absolute top-2 left-2 px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${statusStyle[billboard.status]}`}>{statusLabel[billboard.status]}</div>
       </div>
-
-      {/* Info */}
-      <div className="p-4">
+      <div className="p-3 md:p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="font-display font-bold text-sm text-foreground uppercase tracking-wide truncate">
-              #{billboard.code} · {typeLabels[billboard.type] || billboard.type}
-            </h3>
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">
-              {billboard.city} · {billboard.route}
-            </p>
+            <h3 className="font-display font-bold text-sm uppercase tracking-wide truncate">#{billboard.code} · {billboard.title || typeLabels[billboard.type] || billboard.type}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{billboard.city} · {billboard.route}</p>
           </div>
           {billboard.price > 0 && (
-            <span className="text-sm font-display font-black text-primary whitespace-nowrap">
-              R$ {billboard.price.toLocaleString()}
-              <span className="text-[10px] font-normal text-muted-foreground">/mês</span>
-            </span>
+            <span className="text-sm font-display font-black text-primary whitespace-nowrap">R$ {billboard.price.toLocaleString()}<span className="text-[10px] font-normal text-muted-foreground">/mês</span></span>
           )}
         </div>
-
-        {billboard.description && (
-          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-            {billboard.description}
-          </p>
+        {(billboard.short_description || billboard.description) && (
+          <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">{billboard.short_description || billboard.description}</p>
         )}
-
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider">
           <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> {billboard.dimension}</span>
           <span className="flex items-center gap-1"><Car className="w-3 h-3" /> {billboard.estimated_flow.toLocaleString()}/dia</span>
-          <span className="ml-auto text-primary font-semibold flex items-center gap-1">
-            Ver detalhes <ChevronRight className="w-3 h-3" />
-          </span>
+          <span className="ml-auto text-primary font-semibold flex items-center gap-1">Ver <ChevronRight className="w-3 h-3" /></span>
         </div>
       </div>
     </div>
@@ -305,28 +193,28 @@ export default function PublicSite() {
     const fetchBillboards = async () => {
       const { data } = await supabase.from("billboards").select("*").order("code");
       if (data) {
-        setBillboards(data.map((row: any) => ({
-          id: row.id, code: row.code, lat: row.lat, lng: row.lng,
-          city: row.city || "", region: row.region || "", route: row.route || "",
+        setBillboards(data.filter((row: any) => row.active !== false && row.show_on_site !== false).map((row: any) => ({
+          id: row.id, code: row.code, title: row.title || "", short_description: row.short_description || "",
+          commercial_description: row.commercial_description || "",
+          lat: row.lat, lng: row.lng, city: row.city || "", region: row.region || "", route: row.route || "",
           address: row.address || "", type: row.type || "painel_rodoviario",
-          dimension: row.dimension || "9x3m", area: Number(row.area) || 27,
-          direction: row.direction || "", estimated_flow: row.estimated_flow || 0,
+          dimension: row.dimension || "9x3m", width: Number(row.width) || 9, height: Number(row.height) || 3,
+          area: Number(row.area) || 27, direction: row.direction || "", estimated_flow: row.estimated_flow || 0,
           audience_profile: row.audience_profile || "", seasonality: row.seasonality || "media",
           traffic_type: row.traffic_type || "", land_owner: row.land_owner || "",
           land_owner_id: row.land_owner_id, cost: Number(row.cost) || 0,
           price: Number(row.price) || 0, production_cost: Number(row.production_cost) || 0,
-          status: row.status || "available", photos: row.photos || [],
+          status: row.status || "available", commercial_status: row.commercial_status || "available",
+          operational_status: row.operational_status || "active",
+          photos: row.photos || [], main_photo: row.main_photo || "", gallery: row.gallery || [],
           description: row.description || "", formats: row.formats || [],
+          maps_url: row.maps_url || "", google_street_view_url: row.google_street_view_url || "",
+          illumination: row.illumination || "nao", show_on_site: true, active: true,
         })));
       }
     };
     fetchBillboards();
-
-    const channel = supabase
-      .channel('public-billboards')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => fetchBillboards())
-      .subscribe();
-
+    const channel = supabase.channel('public-billboards').on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => fetchBillboards()).subscribe();
     return () => { supabase.removeChannel(channel); };
   }, []);
 
@@ -345,337 +233,194 @@ export default function PublicSite() {
   const available = filtered.filter(b => b.status === "available");
   const totalFlow = billboards.reduce((s, b) => s + b.estimated_flow, 0);
 
-  const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     if (formType === "advertiser") {
-      const { error } = await supabase.from("leads").insert({
-        company: formData.get("company") as string,
-        contact: formData.get("contact") as string,
-        phone: formData.get("phone") as string,
-        email: formData.get("email") as string,
-        notes: formData.get("notes") as string || "",
-        stage: "lead",
-        origin: "site",
-      } as any);
-      if (error) { toast.error("Erro ao enviar. Tente novamente."); return; }
+      const { error } = await supabase.from("leads").insert({ company: formData.get("company") as string, contact: formData.get("contact") as string, phone: formData.get("phone") as string, email: formData.get("email") as string, notes: formData.get("notes") as string || "", stage: "lead", origin: "site" } as any);
+      if (error) { toast.error("Erro ao enviar"); return; }
     } else {
-      // Landowner form — save as client type landowner
-      const { error } = await supabase.from("clients").insert({
-        name: formData.get("owner_name") as string,
-        phone: formData.get("owner_phone") as string,
-        email: (formData.get("owner_email") as string) || "",
-        type: "landowner",
-        notes: formData.get("owner_location") as string || "",
-      } as any);
-      if (error) { toast.error("Erro ao enviar. Tente novamente."); return; }
+      const { error } = await supabase.from("clients").insert({ name: formData.get("owner_name") as string, phone: formData.get("owner_phone") as string, email: (formData.get("owner_email") as string) || "", type: "landowner", notes: formData.get("owner_location") as string || "" } as any);
+      if (error) { toast.error("Erro ao enviar"); return; }
     }
-    toast.success(formType === "advertiser" ? "Proposta solicitada! Entraremos em contato." : "Terreno cadastrado! Avaliaremos o local.");
+    toast.success(formType === "advertiser" ? "Proposta enviada!" : "Terreno cadastrado!");
     (e.target as HTMLFormElement).reset();
   };
 
   return (
     <div className="min-h-screen bg-background">
       <PublicNav />
+      {selectedBillboard && <BillboardModal billboard={selectedBillboard} onClose={() => setSelectedBillboard(null)} />}
 
-      {/* Billboard detail modal */}
-      {selectedBillboard && (
-        <BillboardModal billboard={selectedBillboard} onClose={() => setSelectedBillboard(null)} />
-      )}
-
-      {/* ====== HERO ====== */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Hero */}
+      <section className="relative min-h-[75vh] md:min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <video autoPlay muted loop playsInline poster={heroBillboard} className="w-full h-full object-cover">
-            <source src={heroVideoAsset.url} type="video/mp4" />
-          </video>
+          <video autoPlay muted loop playsInline poster={heroBillboard} className="w-full h-full object-cover"><source src={heroVideoAsset.url} type="video/mp4" /></video>
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background" />
         </div>
-
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center pt-16">
           <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 rounded-full px-4 py-1.5 mb-6">
-            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-primary text-sm font-semibold tracking-wide">MÍDIA EXTERIOR · LITORAL DO PARANÁ</span>
+            <div className="w-2 h-2 rounded-full bg-primary animate-pulse" /><span className="text-primary text-sm font-semibold tracking-wide">MÍDIA EXTERIOR · LITORAL DO PARANÁ</span>
           </div>
-
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-display font-black leading-[1.1] max-w-4xl mx-auto">
-            Sua marca nos{" "}
-            <span className="glow-text">melhores pontos</span>{" "}
-            do litoral
-          </h1>
-
-          <p className="text-muted-foreground mt-6 max-w-2xl mx-auto text-lg sm:text-xl">
-            Rede premium de painéis rodoviários no corredor mais movimentado ao litoral paranaense.{" "}
-            {available.length > 0 && (
-              <span className="text-primary font-semibold">{available.length} pontos disponíveis</span>
-            )}
+          <h1 className="text-3xl sm:text-5xl md:text-7xl font-display font-black leading-[1.1] max-w-4xl mx-auto">Sua marca nos <span className="glow-text">melhores pontos</span> do litoral</h1>
+          <p className="text-muted-foreground mt-6 max-w-2xl mx-auto text-base sm:text-xl">
+            Rede premium de painéis rodoviários no corredor mais movimentado ao litoral paranaense.
+            {available.length > 0 && <> <span className="text-primary font-semibold">{available.length} pontos disponíveis</span></>}
           </p>
-
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-10">
-            <a href="#catalog" className="bg-primary text-primary-foreground px-8 py-4 rounded-xl font-bold text-lg hover:opacity-90 transition-opacity shadow-lg shadow-primary/25">
-              Ver Pontos Disponíveis
-            </a>
-            <a href="#contact" className="bg-card border border-border text-foreground px-8 py-4 rounded-xl font-bold text-lg hover:border-primary/40 transition-colors">
-              Solicitar Proposta
-            </a>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 md:mt-10">
+            <a href="#catalog" className="bg-primary text-primary-foreground px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:opacity-90 shadow-lg shadow-primary/25">Ver Pontos</a>
+            <a href={`https://wa.me/554184242067?text=Olá! Gostaria de uma proposta de mídia exterior`} target="_blank" rel="noopener noreferrer" className="bg-success text-success-foreground px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:opacity-90 flex items-center justify-center gap-2"><Phone className="w-5 h-5" /> WhatsApp</a>
           </div>
         </div>
       </section>
 
-      {/* ====== STATS BAR ====== */}
-      <section className="py-10 px-4 border-t border-border bg-card/50">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      {/* Stats */}
+      <section className="py-8 md:py-10 px-4 border-t border-border bg-card/50">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[
             { value: billboards.length, label: "Pontos Estratégicos", icon: MapPin },
             { value: routes.length, label: "Rodovias Cobertas", icon: Navigation },
             { value: `${Math.round(totalFlow / 1000)}k+`, label: "Impactos Diários", icon: TrendingUp },
             { value: `${Math.round(totalFlow * 30 / 1000000)}M+`, label: "Impactos Mensais", icon: Eye },
           ].map(s => (
-            <div key={s.label} className="text-center py-4">
+            <div key={s.label} className="text-center py-3 md:py-4">
               <s.icon className="w-5 h-5 text-primary mx-auto mb-2" />
-              <p className="text-3xl md:text-4xl font-display font-black text-primary">{s.value}</p>
-              <p className="text-xs text-muted-foreground mt-1 uppercase tracking-wider">{s.label}</p>
+              <p className="text-2xl md:text-4xl font-display font-black text-primary">{s.value}</p>
+              <p className="text-[10px] md:text-xs text-muted-foreground mt-1 uppercase tracking-wider">{s.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ====== ABOUT ====== */}
-      <section id="about" className="py-20 px-4">
+      {/* About */}
+      <section id="about" className="py-12 md:py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10 md:mb-14">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Por que a BJ7?</span>
-            <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
-              A rede que <span className="text-primary">conecta</span> sua marca ao litoral
-            </h2>
-            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-lg">
-              Presença estratégica nas principais rodovias de acesso ao litoral paranaense, com painéis de alto impacto e visibilidade.
-            </p>
+            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">A rede que <span className="text-primary">conecta</span> sua marca ao litoral</h2>
+            <p className="text-muted-foreground mt-4 max-w-2xl mx-auto text-base md:text-lg">Presença estratégica nas principais rodovias de acesso ao litoral paranaense.</p>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
             {[
-              {
-                icon: Navigation, title: "PR-412 · Rota do Litoral",
-                points: "6 pontos",
-                desc: "Garuva → Guaratuba. Principal corredor rodoviário de acesso ao litoral paranaense. Trevo de Garuva, trechos intermediários e chegada de Guaratuba.",
-              },
-              {
-                icon: MapPin, title: "PR-508 · Alexandra-Matinhos",
-                points: "2 pontos",
-                desc: "Corredor turístico de acesso às praias do litoral. Pontos estratégicos na região de Alexandra/Matinhos com visibilidade nos dois sentidos.",
-              },
-              {
-                icon: Building2, title: "BR-277 · Corredor Paranaguá",
-                points: "2 pontos",
-                desc: "Fluxo logístico entre o Porto de Paranaguá e Curitiba. Chegada e saída da cidade, impactando tanto turistas quanto o tráfego portuário.",
-              },
+              { icon: Navigation, title: "PR-412 · Rota do Litoral", points: "6 pontos", desc: "Garuva → Guaratuba. Principal corredor de acesso ao litoral." },
+              { icon: MapPin, title: "PR-508 · Alexandra-Matinhos", points: "2 pontos", desc: "Corredor turístico de acesso às praias." },
+              { icon: Building2, title: "BR-277 · Corredor Paranaguá", points: "2 pontos", desc: "Fluxo logístico entre Porto de Paranaguá e Curitiba." },
             ].map(item => (
-              <div key={item.title} className="rounded-xl border border-border bg-card p-8 hover:border-primary/30 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="font-display font-bold text-lg">{item.title}</h3>
-                </div>
+              <div key={item.title} className="rounded-xl border border-border bg-card p-6 md:p-8 hover:border-primary/30 transition-colors">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4"><item.icon className="w-6 h-6 text-primary" /></div>
+                <h3 className="font-display font-bold text-base md:text-lg mb-2">{item.title}</h3>
                 <span className="inline-block bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md mb-3">{item.points}</span>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mb-8">
-            <span className="text-primary text-sm font-semibold tracking-widest uppercase">Formatos de Mídia</span>
-            <h3 className="text-2xl md:text-3xl font-display font-black mt-3">
-              Painéis disponíveis para <span className="text-primary">sua campanha</span>
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { title: "Painel Padrão", size: "3m × 9m", area: "27m²", desc: "Formato padrão rodoviário com alta frequência visual. Ideal para campanhas institucionais e varejo.", icon: Ruler },
-              { title: "Painel Ampliado", size: "4m × 12m", area: "48m²", desc: "Formato ampliado de grande impacto. Excelente leitura a longa distância, muito usado para lançamentos imobiliários e marcas nacionais.", icon: Maximize2 },
-              { title: "Painel Gigante", size: "4m × 25m", area: "100m²", desc: "Painel gigante de alto impacto e máxima visibilidade em rodovias. Ideal para campanhas de grande alcance.", icon: Eye },
-            ].map(item => (
-              <div key={item.title} className="rounded-xl border border-primary/20 bg-gradient-to-b from-primary/5 to-transparent p-8 text-center">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h4 className="font-display font-bold text-lg mb-1">{item.title}</h4>
-                <p className="text-2xl font-display font-black text-primary">{item.size}</p>
-                <p className="text-xs text-muted-foreground mb-3">Área: {item.area}</p>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ====== MAP ====== */}
-      <section id="map" className="py-20 px-4 bg-card/50 border-t border-border">
+      {/* Map */}
+      <section id="map" className="py-12 md:py-20 px-4 bg-card/50 border-t border-border">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 md:mb-10">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Cobertura</span>
-            <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
-              Nossos pontos no <span className="text-primary">mapa</span>
-            </h2>
-            <p className="text-muted-foreground mt-3">Clique em um ponto para ver detalhes e localização no Google Maps</p>
+            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Nossos pontos no <span className="text-primary">mapa</span></h2>
           </div>
-
-          <div className="h-[500px] rounded-2xl overflow-hidden border border-border shadow-xl">
+          <div className="h-[350px] md:h-[500px] rounded-2xl overflow-hidden border border-border shadow-xl">
             <MapContainer center={[-25.85, -48.65]} zoom={10} className="w-full h-full">
               <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
               {filtered.map(b => (
-                <Marker key={b.id} position={[b.lat, b.lng]} icon={createPublicIcon(b.code, b.status)}
-                  eventHandlers={{ click: () => setSelectedBillboard(b) }}>
-                  <Popup>
-                    <div className="text-sm min-w-[200px]">
-                      <p className="font-bold text-base mb-1">#{b.code} · {b.address}</p>
-                      <p>{b.route} · {b.city}</p>
-                      <p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p>
-                    </div>
-                  </Popup>
+                <Marker key={b.id} position={[b.lat, b.lng]} icon={createPublicIcon(b.code, b.status)} eventHandlers={{ click: () => setSelectedBillboard(b) }}>
+                  <Popup><div className="text-sm min-w-[180px]"><p className="font-bold">#{b.code} · {b.title || b.address}</p><p>{b.route} · {b.city}</p><p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p></div></Popup>
                 </Marker>
               ))}
             </MapContainer>
           </div>
-
-          <div className="flex justify-center gap-6 mt-4 text-xs text-muted-foreground">
-            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-primary" /> Disponível</span>
-            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-destructive" /> Ocupado</span>
-            <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-muted-foreground" /> Reservado</span>
-          </div>
         </div>
       </section>
 
-      {/* ====== CATALOG — Grid of compact cards ====== */}
-      <section id="catalog" className="py-20 px-4">
+      {/* Catalog */}
+      <section id="catalog" className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
+          <div className="text-center mb-8 md:mb-10">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Catálogo</span>
-            <h2 className="text-3xl md:text-4xl font-display font-black mt-3">
-              Pontos <span className="text-primary">disponíveis</span>
-            </h2>
-            <p className="text-muted-foreground mt-3">Clique em um ponto para ver fotos, mapa e Street View</p>
+            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Pontos <span className="text-primary">disponíveis</span></h2>
           </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-3 mb-8 justify-center">
-            <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-4 py-2.5 max-w-[220px]">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-6 md:mb-8 justify-center">
+            <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 md:px-4 py-2 max-w-[200px]">
               <Search className="w-4 h-4 text-muted-foreground" />
-              <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar ponto..." value={search} onChange={e => setSearch(e.target.value)} />
+              <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
-            <select className="bg-card border border-border text-sm px-4 py-2.5 rounded-xl text-foreground outline-none" value={routeFilter} onChange={e => setRouteFilter(e.target.value)}>
-              <option value="all">Todas Rodovias</option>
-              {routes.map(r => <option key={r} value={r}>{r}</option>)}
+            <select className="bg-card border border-border text-sm px-3 py-2 rounded-xl outline-none" value={routeFilter} onChange={e => setRouteFilter(e.target.value)}>
+              <option value="all">Todas Rodovias</option>{routes.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
-            <select className="bg-card border border-border text-sm px-4 py-2.5 rounded-xl text-foreground outline-none" value={cityFilter} onChange={e => setCityFilter(e.target.value)}>
-              <option value="all">Todas Cidades</option>
-              {cities.map(c => <option key={c} value={c}>{c}</option>)}
+            <select className="bg-card border border-border text-sm px-3 py-2 rounded-xl outline-none hidden md:block" value={cityFilter} onChange={e => setCityFilter(e.target.value)}>
+              <option value="all">Todas Cidades</option>{cities.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
-            <select className="bg-card border border-border text-sm px-4 py-2.5 rounded-xl text-foreground outline-none" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}>
-              <option value="all">Todos Formatos</option>
-              {types.map(t => <option key={t} value={t}>{typeLabels[t] || t}</option>)}
-            </select>
-            <span className="text-xs text-muted-foreground font-medium">{filtered.length} pontos</span>
+            <span className="text-xs text-muted-foreground">{filtered.length} pontos</span>
           </div>
-
-          {/* Billboard grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filtered.map(b => (
-              <BillboardCard key={b.id} billboard={b} onOpen={() => setSelectedBillboard(b)} />
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {filtered.map(b => <BillboardCard key={b.id} billboard={b} onOpen={() => setSelectedBillboard(b)} />)}
           </div>
-
-          {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-16">Nenhum ponto encontrado com os filtros selecionados.</p>
-          )}
+          {filtered.length === 0 && <p className="text-center text-muted-foreground py-16">Nenhum ponto encontrado.</p>}
         </div>
       </section>
 
-      {/* ====== LANDOWNER ====== */}
-      <section id="landowner" className="py-20 px-4 bg-card/50 border-t border-border">
+      {/* Landowner */}
+      <section id="landowner" className="py-12 md:py-20 px-4 bg-card/50 border-t border-border">
         <div className="max-w-4xl mx-auto text-center">
           <Shield className="w-10 h-10 text-primary mx-auto mb-4" />
-          <h2 className="text-3xl md:text-4xl font-display font-black mb-4">Proprietário de terreno na rodovia?</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Monetize seu espaço à beira da rodovia. Cuidamos de toda a instalação, manutenção e comercialização.
-            Você recebe renda mensal garantida.
-          </p>
-          <a href="#contact" onClick={() => setFormType("landowner")} className="inline-flex mt-8 bg-card border-2 border-primary text-primary px-8 py-4 rounded-xl font-bold text-lg hover:bg-primary hover:text-primary-foreground transition-all">
-            Cadastrar meu terreno
-          </a>
+          <h2 className="text-2xl md:text-4xl font-display font-black mb-4">Proprietário de terreno na rodovia?</h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">Monetize seu espaço. Cuidamos de instalação, manutenção e comercialização. Renda mensal garantida.</p>
+          <a href="#contact" onClick={() => setFormType("landowner")} className="inline-flex mt-6 md:mt-8 bg-card border-2 border-primary text-primary px-6 md:px-8 py-3 md:py-4 rounded-xl font-bold text-base md:text-lg hover:bg-primary hover:text-primary-foreground transition-all">Cadastrar meu terreno</a>
         </div>
       </section>
 
-      {/* ====== CONTACT ====== */}
-      <section id="contact" className="py-20 px-4 border-t border-border">
+      {/* Contact */}
+      <section id="contact" className="py-12 md:py-20 px-4 border-t border-border">
         <div className="max-w-lg mx-auto">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6 md:mb-8">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Contato</span>
-            <h2 className="text-3xl font-display font-black mt-3">Fale Conosco</h2>
+            <h2 className="text-2xl md:text-3xl font-display font-black mt-3">Fale Conosco</h2>
           </div>
-
           <div className="flex bg-muted rounded-xl p-1 mb-6">
-            <button onClick={() => setFormType("advertiser")}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${formType === "advertiser" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-              <Building2 className="w-4 h-4" /> Quero Anunciar
-            </button>
-            <button onClick={() => setFormType("landowner")}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${formType === "landowner" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}>
-              <User className="w-4 h-4" /> Tenho Terreno
-            </button>
+            <button onClick={() => setFormType("advertiser")} className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${formType === "advertiser" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><Building2 className="w-4 h-4" /> Anunciar</button>
+            <button onClick={() => setFormType("landowner")} className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 ${formType === "landowner" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}><User className="w-4 h-4" /> Terreno</button>
           </div>
-
-          <form className="space-y-4" onSubmit={handleFormSubmit}>
+          <form className="space-y-3 md:space-y-4" onSubmit={handleFormSubmit}>
             {formType === "advertiser" ? (
               <>
-                <input name="company" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Empresa / Marca" />
-                <input name="contact" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Seu nome" />
-                <div className="grid grid-cols-2 gap-3">
-                  <input name="phone" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Telefone" />
-                  <input name="email" type="email" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Email" />
+                <input name="company" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Empresa / Marca" />
+                <input name="contact" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Seu nome" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input name="phone" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Telefone" />
+                  <input name="email" type="email" className="bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Email" />
                 </div>
-                <textarea name="notes" rows={3} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors resize-none" placeholder="Observações (opcional)" />
+                <textarea name="notes" rows={3} className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary resize-none" placeholder="Observações" />
               </>
             ) : (
               <>
-                <input name="owner_name" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Seu nome completo" />
-                <input name="owner_phone" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Telefone" />
-                <input name="owner_email" type="email" className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors" placeholder="Email" />
-                <textarea name="owner_location" rows={3} required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors resize-none" placeholder="Descreva a localização do terreno (rodovia, km, cidade...)" />
+                <input name="owner_name" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Seu nome" />
+                <input name="owner_phone" required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Telefone" />
+                <input name="owner_email" type="email" className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary" placeholder="Email" />
+                <textarea name="owner_location" rows={3} required className="w-full bg-card border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary resize-none" placeholder="Localização do terreno (rodovia, km, cidade...)" />
               </>
             )}
-            <button type="submit" className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-bold text-sm hover:opacity-90 transition-opacity shadow-lg shadow-primary/20">
+            <button type="submit" className="w-full bg-primary text-primary-foreground py-3.5 rounded-xl font-bold text-sm hover:opacity-90 shadow-lg shadow-primary/20">
               {formType === "advertiser" ? "Enviar Proposta" : "Cadastrar Terreno"}
             </button>
           </form>
-
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-sm text-muted-foreground">
-            <a href="tel:+554184242067" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <Phone className="w-4 h-4" /> (41) 98424-2067
-            </a>
-            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary transition-colors">
-              <ExternalLink className="w-4 h-4" /> www.bj7.com.br
-            </a>
+          <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 text-sm text-muted-foreground">
+            <a href="tel:+554184242067" className="flex items-center gap-2 hover:text-primary"><Phone className="w-4 h-4" /> (41) 98424-2067</a>
+            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-primary"><ExternalLink className="w-4 h-4" /> www.bj7.com.br</a>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-10 px-4 border-t border-border bg-card/30">
+      <footer className="py-8 md:py-10 px-4 border-t border-border bg-card/30">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" />
-            <span className="text-xs text-muted-foreground">© 2025 BJ7 Mídia Exterior. Todos os direitos reservados.</span>
-          </div>
+          <div className="flex items-center gap-3"><img src={logoBj7} alt="BJ7 Mídia" className="h-8 w-auto" /><span className="text-xs text-muted-foreground">© 2025 BJ7 Mídia Exterior</span></div>
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <a href="tel:+554184242067" className="hover:text-primary transition-colors">(41) 98424-2067</a>
-            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.bj7.com.br</a>
+            <a href="tel:+554184242067" className="hover:text-primary">(41) 98424-2067</a>
+            <a href="https://www.bj7.com.br" target="_blank" rel="noopener noreferrer" className="hover:text-primary">www.bj7.com.br</a>
           </div>
         </div>
       </footer>

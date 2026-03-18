@@ -230,6 +230,40 @@ export default function PublicSite() {
   const [routeFilter, setRouteFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [formType, setFormType] = useState<"advertiser" | "landowner">("advertiser");
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  // Fetch billboards directly (public RLS policy allows anon SELECT on available)
+  useEffect(() => {
+    const fetchBillboards = async () => {
+      const { data } = await supabase.from("billboards").select("*").order("code");
+      if (data) {
+        setBillboards(data.map((row: any) => ({
+          id: row.id, code: row.code, lat: row.lat, lng: row.lng,
+          city: row.city || "", region: row.region || "", route: row.route || "",
+          address: row.address || "", type: row.type || "painel_rodoviario",
+          dimension: row.dimension || "9x3m", area: Number(row.area) || 27,
+          direction: row.direction || "", estimated_flow: row.estimated_flow || 0,
+          audience_profile: row.audience_profile || "", seasonality: row.seasonality || "media",
+          traffic_type: row.traffic_type || "", land_owner: row.land_owner || "",
+          land_owner_id: row.land_owner_id, cost: Number(row.cost) || 0,
+          price: Number(row.price) || 0, production_cost: Number(row.production_cost) || 0,
+          status: row.status || "available", photos: row.photos || [],
+          description: row.description || "", formats: row.formats || [],
+        })));
+      }
+    };
+    fetchBillboards();
+
+    // Realtime subscription for live updates
+    const channel = supabase
+      .channel('public-billboards')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => {
+        fetchBillboards();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const cities = [...new Set(billboards.map(b => b.city))];
   const routes = [...new Set(billboards.map(b => b.route))];

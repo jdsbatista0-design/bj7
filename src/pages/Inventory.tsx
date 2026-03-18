@@ -217,11 +217,11 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
               <div><label className={labelClass}>Google Street View URL</label>
                 <input className={inputClass} value={form.google_street_view_url || ""} onChange={e => set("google_street_view_url", e.target.value)} placeholder="https://..." /></div>
               <div className="flex gap-2 pt-2">
-                <a href={`https://www.google.com/maps?q=${form.lat},${form.lng}`} target="_blank" rel="noopener noreferrer"
+                <a href={form.maps_url || `https://www.google.com/maps/search/?api=1&query=${form.lat},${form.lng}`} target="_blank" rel="noopener noreferrer"
                   className="text-xs bg-primary/10 text-primary px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-primary/20">
                   <ExternalLink className="w-3 h-3" /> Abrir Maps
                 </a>
-                <a href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${form.lat},${form.lng}`} target="_blank" rel="noopener noreferrer"
+                <a href={form.google_street_view_url || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${form.lat},${form.lng}&heading=0&pitch=0&fov=90`} target="_blank" rel="noopener noreferrer"
                   className="text-xs bg-muted text-muted-foreground px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-muted/80">
                   <Eye className="w-3 h-3" /> Street View
                 </a>

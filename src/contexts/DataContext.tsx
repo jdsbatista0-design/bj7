@@ -145,12 +145,14 @@ interface DataContextType {
   updateLead: (id: string, l: Partial<Lead>) => Promise<void>;
   deleteLead: (id: string) => Promise<void>;
   moveLeadStage: (id: string, stage: Lead["stage"]) => Promise<void>;
+  convertLeadToClient: (lead: Lead) => Promise<void>;
   addClient: (c: Partial<Client>) => Promise<void>;
   updateClient: (id: string, c: Partial<Client>) => Promise<void>;
   deleteClient: (id: string) => Promise<void>;
   addContract: (c: Partial<Contract>) => Promise<void>;
   updateContract: (id: string, c: Partial<Contract>) => Promise<void>;
   deleteContract: (id: string) => Promise<void>;
+  createOSFromContract: (contract: Contract) => Promise<void>;
   addWorkOrder: (w: Partial<WorkOrder>) => Promise<void>;
   updateWorkOrder: (id: string, w: Partial<WorkOrder>) => Promise<void>;
   deleteWorkOrder: (id: string) => Promise<void>;
@@ -367,6 +369,23 @@ export function DataProvider({ children }: { children: ReactNode }) {
     await updateLead(id, { stage });
   };
 
+  // Convert Lead to Client
+  const convertLeadToClient = async (lead: Lead) => {
+    const isLandowner = lead.notes?.toLowerCase().includes("proprietário");
+    const { error } = await supabase.from("clients").insert({
+      name: lead.contact || lead.company,
+      company: isLandowner ? "" : lead.company,
+      phone: lead.phone, email: lead.email,
+      type: isLandowner ? "landowner" : "advertiser",
+      notes: `Convertido do lead: ${lead.company}\n${lead.notes || ""}`,
+      billboard_ids: lead.billboard_ids || [],
+    } as any);
+    if (!error) {
+      await updateLead(lead.id, { stage: "closed" as Lead["stage"] });
+      refreshTable("clients");
+    }
+  };
+
   // Client CRUD
   const addClient = async (c: Partial<Client>) => {
     const { error } = await supabase.from("clients").insert({
@@ -437,7 +456,28 @@ export function DataProvider({ children }: { children: ReactNode }) {
     if (!error) refreshTable("contracts");
   };
 
-  // Work Order CRUD
+  // Create OS from Contract
+  const createOSFromContract = async (contract: Contract) => {
+    const bids = contract.billboard_ids || [];
+    for (const bid of bids) {
+      const bb = billboards.find(b => b.id === bid);
+      if (!bb) continue;
+      await supabase.from("work_orders").insert({
+        type: "installation", billboard_id: bid, billboard_code: bb.code,
+        client_name: contract.client_name, client_id: contract.client_id,
+        contract_id: contract.id, assignee: "", status: "pending",
+        due_date: contract.start_date, sla_hours: 48,
+        checklist: [
+          { item: "Verificar estrutura do painel", done: false },
+          { item: "Instalar lona/material", done: false },
+          { item: "Registrar fotos de evidência", done: false },
+        ],
+        photos_before: [], photos_after: [],
+      } as any);
+    }
+    refreshTable("work_orders");
+  };
+
   const addWorkOrder = async (w: Partial<WorkOrder>) => {
     const { error } = await supabase.from("work_orders").insert({
       type: w.type, billboard_id: w.billboard_id, billboard_code: w.billboard_code,
@@ -488,9 +528,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
     <DataContext.Provider value={{
       billboards, leads, clients, contracts, workOrders, financialEntries, loading, refresh: fetchAll,
       addBillboard, updateBillboard, deleteBillboard,
-      addLead, updateLead, deleteLead, moveLeadStage,
+      addLead, updateLead, deleteLead, moveLeadStage, convertLeadToClient,
       addClient, updateClient, deleteClient,
-      addContract, updateContract, deleteContract,
+      addContract, updateContract, deleteContract, createOSFromContract,
       addWorkOrder, updateWorkOrder, deleteWorkOrder,
       addFinancialEntry, updateFinancialEntry, deleteFinancialEntry,
     }}>

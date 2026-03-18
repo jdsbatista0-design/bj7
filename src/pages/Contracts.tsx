@@ -2,7 +2,7 @@ import { useData, Contract } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, Plus, Trash2, Edit, X, Download, Upload, Paperclip, ExternalLink } from "lucide-react";
+import { FileText, Plus, Trash2, Edit, X, Download, Upload, Paperclip, ExternalLink, Wrench } from "lucide-react";
 import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -143,7 +143,7 @@ function ContractForm({ initial, clients, billboards, onSave, onCancel }: {
 
 export default function Contracts() {
   const { can } = usePermissions();
-  const { contracts, clients, billboards, addContract, updateContract, deleteContract } = useData();
+  const { contracts, clients, billboards, addContract, updateContract, deleteContract, createOSFromContract } = useData();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<any>(null);
@@ -212,15 +212,21 @@ export default function Contracts() {
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusStyles[c.status]}`}>{statusLabels[c.status]}</span>
-                  <button onClick={() => handleDownloadContract(c)} className="text-muted-foreground hover:text-primary p-1" title={c.document_url ? "Abrir anexo" : "Gerar contrato"}>
-                    {c.document_url ? <Paperclip className="w-4 h-4" /> : <Download className="w-4 h-4" />}
-                  </button>
-                  <PermissionGate module="contratos" action="can_edit" hide>
-                    <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
-                  </PermissionGate>
-                  <PermissionGate module="contratos" action="can_delete" hide>
-                    <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
-                  </PermissionGate>
+                   <button onClick={() => handleDownloadContract(c)} className="text-muted-foreground hover:text-primary p-1" title={c.document_url ? "Abrir anexo" : "Gerar contrato"}>
+                     {c.document_url ? <Paperclip className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+                   </button>
+                   {c.status === "active" && c.type === "veiculacao" && (c.billboard_ids || []).length > 0 && (
+                     <button onClick={async () => { await createOSFromContract(c); toast.success(`OS de instalação criada para ${(c.billboard_ids || []).length} ponto(s)`); }}
+                       className="text-info hover:bg-info/10 p-1 rounded" title="Gerar OS de instalação">
+                       <Wrench className="w-4 h-4" />
+                     </button>
+                   )}
+                   <PermissionGate module="contratos" action="can_edit" hide>
+                     <button onClick={() => { setEditingContract({ ...c }); setFormOpen(true); }} className="text-muted-foreground hover:text-primary p-1"><Edit className="w-4 h-4" /></button>
+                   </PermissionGate>
+                   <PermissionGate module="contratos" action="can_delete" hide>
+                     <button onClick={() => handleDelete(c)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 className="w-4 h-4" /></button>
+                   </PermissionGate>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">

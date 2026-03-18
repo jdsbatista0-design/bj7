@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Billboard } from "@/contexts/DataContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
   Search, MapPin, Menu, X, Phone, Car, Ruler, Eye,
@@ -19,13 +20,17 @@ const typeLabels: Record<string, string> = {
   backlight: "Backlight", painel_sight: "Painel Sight", painel_vip: "Painel VIP",
 };
 
-function createPublicIcon(code: string, status: Billboard["status"]) {
+function createPublicPinIcon(code: string, status: Billboard["status"]) {
   const colors = { available: "#EAB308", occupied: "#ef4444", reserved: "#6b7280" };
   const color = colors[status];
+  const textColor = status === 'available' ? '#000' : '#fff';
   return L.divIcon({
     className: "",
-    html: `<div style="padding:4px 10px;border-radius:8px;background:${color};color:${status === 'available' ? '#000' : '#fff'};font-weight:700;font-size:11px;font-family:'Space Grotesk',sans-serif;white-space:nowrap;border:2px solid rgba(255,255,255,0.25);box-shadow:0 2px 12px ${color}55;cursor:pointer;">#${code}</div>`,
-    iconSize: [55, 26], iconAnchor: [27, 13],
+    html: `<div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <div style="background:${color};color:${textColor};font-weight:700;font-size:10px;font-family:'Space Grotesk',sans-serif;padding:2px 6px;border-radius:4px;border:2px solid rgba(255,255,255,0.5);box-shadow:0 2px 8px rgba(0,0,0,0.4);white-space:nowrap;margin-bottom:-2px;">#${code}</div>
+      <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid ${color};filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3));"></div>
+    </div>`,
+    iconSize: [50, 36], iconAnchor: [25, 36],
   });
 }
 
@@ -97,8 +102,8 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
           </div>
           <div className="relative aspect-[16/10] hidden md:block">
             <MapContainer center={[billboard.lat, billboard.lng]} zoom={14} className="w-full h-full" scrollWheelZoom={false} zoomControl={false} dragging={false}>
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="" />
-              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
+              <TileLayer attribution='&copy; Esri' url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+              <Marker position={[billboard.lat, billboard.lng]} icon={createPublicPinIcon(billboard.code, billboard.status)}><Popup>#{billboard.code}</Popup></Marker>
             </MapContainer>
             <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
               <a href={getGoogleMapsUrl(billboard.lat, billboard.lng)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
@@ -326,12 +331,20 @@ export default function PublicSite() {
           </div>
           <div className="h-[350px] md:h-[500px] rounded-2xl overflow-hidden border border-border shadow-xl">
             <MapContainer center={[-25.85, -48.65]} zoom={10} className="w-full h-full">
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" attribution="&copy; CARTO" />
-              {filtered.map(b => (
-                <Marker key={b.id} position={[b.lat, b.lng]} icon={createPublicIcon(b.code, b.status)} eventHandlers={{ click: () => setSelectedBillboard(b) }}>
-                  <Popup><div className="text-sm min-w-[180px]"><p className="font-bold">#{b.code} · {b.title || b.address}</p><p>{b.route} · {b.city}</p><p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p></div></Popup>
-                </Marker>
-              ))}
+              <TileLayer attribution='&copy; Esri' url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+              <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}" />
+              <MarkerClusterGroup chunkedLoading maxClusterRadius={40} spiderfyOnMaxZoom showCoverageOnHover={false}
+                iconCreateFunction={(cluster: any) => L.divIcon({
+                  className: "",
+                  html: `<div style="background:#EAB308;color:#000;font-weight:800;font-size:13px;font-family:'Space Grotesk',sans-serif;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,0.4);">${cluster.getChildCount()}</div>`,
+                  iconSize: [36, 36], iconAnchor: [18, 18],
+                })}>
+                {filtered.map(b => (
+                  <Marker key={b.id} position={[b.lat, b.lng]} icon={createPublicPinIcon(b.code, b.status)} eventHandlers={{ click: () => setSelectedBillboard(b) }}>
+                    <Popup><div className="text-sm min-w-[180px]"><p className="font-bold">#{b.code} · {b.title || b.address}</p><p>{b.route} · {b.city}</p><p className="font-semibold mt-1">R$ {b.price.toLocaleString()}/mês</p></div></Popup>
+                  </Marker>
+                ))}
+              </MarkerClusterGroup>
             </MapContainer>
           </div>
         </div>

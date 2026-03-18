@@ -217,16 +217,25 @@ export default function Settings() {
                       <p className="font-medium text-sm truncate">{u.full_name || "Sem nome"}</p>
                       <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                     </div>
-                    <div className="flex flex-wrap gap-1">
-                      {(Object.keys(ROLE_LABELS) as AppRole[]).map(role => {
-                        const has = u.roles.includes(role);
-                        return (
-                          <button key={role} onClick={() => handleToggleRole(u.id, role, has)}
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide transition-all border ${has ? ROLE_COLORS[role] + " border-current" : "bg-transparent text-muted-foreground/40 border-border/50 hover:border-border"}`}>
-                            {ROLE_LABELS[role]}
-                          </button>
-                        );
-                      })}
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap gap-1">
+                        {(Object.keys(ROLE_LABELS) as AppRole[]).map(role => {
+                          const has = u.roles.includes(role);
+                          return (
+                            <button key={role} onClick={() => handleToggleRole(u.id, role, has)}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide transition-all border ${has ? ROLE_COLORS[role] + " border-current" : "bg-transparent text-muted-foreground/40 border-border/50 hover:border-border"}`}>
+                              {ROLE_LABELS[role]}
+                            </button>
+                          );
+                        })}
+                      </div>
+                      {u.id !== user?.id && (
+                        <button onClick={() => setDeletingUserId(u.id)}
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
+                          title="Excluir usuário">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

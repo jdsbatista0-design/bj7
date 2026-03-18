@@ -143,7 +143,7 @@ function ContractForm({ initial, clients, billboards, onSave, onCancel }: {
 
 export default function Contracts() {
   const { can } = usePermissions();
-  const { contracts, clients, billboards, addContract, updateContract, deleteContract } = useData();
+  const { contracts, clients, billboards, addContract, updateContract, deleteContract, createOSFromContract } = useData();
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [formOpen, setFormOpen] = useState(false);
   const [editingContract, setEditingContract] = useState<any>(null);

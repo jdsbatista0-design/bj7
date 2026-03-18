@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useData, Billboard } from "@/contexts/DataContext";
+import { useState, useEffect } from "react";
+import { Billboard } from "@/contexts/DataContext";
 import { supabase } from "@/integrations/supabase/client";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";

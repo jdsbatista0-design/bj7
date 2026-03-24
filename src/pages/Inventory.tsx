@@ -15,8 +15,8 @@ import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 
 const typeLabels: Record<string, string> = {
-  painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight", backlight: "Backlight",
-  painel_sight: "Painel Sight", painel_vip: "Painel VIP",
+  painel_rodoviario: "Painel Rodoviário", painel_urbano: "Painel Urbano",
+  painel_led: "Painel de Led",
 };
 const seasonLabels: Record<string, string> = { alta: "Alta Temporada", media: "Média", baixa: "Baixa Temporada" };
 

@@ -349,7 +349,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from("leads").insert({
       company: l.company, contact: l.contact, phone: l.phone, email: l.email,
       stage: l.stage, value: l.value, billboard_ids: l.billboard_ids || [],
-      notes: l.notes, origin: l.origin, interactions: l.interactions || [],
+      notes: l.notes, origin: l.origin, interactions: l.interactions || [], tags: l.tags || [],
     } as any);
     if (!error) refreshTable("leads");
   };

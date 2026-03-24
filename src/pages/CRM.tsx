@@ -3,7 +3,7 @@ import { useData, Lead } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit, UserPlus } from "lucide-react";
+import { Phone, Mail, DollarSign, MapPin, Calendar, Globe, Megaphone, Users, Zap, Plus, X, Trash2, Edit, UserPlus, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -19,17 +19,64 @@ const stages = [
 const originIcons: Record<string, React.ElementType> = { site: Globe, site_anunciante: Globe, site_proprietario: Globe, indicacao: Users, trafego_pago: Megaphone, prospecção: Zap, evento: Calendar };
 const originLabels: Record<string, string> = { site: "Site", site_anunciante: "Site · Anunciante", site_proprietario: "Site · Proprietário", indicacao: "Indicação", trafego_pago: "Tráfego Pago", prospecção: "Prospecção", evento: "Evento" };
 
+const tagColors = [
+  "bg-primary/15 text-primary",
+  "bg-accent text-accent-foreground",
+  "bg-warning/15 text-warning",
+  "bg-success/15 text-success",
+  "bg-destructive/15 text-destructive",
+  "bg-muted text-muted-foreground",
+];
+
+function getTagColor(tag: string) {
+  let hash = 0;
+  for (let i = 0; i < tag.length; i++) hash = tag.charCodeAt(i) + ((hash << 5) - hash);
+  return tagColors[Math.abs(hash) % tagColors.length];
+}
+
+function TagEditor({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+  const [newTag, setNewTag] = useState("");
+  const addTag = () => {
+    const t = newTag.trim();
+    if (t && !tags.includes(t)) { onChange([...tags, t]); }
+    setNewTag("");
+  };
+  return (
+    <div>
+      <label className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><Tag className="w-3 h-3" />Tags</label>
+      <div className="flex flex-wrap gap-1.5 mt-1 mb-2">
+        {tags.map(tag => (
+          <span key={tag} className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${getTagColor(tag)}`}>
+            {tag}
+            <button type="button" onClick={() => onChange(tags.filter(t => t !== tag))} className="hover:opacity-70"><X className="w-3 h-3" /></button>
+          </span>
+        ))}
+      </div>
+      <div className="flex gap-1.5">
+        <input
+          className="flex-1 bg-muted rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary"
+          placeholder="Adicionar tag..."
+          value={newTag}
+          onChange={e => setNewTag(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addTag(); } }}
+        />
+        <Button type="button" variant="outline" size="sm" className="h-7 text-xs px-2" onClick={addTag}>+</Button>
+      </div>
+    </div>
+  );
+}
+
 const emptyLead: Partial<Lead> = {
   company: "", contact: "", phone: "", email: "", stage: "lead", value: 0,
-  billboard_ids: [], notes: "", origin: "site", interactions: [],
+  billboard_ids: [], notes: "", origin: "site", interactions: [], tags: [],
 };
 
 function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id?: string }; onSave: (d: any) => void; onCancel: () => void }) {
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState({ ...initial, tags: initial.tags || [] });
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
   return (
     <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="glass-panel max-w-md w-full animate-slide-up" onClick={e => e.stopPropagation()}>
+      <div className="glass-panel max-w-md w-full animate-slide-up max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-border flex items-center justify-between">
           <h3 className="font-display font-bold">{initial.id ? "Editar Lead" : "Novo Lead"}</h3>
           <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
@@ -47,6 +94,7 @@ function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id
               {Object.entries(originLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select></div>
           </div>
+          <TagEditor tags={form.tags || []} onChange={tags => set("tags", tags)} />
           <div><label className="text-[10px] uppercase tracking-wider text-muted-foreground">Notas</label><textarea className="w-full bg-muted rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-primary h-20 resize-none" value={form.notes || ""} onChange={e => set("notes", e.target.value)} /></div>
         </div>
         <div className="p-4 border-t border-border flex justify-end gap-2">
@@ -135,8 +183,6 @@ export default function CRM() {
                       <div className="flex-1 space-y-2 overflow-y-auto">
                         {stageLeads.map((lead, i) => {
                           const OriginIcon = originIcons[lead.origin] || Globe;
-                          const isProprietario = lead.origin === "site_proprietario" || lead.notes?.includes("[PROPRIETÁRIO]");
-                          const isAnunciante = lead.origin === "site_anunciante" || lead.notes?.includes("[ANUNCIANTE]");
                           return (
                             <Draggable key={lead.id} draggableId={lead.id} index={i}>
                               {(provided, snapshot) => (
@@ -144,10 +190,15 @@ export default function CRM() {
                                   className={`kanban-card ${snapshot.isDragging ? "ring-2 ring-primary shadow-lg" : ""}`}
                                   onClick={() => setSelectedLead(lead)}>
                                   <div className="flex items-center gap-2">
-                                    <p className="font-semibold text-sm flex-1">{lead.company}</p>
-                                    {isProprietario && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-accent text-accent-foreground shrink-0">Terreno</span>}
-                                    {isAnunciante && <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-primary/15 text-primary shrink-0">Anunciante</span>}
+                                    <p className="font-semibold text-sm flex-1 truncate">{lead.company}</p>
                                   </div>
+                                  {lead.tags && lead.tags.length > 0 && (
+                                    <div className="flex flex-wrap gap-1 mt-1">
+                                      {lead.tags.map(tag => (
+                                        <span key={tag} className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${getTagColor(tag)}`}>{tag}</span>
+                                      ))}
+                                    </div>
+                                  )}
                                   <p className="text-xs text-muted-foreground">{lead.contact}</p>
                                   <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
                                     <span className="flex items-center gap-1 text-primary font-semibold"><DollarSign className="w-3 h-3" />R$ {lead.value.toLocaleString()}</span>
@@ -191,6 +242,15 @@ export default function CRM() {
               </div>
             </div>
             <div className="p-5 space-y-3 text-sm">
+              {selectedLead.tags && selectedLead.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {selectedLead.tags.map(tag => (
+                    <span key={tag} className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${getTagColor(tag)}`}>
+                      <Tag className="w-3 h-3" />{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               <p className="text-muted-foreground">{selectedLead.contact}</p>
               <div className="flex gap-4">
                 <span className="flex items-center gap-1.5 text-muted-foreground"><Phone className="w-3.5 h-3.5" />{selectedLead.phone}</span>

@@ -249,6 +249,7 @@ export default function PublicSite() {
         company: formData.get("company") as string, contact: formData.get("contact") as string,
         phone: formData.get("phone") as string, email: formData.get("email") as string,
         notes: `[ANUNCIANTE]\n${formData.get("notes") as string || ""}`, stage: "lead", origin: "site_anunciante",
+        tags: ["Anunciante", "Site"],
       } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     } else {
@@ -259,6 +260,7 @@ export default function PublicSite() {
         email: (formData.get("owner_email") as string) || "",
         notes: `[PROPRIETÁRIO]\nLocalização: ${formData.get("owner_location") as string || ""}`,
         stage: "lead", origin: "site_proprietario",
+        tags: ["Proprietário", "Site"],
       } as any);
       if (error) { toast.error("Erro ao enviar"); return; }
     }

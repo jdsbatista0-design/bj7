@@ -56,6 +56,7 @@ export interface Lead {
   notes: string;
   origin: string;
   interactions: { date: string; note: string }[];
+  tags: string[];
   created_at: string;
 }
 
@@ -202,7 +203,7 @@ function mapLead(row: any): Lead {
     phone: row.phone || "", email: row.email || "", stage: row.stage || "lead",
     value: Number(row.value) || 0, billboard_ids: row.billboard_ids || [],
     notes: row.notes || "", origin: row.origin || "site",
-    interactions: row.interactions || [], created_at: row.created_at,
+    interactions: row.interactions || [], tags: row.tags || [], created_at: row.created_at,
   };
 }
 
@@ -348,7 +349,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.from("leads").insert({
       company: l.company, contact: l.contact, phone: l.phone, email: l.email,
       stage: l.stage, value: l.value, billboard_ids: l.billboard_ids || [],
-      notes: l.notes, origin: l.origin, interactions: l.interactions || [],
+      notes: l.notes, origin: l.origin, interactions: l.interactions || [], tags: l.tags || [],
     } as any);
     if (!error) refreshTable("leads");
   };

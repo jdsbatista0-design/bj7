@@ -387,6 +387,7 @@ export type Database = {
           origin: string | null
           phone: string | null
           stage: string
+          tags: string[] | null
           updated_at: string
           value: number | null
         }
@@ -402,6 +403,7 @@ export type Database = {
           origin?: string | null
           phone?: string | null
           stage?: string
+          tags?: string[] | null
           updated_at?: string
           value?: number | null
         }
@@ -417,6 +419,7 @@ export type Database = {
           origin?: string | null
           phone?: string | null
           stage?: string
+          tags?: string[] | null
           updated_at?: string
           value?: number | null
         }

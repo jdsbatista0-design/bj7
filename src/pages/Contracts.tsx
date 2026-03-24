@@ -169,7 +169,7 @@ export default function Contracts() {
       if (data?.signedUrl) { window.open(data.signedUrl, "_blank"); return; }
     }
     // Fallback: generate text
-    const text = `CONTRATO DE ${c.type === "veiculacao" ? "VEICULAÇÃO" : "LOCAÇÃO"}\n\n${c.client_name}\nPeríodo: ${new Date(c.start_date).toLocaleDateString("pt-BR")} a ${new Date(c.end_date).toLocaleDateString("pt-BR")}\nValor: R$ ${c.monthly_value.toLocaleString()}/mês\nTotal: R$ ${c.total_value.toLocaleString()}`;
+    const text = `CONTRATO DE ${c.type === "veiculacao" ? "VEICULAÇÃO" : "LOCAÇÃO"}\n\n${c.client_name}\nPeríodo: ${new Date(c.start_date + "T00:00:00").toLocaleDateString("pt-BR")} a ${new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}\nValor: R$ ${c.monthly_value.toLocaleString()}/mês\nTotal: R$ ${c.total_value.toLocaleString()}`;
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `contrato_${c.client_name.replace(/\s/g, "_")}.txt`; a.click();

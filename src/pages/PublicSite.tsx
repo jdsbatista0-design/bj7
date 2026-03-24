@@ -16,8 +16,8 @@ import heroBillboard from "@/assets/hero-billboard.jpg";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const typeLabels: Record<string, string> = {
-  painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight",
-  backlight: "Backlight", painel_sight: "Painel Sight", painel_vip: "Painel VIP",
+  painel_rodoviario: "Painel Rodoviário", painel_urbano: "Painel Urbano",
+  painel_led: "Painel de Led",
 };
 
 function createPublicPinIcon(code: string, status: Billboard["status"]) {

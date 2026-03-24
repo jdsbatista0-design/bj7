@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
-  Search, MapPin, Menu, X, Phone, Car, Ruler,
+  Search, MapPin, Menu, X, Phone, Car, Ruler, Maximize2,
   Building2, User, Shield, TrendingUp, Navigation, ExternalLink,
   ChevronRight, ChevronLeft, DollarSign,
 } from "lucide-react";
@@ -320,15 +320,49 @@ export default function PublicSite() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-12">
             {[
-              { icon: Navigation, title: "PR-412 · Rota do Litoral", points: "6 pontos", desc: "Garuva → Guaratuba. Principal corredor de acesso ao litoral." },
-              { icon: MapPin, title: "PR-508 · Alexandra-Matinhos", points: "2 pontos", desc: "Corredor turístico de acesso às praias." },
-              { icon: Building2, title: "BR-277 · Corredor Paranaguá", points: "2 pontos", desc: "Fluxo logístico entre Porto de Paranaguá e Curitiba." },
-            ].map(item => (
-              <div key={item.title} className="rounded-xl border border-border bg-card p-6 md:p-8 hover:border-primary/30 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4"><item.icon className="w-6 h-6 text-primary" /></div>
-                <h3 className="font-display font-bold text-base md:text-lg mb-2">{item.title}</h3>
-                <span className="inline-block bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md mb-3">{item.points}</span>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+              { icon: Navigation, route: "PR-412", title: "PR-412 · Rota do Litoral", desc: "Garuva → Guaratuba. Principal corredor de acesso ao litoral." },
+              { icon: MapPin, route: "PR-508", title: "PR-508 · Alexandra-Matinhos", desc: "Corredor turístico de acesso às praias." },
+              { icon: Building2, route: "BR-277", title: "BR-277 · Corredor Paranaguá", desc: "Fluxo logístico entre Porto de Paranaguá e Curitiba." },
+            ].map(item => {
+              const count = billboards.filter(b => b.route === item.route).length;
+              return (
+                <div key={item.title} className="rounded-xl border border-border bg-card p-6 md:p-8 hover:border-primary/30 transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4"><item.icon className="w-6 h-6 text-primary" /></div>
+                  <h3 className="font-display font-bold text-base md:text-lg mb-2">{item.title}</h3>
+                  <span className="inline-block bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-md mb-3">{count} pontos</span>
+                  <p className="text-sm text-muted-foreground">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Dimensões */}
+          <div className="text-center mb-8">
+            <span className="text-primary text-sm font-semibold tracking-widest uppercase">Formatos</span>
+            <h3 className="text-xl md:text-3xl font-display font-black mt-3">Dimensões dos nossos <span className="text-primary">painéis</span></h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { w: 9, h: 3, area: 27, label: "3m × 9m" },
+              { w: 18, h: 3, area: 54, label: "3m × 18m" },
+              { w: 12, h: 4, area: 48, label: "4m × 12m" },
+              { w: 25, h: 4, area: 100, label: "4m × 25m" },
+            ].map(dim => (
+              <div key={dim.label} className="rounded-xl border border-border bg-card p-5 md:p-6 hover:border-primary/30 transition-colors text-center group">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Maximize2 className="w-6 h-6 text-primary" />
+                </div>
+                <div className="relative mx-auto mb-4 flex items-center justify-center" style={{ maxWidth: 120 }}>
+                  <div
+                    className="border-2 border-primary/60 rounded bg-primary/5 group-hover:border-primary transition-colors"
+                    style={{
+                      width: `${Math.min(dim.w * 5, 120)}px`,
+                      height: `${Math.min(dim.h * 12, 60)}px`,
+                    }}
+                  />
+                </div>
+                <h4 className="font-display font-bold text-lg md:text-xl text-primary">{dim.label}</h4>
+                <p className="text-sm text-muted-foreground mt-1">{dim.area}m² de área</p>
               </div>
             ))}
           </div>

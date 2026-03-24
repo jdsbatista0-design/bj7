@@ -1,7 +1,7 @@
 import { useData, WorkOrder } from "@/contexts/DataContext";
 import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
-import { Wrench, Clock, CheckCircle2, AlertTriangle, Play, Plus, X, Trash2, Edit, ChevronDown, ChevronUp } from "lucide-react";
+import { Wrench, Clock, CheckCircle2, AlertTriangle, Play, Plus, X, Trash2, Edit, Calendar } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -30,16 +30,24 @@ function WorkOrderForm({ initial, billboards, clients, contracts, onSave, onCanc
 }) {
   const [form, setForm] = useState(initial);
   const [newTask, setNewTask] = useState("");
+  const [newTaskDeadline, setNewTaskDeadline] = useState("");
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
 
   const addSubtask = () => {
     if (!newTask.trim()) return;
-    set("checklist", [...(form.checklist || []), { item: newTask.trim(), done: false }]);
+    set("checklist", [...(form.checklist || []), { item: newTask.trim(), done: false, deadline: newTaskDeadline || null }]);
     setNewTask("");
+    setNewTaskDeadline("");
   };
 
   const removeSubtask = (idx: number) => {
     set("checklist", (form.checklist || []).filter((_, i) => i !== idx));
+  };
+
+  const updateSubtaskDeadline = (idx: number, deadline: string) => {
+    const updated = [...(form.checklist || [])];
+    updated[idx] = { ...updated[idx], deadline: deadline || null };
+    set("checklist", updated);
   };
 
   const inputClass = "w-full bg-muted rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-1 focus:ring-primary";
@@ -89,17 +97,34 @@ function WorkOrderForm({ initial, billboards, clients, contracts, onSave, onCanc
           <div className="pt-3 border-t border-border">
             <label className={labelClass}>Subtarefas / Checklist</label>
             <div className="space-y-2 mt-1">
-              {(form.checklist || []).map((item, i) => (
-                <div key={i} className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                  <span className="text-sm flex-1">{item.item}</span>
-                  <button onClick={() => removeSubtask(i)} className="text-muted-foreground hover:text-destructive"><X className="w-3.5 h-3.5" /></button>
+              {(form.checklist || []).map((item: any, i: number) => (
+                <div key={i} className="bg-muted/50 rounded-lg px-3 py-2 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm flex-1">{item.item}</span>
+                    <button onClick={() => removeSubtask(i)} className="text-muted-foreground hover:text-destructive"><X className="w-3.5 h-3.5" /></button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-3 h-3 text-muted-foreground" />
+                    <input type="date" className="bg-transparent text-xs text-muted-foreground outline-none" value={item.deadline || ""} onChange={e => updateSubtaskDeadline(i, e.target.value)} />
+                    {item.deadline && (
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${new Date(item.deadline) < new Date() && !item.done ? "bg-destructive/15 text-destructive" : "text-muted-foreground"}`}>
+                        {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-2">
-              <input className={`${inputClass} flex-1`} placeholder="Adicionar subtarefa..." value={newTask} onChange={e => setNewTask(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addSubtask())} />
-              <Button size="sm" variant="outline" onClick={addSubtask} type="button"><Plus className="w-3 h-3" /></Button>
+            <div className="space-y-2 mt-2">
+              <div className="flex gap-2">
+                <input className={`${inputClass} flex-1`} placeholder="Adicionar subtarefa..." value={newTask} onChange={e => setNewTask(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addSubtask())} />
+                <Button size="sm" variant="outline" onClick={addSubtask} type="button"><Plus className="w-3 h-3" /></Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                <input type="date" className={`${inputClass} flex-1`} value={newTaskDeadline} onChange={e => setNewTaskDeadline(e.target.value)} placeholder="Prazo da subtarefa" />
+              </div>
             </div>
           </div>
         </div>
@@ -159,7 +184,6 @@ export default function Operations() {
         </PermissionGate>
       </div>
 
-      {/* Status counters */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {Object.entries(statusConfig).map(([key, cfg]) => {
           const count = workOrders.filter(o => o.status === key).length;
@@ -173,7 +197,6 @@ export default function Operations() {
         })}
       </div>
 
-      {/* OS Cards */}
       <div className="space-y-3">
         {sorted.map(os => {
           const cfg = statusConfig[os.status];
@@ -204,7 +227,6 @@ export default function Operations() {
                 </div>
               </div>
 
-              {/* Progress */}
               {total > 0 && (
                 <div className="mt-3">
                   <div className="flex justify-between text-[10px] text-muted-foreground mb-1"><span>Progresso</span><span>{done}/{total} ({progress}%)</span></div>
@@ -212,16 +234,25 @@ export default function Operations() {
                 </div>
               )}
 
-              {/* Subtasks */}
               <div className="mt-3 space-y-1.5">
-                {os.checklist.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm cursor-pointer py-1 px-1 -mx-1 rounded hover:bg-muted/50 transition-colors" onClick={() => toggleChecklist(os.id, i)}>
-                    <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? "bg-success border-success" : "border-border"}`}>
-                      {item.done && <CheckCircle2 className="w-3.5 h-3.5 text-success-foreground" />}
+                {os.checklist.map((item: any, i) => {
+                  const hasDeadline = item.deadline;
+                  const isOverdue = hasDeadline && new Date(item.deadline) < new Date() && !item.done;
+                  return (
+                    <div key={i} className="flex items-center gap-2 text-sm cursor-pointer py-1 px-1 -mx-1 rounded hover:bg-muted/50 transition-colors" onClick={() => toggleChecklist(os.id, i)}>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? "bg-success border-success" : "border-border"}`}>
+                        {item.done && <CheckCircle2 className="w-3.5 h-3.5 text-success-foreground" />}
+                      </div>
+                      <span className={`flex-1 ${item.done ? "text-muted-foreground line-through" : ""}`}>{item.item}</span>
+                      {hasDeadline && (
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 ${isOverdue ? "bg-destructive/15 text-destructive font-semibold" : "text-muted-foreground"}`}>
+                          <Calendar className="w-2.5 h-2.5" />
+                          {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                        </span>
+                      )}
                     </div>
-                    <span className={`${item.done ? "text-muted-foreground line-through" : ""}`}>{item.item}</span>
-                  </div>
-                ))}
+                  );
+                })}
                 {total === 0 && <p className="text-xs text-muted-foreground italic">Sem subtarefas definidas</p>}
               </div>
 

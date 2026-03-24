@@ -5,9 +5,9 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
-  Search, MapPin, Menu, X, Phone, Car, Ruler, Eye,
+  Search, MapPin, Menu, X, Phone, Car, Ruler,
   Building2, User, Shield, TrendingUp, Navigation, ExternalLink,
-  ChevronRight, Maximize2, ChevronLeft, DollarSign,
+  ChevronRight, ChevronLeft, DollarSign,
 } from "lucide-react";
 import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
@@ -34,7 +34,6 @@ function createPublicPinIcon(code: string, status: Billboard["status"]) {
   });
 }
 
-function getStreetViewUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}&heading=0&pitch=0&fov=80`; }
 function getGoogleMapsUrl(lat: number, lng: number, customUrl?: string) { return customUrl || `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`; }
 
 function PublicNav() {
@@ -71,7 +70,6 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
   const [activePhoto, setActivePhoto] = useState(0);
   const allPhotos = [billboard.main_photo, ...(billboard.gallery || []), ...(billboard.photos || [])].filter(Boolean);
   const hasPhotos = allPhotos.length > 0;
-  const monthlyImpacts = billboard.estimated_flow * 30;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center" onClick={onClose}>
@@ -107,7 +105,6 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
             </MapContainer>
             <div className="absolute bottom-3 right-3 flex gap-2 z-[1000]">
               <a href={getGoogleMapsUrl(billboard.lat, billboard.lng, billboard.maps_url)} target="_blank" rel="noopener noreferrer" className="bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-md hover:opacity-90 flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
-              <a href={getStreetViewUrl(billboard.lat, billboard.lng, billboard.google_street_view_url)} target="_blank" rel="noopener noreferrer" className="bg-card/90 backdrop-blur-sm text-foreground text-xs font-bold px-3 py-1.5 rounded-md border border-border hover:border-primary flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
             </div>
           </div>
         </div>
@@ -122,8 +119,7 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
           {(billboard.commercial_description || billboard.description) && (
             <p className="text-sm text-muted-foreground mt-3 leading-relaxed bg-muted/50 rounded-lg p-3 border border-border/50">{billboard.commercial_description || billboard.description}</p>
           )}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-5 border-t border-border/50">
-            <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Impactos/mês</span><span className="text-lg font-display font-black text-primary">{monthlyImpacts.toLocaleString()}</span></div>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-5 pt-5 border-t border-border/50">
             <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Dimensões</span><span className="text-sm font-bold">{billboard.dimension} ({billboard.area}m²)</span></div>
             <div><span className="text-[10px] uppercase tracking-wider text-muted-foreground block">Veiculação/mês</span><span className="text-sm font-bold text-primary">R$ {billboard.price.toLocaleString()}</span></div>
             {billboard.illumination && billboard.illumination !== "nao" && (
@@ -139,7 +135,6 @@ function BillboardModal({ billboard, onClose }: { billboard: Billboard; onClose:
           </div>
           <div className="flex gap-2 mt-3 md:hidden">
             <a href={getGoogleMapsUrl(billboard.lat, billboard.lng, billboard.maps_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-primary/10 text-primary text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><MapPin className="w-3 h-3" /> Mapa</a>
-            <a href={getStreetViewUrl(billboard.lat, billboard.lng, billboard.google_street_view_url)} target="_blank" rel="noopener noreferrer" className="flex-1 bg-card border border-border text-foreground text-xs font-bold px-3 py-2 rounded-lg text-center flex items-center justify-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
           </div>
         </div>
       </div>
@@ -177,7 +172,6 @@ function BillboardCard({ billboard, onOpen }: { billboard: Billboard; onOpen: ()
         )}
         <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/50 text-[10px] text-muted-foreground uppercase tracking-wider">
           <span className="flex items-center gap-1"><Ruler className="w-3 h-3" /> {billboard.dimension}</span>
-          <span className="flex items-center gap-1"><Car className="w-3 h-3" /> {billboard.estimated_flow.toLocaleString()}/dia</span>
           <span className="ml-auto text-primary font-semibold flex items-center gap-1">Ver <ChevronRight className="w-3 h-3" /></span>
         </div>
       </div>
@@ -224,7 +218,7 @@ export default function PublicSite() {
   }, []);
 
   const cities = [...new Set(billboards.map(b => b.city))];
-  const routes = [...new Set(billboards.map(b => b.route))];
+  const routes = [...new Set(billboards.map(b => b.route))].sort();
   const types = [...new Set(billboards.map(b => b.type))];
 
   const filtered = billboards.filter(b => {
@@ -236,7 +230,16 @@ export default function PublicSite() {
   });
 
   const available = filtered.filter(b => b.status === "available");
-  const totalFlow = billboards.reduce((s, b) => s + b.estimated_flow, 0);
+
+  // Group filtered billboards by route
+  const groupedByRoute = routes.reduce<Record<string, Billboard[]>>((acc, route) => {
+    const routeBillboards = filtered.filter(b => b.route === route);
+    if (routeBillboards.length > 0) acc[route] = routeBillboards;
+    return acc;
+  }, {});
+  // Also handle billboards with no matching route
+  const ungrouped = filtered.filter(b => !routes.includes(b.route));
+  if (ungrouped.length > 0) groupedByRoute["Outros"] = ungrouped;
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -292,12 +295,11 @@ export default function PublicSite() {
 
       {/* Stats */}
       <section className="py-8 md:py-10 px-4 border-t border-border bg-card/50">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {[
             { value: billboards.length, label: "Pontos Estratégicos", icon: MapPin },
             { value: routes.length, label: "Rodovias Cobertas", icon: Navigation },
-            { value: `${Math.round(totalFlow / 1000)}k+`, label: "Impactos Diários", icon: TrendingUp },
-            { value: `${Math.round(totalFlow * 30 / 1000000)}M+`, label: "Impactos Mensais", icon: Eye },
+            { value: available.length, label: "Pontos Disponíveis", icon: TrendingUp },
           ].map(s => (
             <div key={s.label} className="text-center py-3 md:py-4">
               <s.icon className="w-5 h-5 text-primary mx-auto mb-2" />
@@ -361,7 +363,7 @@ export default function PublicSite() {
         </div>
       </section>
 
-      {/* Catalog */}
+      {/* Catalog - grouped by route */}
       <section id="catalog" className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 md:mb-10">
@@ -381,9 +383,21 @@ export default function PublicSite() {
             </select>
             <span className="text-xs text-muted-foreground">{filtered.length} pontos</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filtered.map(b => <BillboardCard key={b.id} billboard={b} onOpen={() => setSelectedBillboard(b)} />)}
-          </div>
+
+          {/* Render by route groups */}
+          {Object.entries(groupedByRoute).map(([route, routeBillboards]) => (
+            <div key={route} className="mb-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center"><Navigation className="w-4 h-4 text-primary" /></div>
+                <h3 className="font-display font-bold text-lg md:text-xl">{route}</h3>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">{routeBillboards.length} ponto(s)</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {routeBillboards.map(b => <BillboardCard key={b.id} billboard={b} onOpen={() => setSelectedBillboard(b)} />)}
+              </div>
+            </div>
+          ))}
+
           {filtered.length === 0 && <p className="text-center text-muted-foreground py-16">Nenhum ponto encontrado.</p>}
         </div>
       </section>

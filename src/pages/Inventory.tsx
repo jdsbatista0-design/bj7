@@ -7,8 +7,8 @@ import { usePermissions } from "@/contexts/PermissionsContext";
 import { PermissionGate, PermissionPageBlock } from "@/components/PermissionGate";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Search, X, Plus, Trash2, Edit, Car, DollarSign, MapPin, Upload, Image,
-  Eye, ExternalLink, Globe, Sun, Moon, ChevronLeft, ChevronRight, ToggleLeft, ToggleRight,
+  Search, X, Plus, Trash2, Edit, DollarSign, MapPin, Upload, Image,
+  ExternalLink, Sun, Moon, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -57,7 +57,6 @@ function MapClickHandler({ onMapClick }: { onMapClick: (lat: number, lng: number
   return null;
 }
 
-// Photo upload helper
 async function uploadPhoto(file: File, billboardCode: string): Promise<string | null> {
   const ext = file.name.split('.').pop();
   const path = `${billboardCode}/${Date.now()}.${ext}`;
@@ -65,6 +64,32 @@ async function uploadPhoto(file: File, billboardCode: string): Promise<string | 
   if (error) { toast.error("Erro no upload: " + error.message); return null; }
   const { data: { publicUrl } } = supabase.storage.from("billboard-photos").getPublicUrl(path);
   return publicUrl;
+}
+
+// Currency formatting helper
+function formatCurrency(value: number): string {
+  return value.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function CurrencyInput({ label, value, onChange, labelClass, inputClass }: {
+  label: string; value: number; onChange: (v: number) => void; labelClass: string; inputClass: string;
+}) {
+  const [display, setDisplay] = useState(formatCurrency(value));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/\D/g, "");
+    const num = parseInt(raw) || 0;
+    setDisplay(formatCurrency(num));
+    onChange(num);
+  };
+  return (
+    <div>
+      <label className={labelClass}>{label}</label>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">R$</span>
+        <input className={`${inputClass} pl-9`} value={display} onChange={handleChange} />
+      </div>
+    </div>
+  );
 }
 
 function BillboardForm({ initial, onSave, onCancel, title, clients }: {
@@ -119,7 +144,6 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
           <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
         </div>
 
-        {/* Tabs */}
         <div className="flex border-b border-border shrink-0 overflow-x-auto">
           {[
             { key: "info", label: "Dados" },
@@ -159,14 +183,10 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
                 <div><label className={labelClass}>Área (m²)</label>
                   <p className="text-sm font-semibold mt-2 text-primary">{((form.width || 9) * (form.height || 3)).toFixed(0)} m²</p></div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className={labelClass}>Iluminação</label>
-                  <select className={inputClass} value={form.illumination || "nao"} onChange={e => set("illumination", e.target.value)}>
-                    <option value="nao">Sem iluminação</option><option value="frontal">Frontal</option><option value="interna">Interna (Backlight)</option>
-                  </select></div>
-                <div><label className={labelClass}>Sentido</label>
-                  <input className={inputClass} value={form.direction || ""} onChange={e => set("direction", e.target.value)} placeholder="Sentido Curitiba" /></div>
-              </div>
+              <div><label className={labelClass}>Iluminação</label>
+                <select className={inputClass} value={form.illumination || "nao"} onChange={e => set("illumination", e.target.value)}>
+                  <option value="nao">Sem iluminação</option><option value="frontal">Frontal</option><option value="interna">Interna (Backlight)</option>
+                </select></div>
               <div><label className={labelClass}>Descrição curta</label>
                 <input className={inputClass} value={form.short_description || ""} onChange={e => set("short_description", e.target.value)} placeholder="Resumo para o card" /></div>
               <div><label className={labelClass}>Descrição comercial</label>
@@ -214,16 +234,10 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
               </div>
               <div><label className={labelClass}>Google Maps URL</label>
                 <input className={inputClass} value={form.maps_url || ""} onChange={e => set("maps_url", e.target.value)} placeholder="https://maps.google.com/..." /></div>
-              <div><label className={labelClass}>Google Street View URL</label>
-                <input className={inputClass} value={form.google_street_view_url || ""} onChange={e => set("google_street_view_url", e.target.value)} placeholder="https://..." /></div>
               <div className="flex gap-2 pt-2">
                 <a href={form.maps_url || `https://www.google.com/maps/search/?api=1&query=${form.lat},${form.lng}`} target="_blank" rel="noopener noreferrer"
                   className="text-xs bg-primary/10 text-primary px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-primary/20">
                   <ExternalLink className="w-3 h-3" /> Abrir Maps
-                </a>
-                <a href={form.google_street_view_url || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${form.lat},${form.lng}&heading=0&pitch=0&fov=90`} target="_blank" rel="noopener noreferrer"
-                  className="text-xs bg-muted text-muted-foreground px-3 py-2 rounded-lg flex items-center gap-1 hover:bg-muted/80">
-                  <Eye className="w-3 h-3" /> Street View
                 </a>
               </div>
             </>
@@ -232,23 +246,16 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
           {tab === "commercial" && (
             <>
               <div className="grid grid-cols-3 gap-3">
-                <div><label className={labelClass}>Preço/mês</label>
-                  <input type="number" className={inputClass} value={form.price || 0} onChange={e => set("price", parseFloat(e.target.value) || 0)} /></div>
-                <div><label className={labelClass}>Custo terreno</label>
-                  <input type="number" className={inputClass} value={form.cost || 0} onChange={e => set("cost", parseFloat(e.target.value) || 0)} /></div>
-                <div><label className={labelClass}>Produção</label>
-                  <input type="number" className={inputClass} value={form.production_cost || 0} onChange={e => set("production_cost", parseFloat(e.target.value) || 0)} /></div>
+                <CurrencyInput label="Preço/mês" value={form.price || 0} onChange={v => set("price", v)} labelClass={labelClass} inputClass={inputClass} />
+                <CurrencyInput label="Custo terreno" value={form.cost || 0} onChange={v => set("cost", v)} labelClass={labelClass} inputClass={inputClass} />
+                <CurrencyInput label="Produção" value={form.production_cost || 0} onChange={v => set("production_cost", v)} labelClass={labelClass} inputClass={inputClass} />
               </div>
               <div><label className={labelClass}>Fluxo estimado (veíc/dia)</label>
-                <input type="number" className={inputClass} value={form.estimated_flow || 0} onChange={e => set("estimated_flow", parseInt(e.target.value) || 0)} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className={labelClass}>Sazonalidade</label>
-                  <select className={inputClass} value={form.seasonality || "media"} onChange={e => set("seasonality", e.target.value)}>
-                    <option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>
-                  </select></div>
-                <div><label className={labelClass}>Tipo de tráfego</label>
-                  <input className={inputClass} value={form.traffic_type || ""} onChange={e => set("traffic_type", e.target.value)} placeholder="Turístico, logístico..." /></div>
-              </div>
+                <input type="text" className={inputClass} value={(form.estimated_flow || 0).toLocaleString("pt-BR")} onChange={e => set("estimated_flow", parseInt(e.target.value.replace(/\D/g, "")) || 0)} /></div>
+              <div><label className={labelClass}>Sazonalidade</label>
+                <select className={inputClass} value={form.seasonality || "media"} onChange={e => set("seasonality", e.target.value)}>
+                  <option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>
+                </select></div>
               <div><label className={labelClass}>Perfil de público</label>
                 <input className={inputClass} value={form.audience_profile || ""} onChange={e => set("audience_profile", e.target.value)} placeholder="Turistas, moradores locais..." /></div>
               <div><label className={labelClass}>Proprietário do terreno</label>
@@ -267,7 +274,6 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
 
           {tab === "photos" && (
             <>
-              {/* Main Photo */}
               <div>
                 <label className={labelClass}>Foto Principal</label>
                 <div className="flex items-start gap-4">
@@ -292,7 +298,6 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
                 </div>
               </div>
 
-              {/* Gallery */}
               <div className="pt-3 border-t border-border">
                 <label className={labelClass}>Galeria de Fotos</label>
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
@@ -353,7 +358,6 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
         </div>
 
         <div className="overflow-y-auto flex-1 p-4 space-y-4">
-          {/* Photos */}
           {allPhotos.length > 0 && (
             <div className="relative aspect-[16/9] rounded-lg overflow-hidden bg-muted">
               <img src={allPhotos[photoIdx]} alt={`#${billboard.code}`} className="w-full h-full object-cover" />
@@ -380,8 +384,6 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
             <div className="flex gap-2 mt-2">
               <a href={billboard.maps_url || `https://www.google.com/maps/search/?api=1&query=${billboard.lat},${billboard.lng}`} target="_blank" rel="noopener noreferrer"
                 className="text-[10px] bg-primary/10 text-primary px-2 py-1 rounded flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Maps</a>
-              <a href={billboard.google_street_view_url || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${billboard.lat},${billboard.lng}&heading=0&pitch=0&fov=90`} target="_blank" rel="noopener noreferrer"
-                className="text-[10px] bg-muted text-muted-foreground px-2 py-1 rounded flex items-center gap-1"><Eye className="w-3 h-3" /> Street View</a>
             </div>
           </div>
 
@@ -397,11 +399,11 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
           <div>
             <h4 className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-2 flex items-center gap-1.5"><DollarSign className="w-3 h-3" /> Comercial</h4>
             <div className="space-y-1 text-sm">
-              <Row label="Veiculação/mês" value={`R$ ${billboard.price.toLocaleString()}`} highlight />
-              <Row label="Custo terreno" value={`R$ ${billboard.cost.toLocaleString()}/mês`} />
-              <Row label="Produção" value={`R$ ${billboard.production_cost.toLocaleString()}`} />
-              <Row label="Margem" value={`R$ ${(billboard.price - billboard.cost).toLocaleString()}/mês`} highlight />
-              <Row label="Fluxo" value={`${billboard.estimated_flow.toLocaleString()} veíc/dia`} />
+              <Row label="Veiculação/mês" value={`R$ ${billboard.price.toLocaleString("pt-BR")}`} highlight />
+              <Row label="Custo terreno" value={`R$ ${billboard.cost.toLocaleString("pt-BR")}/mês`} />
+              <Row label="Produção" value={`R$ ${billboard.production_cost.toLocaleString("pt-BR")}`} />
+              <Row label="Margem" value={`R$ ${(billboard.price - billboard.cost).toLocaleString("pt-BR")}/mês`} highlight />
+              <Row label="Fluxo" value={`${billboard.estimated_flow.toLocaleString("pt-BR")} veíc/dia`} />
               <Row label="Proprietário" value={billboard.land_owner} />
             </div>
           </div>
@@ -473,14 +475,12 @@ export default function Inventory() {
     <div className="h-[calc(100vh-3.5rem)] md:h-screen flex flex-col relative">
       <PermissionPageBlock module="inventario" label="o Inventário" />
 
-      {/* Header */}
       <div className="p-2 md:p-3 flex items-center gap-2 border-b border-border bg-card/60 backdrop-blur-sm z-[500] relative flex-wrap">
         <h1 className="font-display font-bold text-base md:text-lg shrink-0">Inventário</h1>
         <div className="flex items-center gap-1.5 bg-muted rounded-lg px-2 py-1.5 flex-1 min-w-0 max-w-[160px] md:max-w-[200px]">
           <Search className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
           <input className="bg-transparent text-sm outline-none w-full placeholder:text-muted-foreground" placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-        {/* Status filters - scrollable row on mobile */}
         <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
           {["all", "available", "occupied", "reserved"].map(s => (
             <button key={s} onClick={() => setStatusFilter(s)} className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-colors whitespace-nowrap shrink-0 ${statusFilter === s ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
@@ -504,7 +504,6 @@ export default function Inventory() {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 relative">
         {viewMode === "map" ? (
           <>
@@ -551,7 +550,7 @@ export default function Inventory() {
                   <p className="text-xs text-muted-foreground truncate">{b.title || `${b.city} · ${b.route}`}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-display font-bold text-primary">R$ {b.price.toLocaleString()}</p>
+                  <p className="text-sm font-display font-bold text-primary">R$ {b.price.toLocaleString("pt-BR")}</p>
                   <p className="text-[10px] text-muted-foreground">{b.dimension}</p>
                 </div>
               </div>

@@ -56,6 +56,7 @@ export interface Lead {
   notes: string;
   origin: string;
   interactions: { date: string; note: string }[];
+  tags: string[];
   created_at: string;
 }
 

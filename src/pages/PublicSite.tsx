@@ -192,7 +192,7 @@ export default function PublicSite() {
     const fetchBillboards = async () => {
       const { data } = await supabase.from("billboards").select("*").order("code");
       if (data) {
-        setBillboards(data.filter((row: any) => row.active !== false && row.show_on_site !== false).map((row: any) => ({
+        setBillboards(data.filter((row: any) => row.active !== false).map((row: any) => ({
           id: row.id, code: row.code, title: row.title || "", short_description: row.short_description || "",
           commercial_description: row.commercial_description || "",
           lat: row.lat, lng: row.lng, city: row.city || "", region: row.region || "", route: row.route || "",

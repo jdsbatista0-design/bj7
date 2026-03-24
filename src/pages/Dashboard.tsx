@@ -203,7 +203,7 @@ export default function Dashboard() {
       {workOrders.filter(o => o.status === "overdue").length > 0 && (
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
           <p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
-          {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}</div>)}
+          {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date + "T00:00:00").toLocaleDateString("pt-BR")}</div>)}
         </motion.div>
       )}
     </div>

@@ -28,7 +28,7 @@ function LeadForm({ initial, onSave, onCancel }: { initial: Partial<Lead> & { id
   const [form, setForm] = useState(initial);
   const set = (k: string, v: any) => setForm(p => ({ ...p, [k]: v }));
   return (
-    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={onCancel}>
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-4" onClick={onCancel}>
       <div className="glass-panel max-w-md w-full animate-slide-up" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-border flex items-center justify-between">
           <h3 className="font-display font-bold">{initial.id ? "Editar Lead" : "Novo Lead"}</h3>

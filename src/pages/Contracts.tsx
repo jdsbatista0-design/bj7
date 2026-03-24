@@ -230,7 +230,7 @@ export default function Contracts() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
-                <div><p className="text-xs text-muted-foreground">Período</p><p className="mt-0.5">{new Date(c.start_date).toLocaleDateString("pt-BR")} — {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <div><p className="text-xs text-muted-foreground">Período</p><p className="mt-0.5">{new Date(c.start_date + "T00:00:00").toLocaleDateString("pt-BR")} — {new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}</p></div>
                 <div><p className="text-xs text-muted-foreground">Mensal</p><p className="font-display font-semibold text-primary mt-0.5">R$ {c.monthly_value.toLocaleString()}</p></div>
                 <div><p className="text-xs text-muted-foreground">Total</p><p className="font-display font-semibold mt-0.5">R$ {c.total_value.toLocaleString()}</p></div>
                 <div><p className="text-xs text-muted-foreground">Pontos</p><div className="flex flex-wrap gap-1 mt-0.5">{cBillboards.map(b => b && <span key={b.id} className="text-xs bg-muted px-2 py-0.5 rounded font-mono">#{b.code}</span>)}{cBillboards.length === 0 && <span className="text-xs text-muted-foreground">—</span>}</div></div>

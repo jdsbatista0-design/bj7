@@ -107,8 +107,8 @@ function WorkOrderForm({ initial, billboards, clients, contracts, onSave, onCanc
                     <Calendar className="w-3 h-3 text-muted-foreground" />
                     <input type="date" className="bg-transparent text-xs text-muted-foreground outline-none" value={item.deadline || ""} onChange={e => updateSubtaskDeadline(i, e.target.value)} />
                     {item.deadline && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${new Date(item.deadline) < new Date() && !item.done ? "bg-destructive/15 text-destructive" : "text-muted-foreground"}`}>
-                        {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${new Date(item.deadline + "T00:00:00") < new Date() && !item.done ? "bg-destructive/15 text-destructive" : "text-muted-foreground"}`}>
+                        {new Date(item.deadline + "T00:00:00").toLocaleDateString("pt-BR")}
                       </span>
                     )}
                   </div>

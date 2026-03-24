@@ -250,8 +250,6 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
                 <CurrencyInput label="Custo terreno" value={form.cost || 0} onChange={v => set("cost", v)} labelClass={labelClass} inputClass={inputClass} />
                 <CurrencyInput label="Produção" value={form.production_cost || 0} onChange={v => set("production_cost", v)} labelClass={labelClass} inputClass={inputClass} />
               </div>
-              <div><label className={labelClass}>Fluxo estimado (veíc/dia)</label>
-                <input type="text" className={inputClass} value={(form.estimated_flow || 0).toLocaleString("pt-BR")} onChange={e => set("estimated_flow", parseInt(e.target.value.replace(/\D/g, "")) || 0)} /></div>
               <div><label className={labelClass}>Sazonalidade</label>
                 <select className={inputClass} value={form.seasonality || "media"} onChange={e => set("seasonality", e.target.value)}>
                   <option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>

@@ -368,7 +368,7 @@ export default function PublicSite() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 md:mb-10">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Catálogo</span>
-            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Pontos <span className="text-primary">disponíveis</span></h2>
+            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Nossos <span className="text-primary">pontos</span></h2>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-6 md:mb-8 justify-center">
             <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 md:px-4 py-2 max-w-[200px]">

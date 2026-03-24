@@ -355,10 +355,21 @@ export function DataProvider({ children }: { children: ReactNode }) {
   };
 
   const updateLead = async (id: string, updates: Partial<Lead>) => {
-    const dbUpdates: any = { ...updates };
-    delete dbUpdates.id; delete dbUpdates.created_at;
+    const dbUpdates: any = {};
+    if (updates.company !== undefined) dbUpdates.company = updates.company;
+    if (updates.contact !== undefined) dbUpdates.contact = updates.contact;
+    if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+    if (updates.email !== undefined) dbUpdates.email = updates.email;
+    if (updates.stage !== undefined) dbUpdates.stage = updates.stage;
+    if (updates.value !== undefined) dbUpdates.value = updates.value;
+    if (updates.billboard_ids !== undefined) dbUpdates.billboard_ids = updates.billboard_ids;
+    if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+    if (updates.origin !== undefined) dbUpdates.origin = updates.origin;
+    if (updates.interactions !== undefined) dbUpdates.interactions = updates.interactions;
+    if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
     const { error } = await supabase.from("leads").update(dbUpdates).eq("id", id);
-    if (!error) refreshTable("leads");
+    if (error) { console.error("updateLead error:", error); }
+    else refreshTable("leads");
   };
 
   const deleteLead = async (id: string) => {

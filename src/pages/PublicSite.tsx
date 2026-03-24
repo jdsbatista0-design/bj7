@@ -295,9 +295,9 @@ export default function PublicSite() {
 
       {/* Stats */}
       <section className="py-8 md:py-10 px-4 border-t border-border bg-card/50">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-3 gap-4 md:gap-6">
           {[
-            { value: billboards.length, label: "Pontos Estratégicos", icon: MapPin },
+            { value: billboards.length, label: "Pontos Cadastrados", icon: MapPin },
             { value: routes.length, label: "Rodovias Cobertas", icon: Navigation },
             { value: available.length, label: "Pontos Disponíveis", icon: TrendingUp },
           ].map(s => (

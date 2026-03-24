@@ -237,7 +237,7 @@ export default function Operations() {
               <div className="mt-3 space-y-1.5">
                 {os.checklist.map((item: any, i) => {
                   const hasDeadline = item.deadline;
-                  const isOverdue = hasDeadline && new Date(item.deadline) < new Date() && !item.done;
+                  const isOverdue = hasDeadline && new Date(item.deadline + "T00:00:00") < new Date() && !item.done;
                   return (
                     <div key={i} className="flex items-center gap-2 text-sm cursor-pointer py-1 px-1 -mx-1 rounded hover:bg-muted/50 transition-colors" onClick={() => toggleChecklist(os.id, i)}>
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? "bg-success border-success" : "border-border"}`}>

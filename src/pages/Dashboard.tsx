@@ -170,7 +170,7 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {sorted.map(c => {
-                    const end = new Date(c.end_date);
+                    const end = new Date(c.end_date + "T00:00:00");
                     const diffDays = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                     const isUrgent = diffDays <= 30;
                     const isWarning = diffDays <= 60 && diffDays > 30;

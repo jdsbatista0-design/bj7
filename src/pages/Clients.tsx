@@ -23,7 +23,7 @@ function ClientForm({ initial, onSave, onCancel, title }: {
   const isAdvertiser = form.type === "advertiser";
 
   return (
-    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
       <div className="glass-panel max-w-lg w-full animate-slide-up max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">

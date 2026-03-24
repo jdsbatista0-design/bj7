@@ -62,7 +62,7 @@ function ContractForm({ initial, clients, billboards, onSave, onCancel }: {
   const labelClass = "text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block";
 
   return (
-    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
       <div className="glass-panel max-w-lg w-full animate-slide-up max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
           <h3 className="font-display font-bold">{initial.id ? "Editar Contrato" : "Novo Contrato"}</h3>
@@ -169,7 +169,7 @@ export default function Contracts() {
       if (data?.signedUrl) { window.open(data.signedUrl, "_blank"); return; }
     }
     // Fallback: generate text
-    const text = `CONTRATO DE ${c.type === "veiculacao" ? "VEICULAÇÃO" : "LOCAÇÃO"}\n\n${c.client_name}\nPeríodo: ${new Date(c.start_date).toLocaleDateString("pt-BR")} a ${new Date(c.end_date).toLocaleDateString("pt-BR")}\nValor: R$ ${c.monthly_value.toLocaleString()}/mês\nTotal: R$ ${c.total_value.toLocaleString()}`;
+    const text = `CONTRATO DE ${c.type === "veiculacao" ? "VEICULAÇÃO" : "LOCAÇÃO"}\n\n${c.client_name}\nPeríodo: ${new Date(c.start_date + "T00:00:00").toLocaleDateString("pt-BR")} a ${new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}\nValor: R$ ${c.monthly_value.toLocaleString()}/mês\nTotal: R$ ${c.total_value.toLocaleString()}`;
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `contrato_${c.client_name.replace(/\s/g, "_")}.txt`; a.click();
@@ -230,7 +230,7 @@ export default function Contracts() {
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 text-sm">
-                <div><p className="text-xs text-muted-foreground">Período</p><p className="mt-0.5">{new Date(c.start_date).toLocaleDateString("pt-BR")} — {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <div><p className="text-xs text-muted-foreground">Período</p><p className="mt-0.5">{new Date(c.start_date + "T00:00:00").toLocaleDateString("pt-BR")} — {new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}</p></div>
                 <div><p className="text-xs text-muted-foreground">Mensal</p><p className="font-display font-semibold text-primary mt-0.5">R$ {c.monthly_value.toLocaleString()}</p></div>
                 <div><p className="text-xs text-muted-foreground">Total</p><p className="font-display font-semibold mt-0.5">R$ {c.total_value.toLocaleString()}</p></div>
                 <div><p className="text-xs text-muted-foreground">Pontos</p><div className="flex flex-wrap gap-1 mt-0.5">{cBillboards.map(b => b && <span key={b.id} className="text-xs bg-muted px-2 py-0.5 rounded font-mono">#{b.code}</span>)}{cBillboards.length === 0 && <span className="text-xs text-muted-foreground">—</span>}</div></div>

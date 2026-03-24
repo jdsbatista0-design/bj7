@@ -127,7 +127,7 @@ export default function Dashboard() {
             {contracts.filter(c => c.status === "active" && c.type === "veiculacao").length === 0 && <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>}
             {contracts.filter(c => c.status === "active" && c.type === "veiculacao").map(c => (
               <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
-                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}</p></div>
                 <span className="text-sm font-display font-semibold text-primary">R$ {c.monthly_value.toLocaleString()}/mês</span>
               </div>
             ))}
@@ -139,7 +139,7 @@ export default function Dashboard() {
             {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").length === 0 && <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>}
             {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").map(c => (
               <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
-                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}</p></div>
                 <span className="text-sm font-display font-semibold text-destructive">R$ {c.monthly_value.toLocaleString()}/mês</span>
               </div>
             ))}
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 </thead>
                 <tbody>
                   {sorted.map(c => {
-                    const end = new Date(c.end_date);
+                    const end = new Date(c.end_date + "T00:00:00");
                     const diffDays = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
                     const isUrgent = diffDays <= 30;
                     const isWarning = diffDays <= 60 && diffDays > 30;
@@ -203,7 +203,7 @@ export default function Dashboard() {
       {workOrders.filter(o => o.status === "overdue").length > 0 && (
         <motion.div className="stat-card" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
           <p className="text-xs text-destructive font-semibold flex items-center gap-1.5 mb-2"><AlertTriangle className="w-3.5 h-3.5" /> OS Atrasadas</p>
-          {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}</div>)}
+          {workOrders.filter(o => o.status === "overdue").map(os => <div key={os.id} className="text-xs text-muted-foreground">#{os.billboard_code} · Prazo: {new Date(os.due_date + "T00:00:00").toLocaleDateString("pt-BR")}</div>)}
         </motion.div>
       )}
     </div>

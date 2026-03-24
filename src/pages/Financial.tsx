@@ -257,7 +257,7 @@ export default function Financial() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
-                    <span>{new Date(entry.entry_date).toLocaleDateString("pt-BR")}</span>
+                    <span>{new Date(entry.entry_date + "T00:00:00").toLocaleDateString("pt-BR")}</span>
                     {client && <span>Cliente: {client.name}</span>}
                     {billboard && <span>Ponto: #{billboard.code}</span>}
                   </div>

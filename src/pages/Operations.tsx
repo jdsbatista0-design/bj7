@@ -54,7 +54,7 @@ function WorkOrderForm({ initial, billboards, clients, contracts, onSave, onCanc
   const labelClass = "text-[10px] uppercase tracking-wider text-muted-foreground mb-1 block";
 
   return (
-    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
+    <div className="fixed inset-0 bg-background/85 backdrop-blur-sm z-[9999] flex items-center justify-center p-2 md:p-4" onClick={onCancel}>
       <div className="glass-panel max-w-md w-full animate-slide-up max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
         <div className="p-4 border-b border-border flex items-center justify-between shrink-0">
           <h3 className="font-display font-bold">{initial.id ? "Editar OS" : "Nova OS"}</h3>

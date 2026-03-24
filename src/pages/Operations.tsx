@@ -247,7 +247,7 @@ export default function Operations() {
                       {hasDeadline && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 ${isOverdue ? "bg-destructive/15 text-destructive font-semibold" : "text-muted-foreground"}`}>
                           <Calendar className="w-2.5 h-2.5" />
-                          {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                          {new Date(item.deadline + "T00:00:00").toLocaleDateString("pt-BR")}
                         </span>
                       )}
                     </div>

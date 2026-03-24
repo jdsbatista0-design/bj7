@@ -352,12 +352,12 @@ export default function PublicSite() {
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                   <Maximize2 className="w-6 h-6 text-primary" />
                 </div>
-                <div className="relative mx-auto mb-4 flex items-center justify-center" style={{ maxWidth: 120 }}>
+                <div className="relative mx-auto mb-4 flex items-center justify-center h-16">
                   <div
                     className="border-2 border-primary/60 rounded bg-primary/5 group-hover:border-primary transition-colors"
                     style={{
-                      width: `${Math.min(dim.w * 5, 120)}px`,
-                      height: `${Math.min(dim.h * 12, 60)}px`,
+                      width: `${(dim.w / 25) * 100}%`,
+                      height: `${(dim.h / 4) * 100}%`,
                     }}
                   />
                 </div>

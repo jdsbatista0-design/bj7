@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import {
-  Search, MapPin, Menu, X, Phone, Car, Ruler,
+  Search, MapPin, Menu, X, Phone, Car, Ruler, Maximize2,
   Building2, User, Shield, TrendingUp, Navigation, ExternalLink,
   ChevronRight, ChevronLeft, DollarSign,
 } from "lucide-react";

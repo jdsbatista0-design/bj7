@@ -139,7 +139,7 @@ export default function Dashboard() {
             {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").length === 0 && <p className="text-xs text-muted-foreground">Nenhum contrato ativo.</p>}
             {contracts.filter(c => c.status === "active" && c.type === "locacao_terreno").map(c => (
               <div key={c.id} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/50">
-                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date).toLocaleDateString("pt-BR")}</p></div>
+                <div><p className="font-medium text-sm">{c.client_name}</p><p className="text-[11px] text-muted-foreground">{(c.billboard_ids || []).length} ponto(s) · até {new Date(c.end_date + "T00:00:00").toLocaleDateString("pt-BR")}</p></div>
                 <span className="text-sm font-display font-semibold text-destructive">R$ {c.monthly_value.toLocaleString()}/mês</span>
               </div>
             ))}

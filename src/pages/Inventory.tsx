@@ -15,8 +15,8 @@ import { toast } from "sonner";
 import "leaflet/dist/leaflet.css";
 
 const typeLabels: Record<string, string> = {
-  painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight", backlight: "Backlight",
-  painel_sight: "Painel Sight", painel_vip: "Painel VIP",
+  painel_rodoviario: "Painel Rodoviário", painel_urbano: "Painel Urbano",
+  painel_led: "Painel de Led",
 };
 const seasonLabels: Record<string, string> = { alta: "Alta Temporada", media: "Média", baixa: "Baixa Temporada" };
 
@@ -250,8 +250,6 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
                 <CurrencyInput label="Custo terreno" value={form.cost || 0} onChange={v => set("cost", v)} labelClass={labelClass} inputClass={inputClass} />
                 <CurrencyInput label="Produção" value={form.production_cost || 0} onChange={v => set("production_cost", v)} labelClass={labelClass} inputClass={inputClass} />
               </div>
-              <div><label className={labelClass}>Fluxo estimado (veíc/dia)</label>
-                <input type="text" className={inputClass} value={(form.estimated_flow || 0).toLocaleString("pt-BR")} onChange={e => set("estimated_flow", parseInt(e.target.value.replace(/\D/g, "")) || 0)} /></div>
               <div><label className={labelClass}>Sazonalidade</label>
                 <select className={inputClass} value={form.seasonality || "media"} onChange={e => set("seasonality", e.target.value)}>
                   <option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>

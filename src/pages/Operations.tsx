@@ -107,8 +107,8 @@ function WorkOrderForm({ initial, billboards, clients, contracts, onSave, onCanc
                     <Calendar className="w-3 h-3 text-muted-foreground" />
                     <input type="date" className="bg-transparent text-xs text-muted-foreground outline-none" value={item.deadline || ""} onChange={e => updateSubtaskDeadline(i, e.target.value)} />
                     {item.deadline && (
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${new Date(item.deadline) < new Date() && !item.done ? "bg-destructive/15 text-destructive" : "text-muted-foreground"}`}>
-                        {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${new Date(item.deadline + "T00:00:00") < new Date() && !item.done ? "bg-destructive/15 text-destructive" : "text-muted-foreground"}`}>
+                        {new Date(item.deadline + "T00:00:00").toLocaleDateString("pt-BR")}
                       </span>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export default function Operations() {
               <div className="mt-3 space-y-1.5">
                 {os.checklist.map((item: any, i) => {
                   const hasDeadline = item.deadline;
-                  const isOverdue = hasDeadline && new Date(item.deadline) < new Date() && !item.done;
+                  const isOverdue = hasDeadline && new Date(item.deadline + "T00:00:00") < new Date() && !item.done;
                   return (
                     <div key={i} className="flex items-center gap-2 text-sm cursor-pointer py-1 px-1 -mx-1 rounded hover:bg-muted/50 transition-colors" onClick={() => toggleChecklist(os.id, i)}>
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors shrink-0 ${item.done ? "bg-success border-success" : "border-border"}`}>
@@ -247,7 +247,7 @@ export default function Operations() {
                       {hasDeadline && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0 ${isOverdue ? "bg-destructive/15 text-destructive font-semibold" : "text-muted-foreground"}`}>
                           <Calendar className="w-2.5 h-2.5" />
-                          {new Date(item.deadline).toLocaleDateString("pt-BR")}
+                          {new Date(item.deadline + "T00:00:00").toLocaleDateString("pt-BR")}
                         </span>
                       )}
                     </div>

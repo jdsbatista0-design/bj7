@@ -16,8 +16,8 @@ import heroBillboard from "@/assets/hero-billboard.jpg";
 import heroVideoAsset from "@/assets/hero-video.mp4.asset.json";
 
 const typeLabels: Record<string, string> = {
-  painel_rodoviario: "Painel Rodoviário", frontlight: "Frontlight",
-  backlight: "Backlight", painel_sight: "Painel Sight", painel_vip: "Painel VIP",
+  painel_rodoviario: "Painel Rodoviário", painel_urbano: "Painel Urbano",
+  painel_led: "Painel de Led",
 };
 
 function createPublicPinIcon(code: string, status: Billboard["status"]) {
@@ -192,7 +192,7 @@ export default function PublicSite() {
     const fetchBillboards = async () => {
       const { data } = await supabase.from("billboards").select("*").order("code");
       if (data) {
-        setBillboards(data.filter((row: any) => row.active !== false && row.show_on_site !== false).map((row: any) => ({
+        setBillboards(data.filter((row: any) => row.active !== false).map((row: any) => ({
           id: row.id, code: row.code, title: row.title || "", short_description: row.short_description || "",
           commercial_description: row.commercial_description || "",
           lat: row.lat, lng: row.lng, city: row.city || "", region: row.region || "", route: row.route || "",
@@ -295,9 +295,9 @@ export default function PublicSite() {
 
       {/* Stats */}
       <section className="py-8 md:py-10 px-4 border-t border-border bg-card/50">
-        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="max-w-6xl mx-auto grid grid-cols-3 gap-4 md:gap-6">
           {[
-            { value: billboards.length, label: "Pontos Estratégicos", icon: MapPin },
+            { value: billboards.length, label: "Pontos Cadastrados", icon: MapPin },
             { value: routes.length, label: "Rodovias Cobertas", icon: Navigation },
             { value: available.length, label: "Pontos Disponíveis", icon: TrendingUp },
           ].map(s => (
@@ -368,7 +368,7 @@ export default function PublicSite() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8 md:mb-10">
             <span className="text-primary text-sm font-semibold tracking-widest uppercase">Catálogo</span>
-            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Pontos <span className="text-primary">disponíveis</span></h2>
+            <h2 className="text-2xl md:text-4xl font-display font-black mt-3">Nossos <span className="text-primary">pontos</span></h2>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3 mb-6 md:mb-8 justify-center">
             <div className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 md:px-4 py-2 max-w-[200px]">

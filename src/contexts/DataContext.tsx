@@ -109,7 +109,7 @@ export interface WorkOrder {
   due_date: string;
   completed_date?: string;
   sla_hours: number;
-  checklist: { item: string; done: boolean }[];
+  checklist: { item: string; done: boolean; deadline?: string | null }[];
   photos_before: string[];
   photos_after: string[];
 }

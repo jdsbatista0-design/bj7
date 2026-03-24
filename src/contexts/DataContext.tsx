@@ -203,7 +203,7 @@ function mapLead(row: any): Lead {
     phone: row.phone || "", email: row.email || "", stage: row.stage || "lead",
     value: Number(row.value) || 0, billboard_ids: row.billboard_ids || [],
     notes: row.notes || "", origin: row.origin || "site",
-    interactions: row.interactions || [], created_at: row.created_at,
+    interactions: row.interactions || [], tags: row.tags || [], created_at: row.created_at,
   };
 }
 

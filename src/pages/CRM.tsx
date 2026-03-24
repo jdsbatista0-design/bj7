@@ -123,6 +123,7 @@ export default function CRM() {
   };
 
   const handleSave = async (data: any) => {
+    console.log("handleSave data:", JSON.stringify({ id: data.id, tags: data.tags }));
     if (data.id) {
       await updateLead(data.id, data);
       toast.success("Lead atualizado");

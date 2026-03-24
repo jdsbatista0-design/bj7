@@ -259,7 +259,7 @@ export default function Operations() {
               <div className="flex items-center justify-between mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
                 <span>SLA: {os.sla_hours}h{os.assignee && ` · ${os.assignee}`}</span>
                 <span className={os.status === "overdue" ? "text-destructive font-semibold" : ""}>
-                  Prazo: {new Date(os.due_date).toLocaleDateString("pt-BR")}
+                  Prazo: {new Date(os.due_date + "T00:00:00").toLocaleDateString("pt-BR")}
                 </span>
               </div>
             </div>

@@ -128,7 +128,8 @@ export default function Settings() {
   async function handleTogglePermission(userId: string, module: PermissionModule, action: PermissionAction, currentValue: boolean) {
     const existing = users.find(u => u.id === userId)?.permissions.find(p => p.module === module);
     if (existing) {
-      await supabase.from("user_permissions").update({ [action]: !currentValue, updated_at: new Date().toISOString() }).eq("user_id", userId).eq("module", module);
+      const updatePayload: any = { [action]: !currentValue, updated_at: new Date().toISOString() };
+      await supabase.from("user_permissions").update(updatePayload).eq("user_id", userId).eq("module", module);
     } else {
       const newPerm: any = { user_id: userId, module, can_view: false, can_create: false, can_edit: false, can_delete: false };
       newPerm[action] = true;

@@ -40,7 +40,7 @@ const emptyBillboard: Partial<Billboard> = {
   address: "", type: "painel_rodoviario", dimension: "9x3m", width: 9, height: 3, area: 27, direction: "",
   estimated_flow: 0, audience_profile: "", seasonality: "media", traffic_type: "",
   land_owner: "", land_owner_id: null, cost: 0, price: 0, production_cost: 0,
-  status: "available", commercial_status: "available", operational_status: "active",
+  status: "available", operational_status: "active",
   photos: [], main_photo: "", gallery: [], description: "", formats: ["Lona impressa"],
   maps_url: "", google_street_view_url: "", illumination: "nao",
   show_on_site: true, active: true,

@@ -203,7 +203,7 @@ export default function PublicSite() {
           traffic_type: row.traffic_type || "", land_owner: row.land_owner || "",
           land_owner_id: row.land_owner_id, cost: Number(row.cost) || 0,
           price: Number(row.price) || 0, production_cost: Number(row.production_cost) || 0,
-          status: row.status || "available", commercial_status: row.commercial_status || "available",
+          status: row.status || "available",
           operational_status: row.operational_status || "active",
           photos: row.photos || [], main_photo: row.main_photo || "", gallery: row.gallery || [],
           description: row.description || "", formats: row.formats || [],

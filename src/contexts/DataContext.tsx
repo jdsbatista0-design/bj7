@@ -30,7 +30,6 @@ export interface Billboard {
   price: number;
   production_cost: number;
   status: "available" | "occupied" | "reserved";
-  commercial_status: string;
   operational_status: string;
   photos: string[];
   main_photo: string;

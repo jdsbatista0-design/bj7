@@ -30,7 +30,6 @@ export interface Billboard {
   price: number;
   production_cost: number;
   status: "available" | "occupied" | "reserved";
-  commercial_status: string;
   operational_status: string;
   photos: string[];
   main_photo: string;
@@ -185,7 +184,6 @@ function mapBillboard(row: any): Billboard {
     land_owner_id: row.land_owner_id, cost: Number(row.cost) || 0,
     price: Number(row.price) || 0, production_cost: Number(row.production_cost) || 0,
     status: row.status || "available",
-    commercial_status: row.commercial_status || "available",
     operational_status: row.operational_status || "active",
     photos: row.photos || [], main_photo: row.main_photo || "",
     gallery: row.gallery || [],
@@ -326,7 +324,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       commercial_description: b.commercial_description, maps_url: b.maps_url,
       google_street_view_url: b.google_street_view_url, width: b.width, height: b.height,
       illumination: b.illumination, main_photo: b.main_photo, gallery: b.gallery || [],
-      commercial_status: b.commercial_status, operational_status: b.operational_status,
+      operational_status: b.operational_status,
       show_on_site: b.show_on_site, active: b.active,
     } as any);
     if (!error) refreshTable("billboards");

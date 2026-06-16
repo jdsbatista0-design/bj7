@@ -190,7 +190,7 @@ export default function PublicSite() {
 
   useEffect(() => {
     const fetchBillboards = async () => {
-      const { data } = await supabase.from("billboards").select("*").order("code");
+      const { data } = await supabase.from("public_billboards" as any).select("*").order("code");
       if (data) {
         setBillboards(data.filter((row: any) => row.active !== false).map((row: any) => ({
           id: row.id, code: row.code, title: row.title || "", short_description: row.short_description || "",
@@ -213,8 +213,6 @@ export default function PublicSite() {
       }
     };
     fetchBillboards();
-    const channel = supabase.channel('public-billboards').on('postgres_changes', { event: '*', schema: 'public', table: 'billboards' }, () => fetchBillboards()).subscribe();
-    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const cities = [...new Set(billboards.map(b => b.city))];

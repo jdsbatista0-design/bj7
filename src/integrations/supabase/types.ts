@@ -817,6 +817,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "financial_entries_billboard_id_fkey"
+            columns: ["billboard_id"]
+            isOneToOne: false
+            referencedRelation: "public_billboards"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "financial_entries_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1264,6 +1271,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "work_orders_billboard_id_fkey"
+            columns: ["billboard_id"]
+            isOneToOne: false
+            referencedRelation: "public_billboards"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "work_orders_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1281,7 +1295,120 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_billboards: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          area: number | null
+          audience_profile: string | null
+          city: string | null
+          code: string | null
+          commercial_description: string | null
+          description: string | null
+          dimension: string | null
+          direction: string | null
+          formats: string[] | null
+          gallery: string[] | null
+          google_street_view_url: string | null
+          height: number | null
+          id: string | null
+          illumination: string | null
+          lat: number | null
+          lng: number | null
+          main_photo: string | null
+          maps_url: string | null
+          operational_status: string | null
+          photos: string[] | null
+          preco_promocional: number | null
+          price: number | null
+          promocao_validade: string | null
+          region: string | null
+          route: string | null
+          seasonality: string | null
+          short_description: string | null
+          show_on_site: boolean | null
+          status: string | null
+          title: string | null
+          traffic_type: string | null
+          type: string | null
+          width: number | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          area?: number | null
+          audience_profile?: string | null
+          city?: string | null
+          code?: string | null
+          commercial_description?: string | null
+          description?: string | null
+          dimension?: string | null
+          direction?: string | null
+          formats?: string[] | null
+          gallery?: string[] | null
+          google_street_view_url?: string | null
+          height?: number | null
+          id?: string | null
+          illumination?: string | null
+          lat?: number | null
+          lng?: number | null
+          main_photo?: string | null
+          maps_url?: string | null
+          operational_status?: string | null
+          photos?: string[] | null
+          preco_promocional?: number | null
+          price?: number | null
+          promocao_validade?: string | null
+          region?: string | null
+          route?: string | null
+          seasonality?: string | null
+          short_description?: string | null
+          show_on_site?: boolean | null
+          status?: string | null
+          title?: string | null
+          traffic_type?: string | null
+          type?: string | null
+          width?: number | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          area?: number | null
+          audience_profile?: string | null
+          city?: string | null
+          code?: string | null
+          commercial_description?: string | null
+          description?: string | null
+          dimension?: string | null
+          direction?: string | null
+          formats?: string[] | null
+          gallery?: string[] | null
+          google_street_view_url?: string | null
+          height?: number | null
+          id?: string | null
+          illumination?: string | null
+          lat?: number | null
+          lng?: number | null
+          main_photo?: string | null
+          maps_url?: string | null
+          operational_status?: string | null
+          photos?: string[] | null
+          preco_promocional?: number | null
+          price?: number | null
+          promocao_validade?: string | null
+          region?: string | null
+          route?: string | null
+          seasonality?: string | null
+          short_description?: string | null
+          show_on_site?: boolean | null
+          status?: string | null
+          title?: string | null
+          traffic_type?: string | null
+          type?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

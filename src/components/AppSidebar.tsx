@@ -7,9 +7,7 @@ import {
   LayoutDashboard,
   Map,
   Users,
-  FileText,
   Wrench,
-  DollarSign,
   Kanban,
   ChevronLeft,
   ChevronRight,
@@ -23,9 +21,7 @@ const navItems = [
   { path: "/inventory", label: "Inventário", icon: Map },
   { path: "/crm", label: "Comercial", icon: Kanban },
   { path: "/clients", label: "Clientes", icon: Users },
-  { path: "/contracts", label: "Contratos", icon: FileText },
   { path: "/operations", label: "Operação", icon: Wrench },
-  { path: "/financial", label: "Financeiro", icon: DollarSign },
 ];
 
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {

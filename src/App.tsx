@@ -8,13 +8,11 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { DataProvider } from "@/contexts/DataContext";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
 import { AppLayout } from "@/components/AppLayout";
-import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import CRM from "./pages/CRM";
-import Clients from "./pages/Clients";
-import Contracts from "./pages/Contracts";
 import Operations from "./pages/Operations";
-import Financial from "./pages/Financial";
+import ClientsHub from "./pages/ClientsHub";
+import DashboardHub from "./pages/DashboardHub";
 import PublicSite from "./pages/PublicSite";
 import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
@@ -54,13 +52,13 @@ const AppRoutes = () => {
       <Route path="/" element={<PublicSite />} />
       <Route path="/login" element={user ? <Navigate to="/painel" replace /> : <Auth />} />
       {/* Protected */}
-      <Route path="/painel" element={<ProtectedRoute><AppLayout><Dashboard /></AppLayout></ProtectedRoute>} />
+      <Route path="/painel" element={<ProtectedRoute><AppLayout><DashboardHub /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory" element={<ProtectedRoute><AppLayout><Inventory /></AppLayout></ProtectedRoute>} />
       <Route path="/crm" element={<ProtectedRoute><AppLayout><CRM /></AppLayout></ProtectedRoute>} />
-      <Route path="/clients" element={<ProtectedRoute><AppLayout><Clients /></AppLayout></ProtectedRoute>} />
-      <Route path="/contracts" element={<ProtectedRoute><AppLayout><Contracts /></AppLayout></ProtectedRoute>} />
+      <Route path="/clients" element={<ProtectedRoute><AppLayout><ClientsHub /></AppLayout></ProtectedRoute>} />
+      <Route path="/contracts" element={<Navigate to="/clients?tab=contracts" replace />} />
       <Route path="/operations" element={<ProtectedRoute><AppLayout><Operations /></AppLayout></ProtectedRoute>} />
-      <Route path="/financial" element={<ProtectedRoute><AppLayout><Financial /></AppLayout></ProtectedRoute>} />
+      <Route path="/financial" element={<Navigate to="/painel?tab=financial" replace />} />
       <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

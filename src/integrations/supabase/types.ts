@@ -155,6 +155,7 @@ export type Database = {
           estimated_flow: number | null
           fluxo_observacao: string | null
           fonte_fluxo: string | null
+          formato_label: string | null
           formats: string[] | null
           gallery: string[] | null
           google_street_view_url: string | null
@@ -208,6 +209,7 @@ export type Database = {
           estimated_flow?: number | null
           fluxo_observacao?: string | null
           fonte_fluxo?: string | null
+          formato_label?: string | null
           formats?: string[] | null
           gallery?: string[] | null
           google_street_view_url?: string | null
@@ -261,6 +263,7 @@ export type Database = {
           estimated_flow?: number | null
           fluxo_observacao?: string | null
           fonte_fluxo?: string | null
+          formato_label?: string | null
           formats?: string[] | null
           gallery?: string[] | null
           google_street_view_url?: string | null

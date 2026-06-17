@@ -291,21 +291,18 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
       {/* ============== QUEM SOMOS + COBERTURA ============== */}
       <Page size="A4" orientation="landscape" style={s.page}>
         <TopBar section="Quem somos" num={next()} total={tot} amber={amber} brand="BJ7 Mídia" />
-        <View style={s.inner}>
-          <View style={{ flexDirection: "row", gap: 28 }}>
-            <View style={{ flex: 1.4 }}>
+        <View style={s.inner} wrap={false}>
+          <View style={{ flexDirection: "row", gap: 24 }}>
+            <View style={{ flex: 1.5 }}>
               <Text style={[s.eyebrow, { color: amber }]}>01 — Posicionamento</Text>
-              <Text style={[s.h1, { marginTop: 10 }]}>Onde a marca{"\n"}vira impacto.</Text>
-              <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 14, marginBottom: 14 }} />
-              <Text style={s.lede}>
+              <Text style={[s.h1, { marginTop: 8, fontSize: 28 }]}>Onde a marca{"\n"}vira impacto.</Text>
+              <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 10, marginBottom: 10 }} />
+              <Text style={[s.lede, { fontSize: 9.5 }]}>
                 {branding.texto_institucional ||
                   "A BJ7 opera mídia exterior estratégica no Litoral do Paraná e Santa Catarina, conectando marcas ao alto fluxo das rotas turísticas e corredores logísticos da região."}
               </Text>
-              <Text style={[s.body, { marginTop: 12 }]}>
-                Operação própria, atendimento consultivo e comprovação documentada — cada flight entregue com relatório fotográfico de instalação e manutenção.
-              </Text>
             </View>
-            <View style={{ flex: 1, borderLeftWidth: 0.5, borderLeftColor: TOKENS.RULE, paddingLeft: 22 }}>
+            <View style={{ flex: 1, borderLeftWidth: 0.5, borderLeftColor: TOKENS.RULE, paddingLeft: 18 }}>
               <Text style={[s.eyebrow]}>Diferenciais</Text>
               {[
                 "Infraestrutura própria",
@@ -313,29 +310,29 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
                 "Atendimento consultivo",
                 "Comprovação por flight",
               ].map((it, i) => (
-                <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginTop: 12 }}>
+                <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginTop: 8 }}>
                   <Text style={{ fontFamily: "Helvetica-Bold", color: amber, fontSize: 9, width: 22 }}>{T(i + 1)}</Text>
-                  <Text style={{ flex: 1, fontFamily: "Helvetica-Bold", fontSize: 10.5, color: TOKENS.ICE }}>{it}</Text>
+                  <Text style={{ flex: 1, fontFamily: "Helvetica-Bold", fontSize: 10, color: TOKENS.ICE }}>{it}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <View style={{ height: 0.5, backgroundColor: TOKENS.RULE, marginTop: 22, marginBottom: 18 }} />
+          <View style={{ height: 0.5, backgroundColor: TOKENS.RULE, marginTop: 16, marginBottom: 14 }} />
 
-          <View style={{ flexDirection: "row", gap: 24 }}>
+          <View style={{ flexDirection: "row", gap: 20 }}>
             <Stat amber={amber} value={cobertura.total_pontos} label="Pontos ativos" />
             <Stat amber={amber} value={cobertura.cidades.length} label="Cidades atendidas" />
             <Stat amber={amber} value={cobertura.estados.length || 2} label="Estados" />
             <Stat amber={amber} value={cobertura.formatos_distintos} label="Formatos" />
           </View>
 
-          <View style={{ marginTop: 18, flex: 1 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+          <View style={{ marginTop: 14 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
               <Text style={[s.eyebrow, { color: TOKENS.ICE }]}>Mapa de cobertura</Text>
               <Text style={s.small}>Pontos próprios · escala aproximada</Text>
             </View>
-            <CoverageMap pontos={pontos_todos} amber={amber} w={W} h={150} />
+            <CoverageMap pontos={pontos_todos} amber={amber} w={W} h={110} />
           </View>
         </View>
         <BottomBar left="Mídia Kit · Edição 2026" right={branding.contato_oficial.site || "bj7.com.br"} amber={amber} />
@@ -413,36 +410,42 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
         <TopBar section="Coordenadas" num={next()} total={tot} amber={amber} brand="BJ7 Mídia" />
         <View style={s.inner}>
           <Text style={[s.eyebrow, { color: amber }]}>Inventário georreferenciado</Text>
-          <Text style={[s.h1, { marginTop: 8, fontSize: 26 }]}>Localização de cada ponto.</Text>
-          <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 12, marginBottom: 16 }} />
+          <Text style={[s.h1, { marginTop: 6, fontSize: 24 }]}>Localização de cada ponto.</Text>
+          <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 10, marginBottom: 12 }} />
 
-          {/* header */}
-          <View style={{ flexDirection: "row", paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: amber }}>
-            <Text style={[s.eyebrow, { color: amber, width: "14%" }]}>RODOVIA</Text>
-            <Text style={[s.eyebrow, { color: amber, width: "36%" }]}>LOCALIZAÇÃO</Text>
-            <Text style={[s.eyebrow, { color: amber, width: "26%" }]}>SENTIDO</Text>
-            <Text style={[s.eyebrow, { color: amber, width: "24%" }]}>COORDENADAS</Text>
-          </View>
-          {[...pontos_todos]
-            .sort((a, b) => (a.rodovia || "").localeCompare(b.rodovia || ""))
-            .slice(0, 22)
-            .map((p, i) => (
-              <View key={p.id} style={{ flexDirection: "row", paddingVertical: 7, backgroundColor: i % 2 === 0 ? "transparent" : "#181818" }}>
-                <Text style={{ width: "14%", fontFamily: "Helvetica-Bold", fontSize: 9, color: TOKENS.ICE }}>{p.rodovia || "—"}</Text>
-                <Text style={{ width: "36%", fontSize: 9, color: TOKENS.ICE }}>{p.cidade}{p.endereco ? ` · ${p.endereco}` : ""}</Text>
-                <Text style={{ width: "26%", fontSize: 9, color: "#BDBDBA" }}>{(p as any).sentido || "—"}</Text>
-                <Text style={{ width: "24%", fontFamily: "Courier", fontSize: 8.5, color: TOKENS.GRAY }}>
-                  {typeof p.lat === "number" && typeof p.lng === "number"
-                    ? `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`
-                    : "—"}
-                </Text>
+          {(() => {
+            const sorted = [...pontos_todos].sort((a, b) => (a.rodovia || "").localeCompare(b.rodovia || ""));
+            // 2 colunas para caber tudo em 1 página
+            const half = Math.ceil(sorted.length / 2);
+            const colA = sorted.slice(0, half);
+            const colB = sorted.slice(half);
+            const renderCol = (rows: typeof sorted) => (
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: "row", paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: amber }}>
+                  <Text style={[s.eyebrow, { color: amber, width: "20%" }]}>ROD.</Text>
+                  <Text style={[s.eyebrow, { color: amber, width: "38%" }]}>LOCAL</Text>
+                  <Text style={[s.eyebrow, { color: amber, width: "42%" }]}>COORDENADAS</Text>
+                </View>
+                {rows.map((p, i) => (
+                  <View key={p.id} wrap={false} style={{ flexDirection: "row", paddingVertical: 4.5, backgroundColor: i % 2 === 0 ? "transparent" : "#181818" }}>
+                    <Text style={{ width: "20%", fontFamily: "Helvetica-Bold", fontSize: 7.5, color: TOKENS.ICE }}>{p.rodovia || "—"}</Text>
+                    <Text style={{ width: "38%", fontSize: 7.5, color: TOKENS.ICE }} >{p.cidade || "—"}</Text>
+                    <Text style={{ width: "42%", fontFamily: "Courier", fontSize: 7, color: TOKENS.GRAY }}>
+                      {typeof p.lat === "number" && typeof p.lng === "number"
+                        ? `${p.lat.toFixed(5)}, ${p.lng.toFixed(5)}`
+                        : "—"}
+                    </Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          {pontos_todos.length > 22 && (
-            <Text style={[s.small, { marginTop: 10, color: TOKENS.GRAY }]}>
-              + {pontos_todos.length - 22} pontos adicionais disponíveis sob consulta.
-            </Text>
-          )}
+            );
+            return (
+              <View style={{ flexDirection: "row", gap: 20 }}>
+                {renderCol(colA)}
+                {renderCol(colB)}
+              </View>
+            );
+          })()}
         </View>
         <BottomBar left="Coordenadas · WGS84" right="BJ7 MÍDIA" amber={amber} />
       </Page>
@@ -450,44 +453,50 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
       {/* ============== FORMATOS DE MÍDIA ============== */}
       <Page size="A4" orientation="landscape" style={s.page}>
         <TopBar section="Formatos" num={next()} total={tot} amber={amber} brand="BJ7 Mídia" />
-        <View style={s.inner}>
-          <View style={{ alignItems: "center", marginBottom: 12 }}>
+        <View style={s.inner} wrap={false}>
+          <View style={{ alignItems: "center", marginBottom: 10 }}>
             <Text style={[s.eyebrow, { color: amber }]}>BJ7 MÍDIA</Text>
-            <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 32, color: TOKENS.ICE, marginTop: 6, letterSpacing: -0.3 }}>FORMATOS DE MÍDIA</Text>
-            <Text style={[s.small, { marginTop: 6, color: TOKENS.GRAY }]}>
+            <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 26, color: TOKENS.ICE, marginTop: 6, letterSpacing: -0.3 }}>FORMATOS DE MÍDIA</Text>
+            <Text style={[s.small, { marginTop: 4, color: TOKENS.GRAY }]}>
               Formatos disponíveis para campanhas na rede BJ7
             </Text>
           </View>
 
-          <View style={{ flexDirection: "row", justifyContent: "space-around", alignItems: "flex-end", marginTop: 18, flex: 1 }}>
-            {(dimensoes_top.length ? dimensoes_top : [{ w: 9, h: 3, area: 27, label: "3m x 9m", faixa: "padrao" as const }]).map((d, i) => {
-              const bullets = d.faixa === "padrao"
-                ? ["Formato padrão rodoviário", "Alta frequência visual", "Ideal para institucional e varejo"]
-                : d.faixa === "impacto"
-                ? ["Formato ampliado de grande impacto", "Excelente leitura a longa distância", "Lançamentos imobiliários e marcas nacionais"]
-                : ["Painel gigante de alto impacto", "Máxima visibilidade em rodovias", "Ideal para campanhas de grande alcance"];
-              return (
-                <View key={i} style={{ flex: 1, alignItems: "center", paddingHorizontal: 10 }}>
-                  <View style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: "#1F1F1F", marginBottom: 14 }}>
-                    <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 10, color: amber, letterSpacing: 2 }}>MODELO {i + 1}</Text>
-                  </View>
-                  <PainelMockup w={d.w} h={d.h} amber={amber} maxW={210} maxH={120} />
-                  <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 14, color: amber, marginTop: 16, letterSpacing: 0.5 }}>{d.label}</Text>
-                  <View style={{ marginTop: 12, alignItems: "flex-start", alignSelf: "stretch", paddingHorizontal: 4 }}>
-                    {bullets.map((b, j) => (
-                      <View key={j} style={{ flexDirection: "row", marginBottom: 4 }}>
-                        <Text style={{ color: amber, fontSize: 9, marginRight: 6 }}>•</Text>
-                        <Text style={{ fontSize: 8.5, color: TOKENS.ICE, flex: 1, lineHeight: 1.4 }}>{b}</Text>
+          {(() => {
+            const formatos = dimensoes_top.length ? dimensoes_top : [{ w: 9, h: 3, area: 27, label: "3m x 9m", faixa: "padrao" as const }];
+            const colW = (W - 20 * (formatos.length - 1)) / formatos.length;
+            return (
+              <View style={{ flexDirection: "row", gap: 20, marginTop: 8, flex: 1 }}>
+                {formatos.map((d, i) => {
+                  const bullets = d.faixa === "padrao"
+                    ? ["Formato padrão rodoviário", "Alta frequência visual", "Ideal para institucional e varejo"]
+                    : d.faixa === "impacto"
+                    ? ["Formato ampliado de grande impacto", "Excelente leitura a longa distância", "Lançamentos e marcas nacionais"]
+                    : ["Painel gigante de alto impacto", "Máxima visibilidade em rodovias", "Ideal para campanhas de alcance"];
+                  return (
+                    <View key={i} style={{ width: colW, alignItems: "center", paddingVertical: 14, borderWidth: 0.5, borderColor: TOKENS.RULE, backgroundColor: "#0E0E0E" }}>
+                      <View style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: "#1F1F1F", marginBottom: 14 }}>
+                        <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 9, color: amber, letterSpacing: 2 }}>MODELO {i + 1}</Text>
                       </View>
-                    ))}
-                  </View>
-                  <View style={{ marginTop: 14, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: amber }}>
-                    <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 11, color: "#111" }}>Área: {d.area} m²</Text>
-                  </View>
-                </View>
-              );
-            })}
-          </View>
+                      <PainelMockup w={d.w} h={d.h} amber={amber} maxW={Math.min(colW - 40, 210)} maxH={110} />
+                      <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 14, color: amber, marginTop: 14, letterSpacing: 0.5 }}>{d.label}</Text>
+                      <View style={{ marginTop: 12, width: colW - 32 }}>
+                        {bullets.map((b, j) => (
+                          <View key={j} style={{ flexDirection: "row", marginBottom: 4 }}>
+                            <Text style={{ color: amber, fontSize: 9, marginRight: 6 }}>•</Text>
+                            <Text style={{ fontSize: 8.5, color: TOKENS.ICE, flex: 1, lineHeight: 1.4 }}>{b}</Text>
+                          </View>
+                        ))}
+                      </View>
+                      <View style={{ marginTop: 14, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: amber }}>
+                        <Text style={{ fontFamily: "Helvetica-Bold", fontSize: 10.5, color: "#111" }}>Área: {d.area} m²</Text>
+                      </View>
+                    </View>
+                  );
+                })}
+              </View>
+            );
+          })()}
         </View>
         <BottomBar left="Formatos de mídia" right="BJ7 MÍDIA" amber={amber} />
       </Page>

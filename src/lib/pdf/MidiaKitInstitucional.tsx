@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Image, StyleSheet, Svg, Rect, Circle } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image, StyleSheet, Svg, Rect, Circle, G } from "@react-pdf/renderer";
 import { TOKENS, MARGIN, PAGE_W, PAGE_H } from "./tokens";
 import { RoadStripe } from "./components/RoadStripe";
 import { AsphaltPlaceholder } from "./components/AsphaltPlaceholder";
@@ -127,10 +127,10 @@ function CoverageMap({ pontos, amber }: { pontos: MidiaKitPonto[]; amber: string
         {withCoords.map((p, i) => {
           const { x, y } = project(p.lat, p.lng);
           return (
-            <Svg key={p.id ?? i}>
+            <G key={p.id ?? i}>
               <Circle cx={x} cy={y} r={6} fill={amber} fillOpacity={0.18} />
               <Circle cx={x} cy={y} r={2.8} fill={amber} />
-            </Svg>
+            </G>
           );
         })}
       </Svg>

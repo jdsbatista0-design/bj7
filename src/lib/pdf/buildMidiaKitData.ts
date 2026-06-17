@@ -66,6 +66,50 @@ export async function buildMidiaKitData(opts: {
   const capa = todos.find(p => p.foto) ?? null;
   const cta = [...todos].reverse().find(p => p.foto) ?? null;
 
+  // ------------ AGRUPAR POR RODOVIA ------------
+  const byRoute = new Map<string, MidiaKitPonto[]>();
+  for (const p of catalogo) {
+    const k = (p.rodovia || "Outras rotas").trim();
+    if (!byRoute.has(k)) byRoute.set(k, []);
+    byRoute.get(k)!.push(p);
+  }
+  const rodovias = Array.from(byRoute.entries())
+    .sort((a, b) => b[1].length - a[1].length)
+    .map(([rodovia, pontos]) => {
+      const cidadesRota = Array.from(new Set(pontos.map(p => p.cidade).filter(Boolean)));
+      const sentido = cidadesRota.length >= 2
+        ? `${cidadesRota[0]} → ${cidadesRota[cidadesRota.length - 1]}`
+        : cidadesRota[0] || "";
+      const capaRota = pontos.find(p => p.foto)?.foto || null;
+      return { rodovia, sentido, pontos, capa: capaRota };
+    });
+
+  // ------------ DIMENSÕES TOP 3 ------------
+  const dimCount = new Map<string, { count: number; w: number; h: number }>();
+  for (const b of billboards || []) {
+    const w = Number(b.width) || 0;
+    const h = Number(b.height) || 0;
+    if (w <= 0 || h <= 0) continue;
+    const k = `${w}x${h}`;
+    const cur = dimCount.get(k) || { count: 0, w, h };
+    cur.count++;
+    dimCount.set(k, cur);
+  }
+  const dimensoes_top = Array.from(dimCount.values())
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3)
+    .map(d => {
+      const area = d.w * d.h;
+      const faixa: "padrao" | "impacto" | "gigante" = area <= 30 ? "padrao" : area <= 80 ? "impacto" : "gigante";
+      return {
+        label: `${d.h}m x ${d.w}m`,
+        w: d.w,
+        h: d.h,
+        area,
+        faixa,
+      };
+    });
+
   const site = branding?.contato_oficial?.site || "bj7.com.br";
   const siteUrl = site.startsWith("http") ? site : `https://${site}`;
   let qrcode_data_url: string | null = null;
@@ -97,5 +141,7 @@ export async function buildMidiaKitData(opts: {
     capa_foto: capa?.foto ?? null,
     cta_foto: cta?.foto ?? null,
     qrcode_data_url,
+    rodovias,
+    dimensoes_top,
   };
 }

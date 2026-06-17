@@ -11,3 +11,7 @@ export const TOKENS = {
 export const MARGIN = 48;
 export const PAGE_W = 595.28; // A4
 export const PAGE_H = 841.89;
+
+// Landscape A4 (presentation deck)
+export const LAND_W = 841.89;
+export const LAND_H = 595.28;

@@ -1,107 +1,84 @@
+## Diagnóstico
 
-# Fase 2A — Mídia Kit redesign + fix Receita por Rodovia
+O PDF atual é A4 retrato genérico (capa textual, cards 2 colunas, mapa SVG seco). A referência `bj7_midia-3.pdf` é um **deck paisagem 16:9** estilo apresentação: capa-fotografia, divisores de rota com tipografia gigante, grids de 6 fotos com tarja preta + código amarelo, tabela de coordenadas e prancha de formatos com mockups proporcionais. É esse o alvo.
 
-## 1. Bug rápido: Receita por Rodovia (Financeiro)
+Vou refazer apenas `MidiaKitInstitucional.tsx` (motor PDF) e ajustar `buildMidiaKitData.ts` para agrupar por rodovia. Sem mexer em UI, contratos, financeiro, schema. Sem fontes externas — manter Helvetica para evitar 404.
 
-`src/pages/Financial.tsx` agrega receita usando `billboard.price` (valor de tabela) sempre que o ponto está `occupied`, e custo usando `billboard.cost` (valor cadastrado), o que diverge da realidade contratada e ignora os contratos.
+## Estrutura do novo deck (paisagem A4, 842×595pt)
 
-Correção:
-- Receita por rodovia = soma do `monthly_value` dos contratos ativos `ad_sale` (alias atual `veiculacao`), rateada pelos `billboard_ids` do contrato (rateio igualitário por ponto → soma na rodovia de cada ponto).
-- Custo por rodovia = soma do `monthly_value` dos contratos ativos `land_lease` (alias `locacao_terreno`), rateado da mesma forma; fallback para `billboard.cost` se o ponto não tiver land_lease ativo.
-- `count` = pontos por rodovia (mantém).
-- `margin` = `revenue - cost`.
-
-Resultado: total da seção bate com MRR e total de despesas de terreno do topo da página.
-
-## 2. Schema e dados (billboards)
-
-Migração:
-- `ALTER TABLE billboards ADD COLUMN formato_label text` — rótulo apresentável (ex.: "Painel Rodoviário"). Backfill a partir de `type` via mapa (`painel_rodoviario` → "Painel Rodoviário", etc.). Daqui pra frente UI e PDF leem `formato_label` (fallback titlecase do `type`). Nunca exibir o valor cru.
-- Conferir o 30º ponto faltante: rodar `select count(*) from billboards where deleted_at is null` e, se faltar, abrir um aviso no painel admin pedindo o insert manual (não inventamos dados de ponto real).
-
-Fotos: usar `main_photo` + `photos[]` (já existem em `billboards`). Onde ausente, placeholder asfalto com motivo de pista renderizado em `<Svg>` dentro do PDF (não imagem externa).
-
-## 3. Mídia Kit — tela do comercial (`/midia-kit`)
-
-Reescreve `src/pages/MidiaKit.tsx`:
-- Carrega `branding_settings` + todos `billboards` ativos (com `main_photo`, `photos`, `formato_label`, `city`, `route`, `dimension`, `code`, `address`, `coordinates`).
-- **Painel de seleção** acima do botão de download:
-  - Coluna esquerda: lista de pontos com checkbox, miniatura, código, cidade, rodovia, formato.
-  - Coluna direita: mapa Leaflet (mesmos tiles dark do app) com pin amarelo por ponto; pino fica opaco quando desmarcado.
-  - "Selecionar todos" (default marcado) + busca por cidade/rodovia/código.
-- Botão **Baixar PDF** passa `selectedIds` para o gerador. Páginas institucionais sempre entram; o catálogo (página 4) só inclui os marcados.
-- KPIs do topo continuam mostrando totais da empresa (não da seleção).
-- Botão "Copiar link público" mantém comportamento atual (link institucional, sem seleção).
-
-## 4. Mídia Kit — PDF (`src/lib/pdf/MidiaKitInstitucional.tsx`)
-
-Reescrita completa em `@react-pdf/renderer`. Sem `html2canvas`.
-
-### Sistema de design
-Tokens centralizados no topo do arquivo:
 ```
-ASPHALT_BG  #111111
-CARD_BG     #1C1C1C
-RULE        #2A2A2A
-ICE         #F4F4F2
-GRAY        #8A8A8A
-AMBER       = branding.cor_primaria ?? "#F2B705"
-```
-- `Font.register` para Barlow Condensed (display) e Barlow/Inter (corpo) a partir de fontes do Google Fonts (URLs `.ttf` registradas no boot do app).
-- Escala tipográfica conforme briefing (H1 56-64, número-destaque 60-72, eyebrow 9pt uppercase).
-- Layout: margem 48pt, grid 12 colunas/gutter 16pt aplicado via `flex`.
-- Header de página interna: eyebrow amarelo + nº de página topo-direita.
-- Footer fixo: logo (de branding) + `bj7.com.br` + `contato_oficial.telefone/whatsapp`, separados por régua `#2A2A2A`.
-- Motivo "faixa de pista": componente `<RoadStripe orientation="horizontal|vertical" />` renderizado com `<Svg>` (dashes amarelos) usado em divisores e bordas.
-- Régua amarela 3pt sob cada H1.
-- Anti-vazio: cada página tem foto, mapa ou número-destaque preenchendo área principal — não há `<View>` solto centralizado em fundo preto.
-
-### Páginas
-1. **Capa** — `<Image>` full-bleed do painel iluminado mais bem fotografado (heurística: primeiro com `main_photo` no array marcado de "destaque" ou fallback primeiro com foto). Gradiente asfalto via View com `backgroundColor` em camadas. Logo topo-esquerda. "MÍDIA KIT 2026" + tagline ancorados na parte inferior esquerda. `RoadStripe` no rodapé.
-2. **Quem somos + Cobertura** — texto institucional curto + três números-destaque grandes (`{total_pontos} PONTOS · {n_cidades} CIDADES · {n_estados} ESTADOS`, derivado dos dados, não chumbado). Metade inferior = mapa estático dark renderizado server-side via Mapbox Static Images API (ou fallback: imagem PNG gerada em build e armazenada em `public/`). Pins amarelos nas coordenadas.
-3. **Fluxo & Impacto** — incluída **só se** existir pelo menos um ponto com `traffic_count` ou `daily_impact` preenchido. Caso contrário a página é omitida (não renderiza vazia). Quando renderiza: agrupa por cidade/corredor, números display amarelos.
-4. **Catálogo de pontos** — somente `selectedIds`. Cards: foto 40% do card (`<Image src={main_photo}>`), bloco de dados (endereço, cidade, `formato_label`, dimensão, iluminação). Grid 2 colunas em A4 retrato. Quebra automática de página (`break`) usando `wrap` do react-pdf. Substitui a página atual de "Formatos".
-5. **Por que BJ7** — 4 diferenciais com bullet amarelo + 1 foto de comprovação (heurística: foto marcada como `comprovacao` ou última foto noturna de qualquer ponto). Foto preenche o lado direito da página, texto à esquerda.
-6. **CTA / Contato** — foto noturna full-bleed + headline grande + WhatsApp do `contato_oficial` + QR code para `bj7.com.br` gerado client-side com `qrcode` (npm) e injetado como data-URL em `<Image>`.
-
-### Copy dinâmica
-- Texto de formatos derivado dos formatos distintos do inventário (count). Se houver 1 formato, evita "quatro padrões".
-- Página 2 sempre mostra totais da empresa; página 4 mostra só a seleção. Sem strings hardcoded de quantidade.
-
-### Branding conectado (teste de aceite)
-- Cor amarela usada em números-destaque, réguas e bullets vem de `branding.cor_primaria`. Trocar no admin muda no PDF.
-- Logo, contato e texto institucional lidos do `branding_settings` no momento do gerar.
-
-## 5. Dependências
-- `qrcode` (npm) para o QR da página 6.
-- Fontes (Barlow Condensed, Barlow) carregadas via `Font.register` apontando para CDN do Google Fonts em formato `.ttf`.
-- Mapa estático: tentar Mapbox Static API se houver `MAPBOX_TOKEN`; fallback para `public/maps/cobertura.png` pré-gerado (commit manual) para não bloquear a entrega.
-
-## 6. Permissões e rotas
-- Mantém rota `/midia-kit` interna e `/midia-kit/publico/:token` pública (sem fluxo de seleção).
-- Chave de permissão `media_kit.view` já está no `PermissionGate`.
-
-## 7. Arquivos afetados
-
-```text
-src/pages/Financial.tsx                       (fix rodovia)
-src/pages/MidiaKit.tsx                        (tela de seleção + mapa)
-src/lib/pdf/MidiaKitInstitucional.tsx         (reescrita completa)
-src/lib/pdf/tokens.ts                         (novo — tokens visuais)
-src/lib/pdf/components/RoadStripe.tsx         (novo)
-src/lib/pdf/components/AsphaltPlaceholder.tsx (novo)
-src/lib/pdf/fonts.ts                          (novo — Font.register)
-public/maps/cobertura.png                     (asset estático fallback)
-supabase/migrations/...                        (add billboards.formato_label + backfill)
+01 Capa            full-bleed foto + título amarelo + tagline
+02 Quem somos      4 pilares + 4 KPIs + mapa de cobertura
+[por rodovia, repete 2 páginas:]
+   Divisor       full-bleed foto rota + EYEBROW (rodovia) + título gigante amarelo (ex "PR-412") + sentido + N pontos
+   Grid          até 6 cards 3×2, agrupados pela rota, com tarja inferior (código amarelo + endereço/sentido)
+N-2 Tabela        coordenadas | rodovia · localização · sentido · lat,lng (cabeçalho amarelo)
+N-1 Formatos      modelos proporcionais (3m×9m, 4m×12m, 4m×25m) com cota, bullets e área
+N   Contato       site, WhatsApp, QR, foto de fechamento
 ```
 
-## 8. Fora de escopo (Fase 2A)
-- Mídia kit por ponto (one-pager individual) — fica para 2B.
-- Proposta padrão e conversão em contrato — Fase 2B.
-- Edição de fotos / upload em massa de novas imagens — depende de fotos já estarem no bucket.
+Numeração de página tipo `03 / 12` no canto, barra superior fixa com marca + seção.
 
-## 9. Validação antes de fechar
-- Trocar `cor_primaria` no admin e baixar PDF → cor dos números muda.
-- Desmarcar 27 pontos, baixar → catálogo tem 3 pontos, página 2 ainda mostra total da empresa.
-- Inspeção visual (pdftoppm) de todas as páginas: sem áreas mortas >25%, sem texto sobreposto, fotos presentes.
-- Total de "Receita por Rodovia" = MRR exibido no topo do Financeiro.
+## Sistema visual (tokens, sem mudar `tokens.ts`)
+
+- Fundo `#111`, card `#1C1C1C`, ice `#F4F4F2`, âmbar do branding (`cor_primaria`)
+- Tipografia só Helvetica/Helvetica-Bold (sem Google Fonts)
+- Hierarquia: eyebrow 7.5pt tracking 2.4, H1 deck 72pt, H1 página 32pt, lede 11pt, body 9.5pt
+- Régua âmbar 38×2pt como acento recorrente
+- Sem placeholders gigantes: quando falta foto, usar gradient asfalto + monograma BJ7 discreto
+
+## Páginas — detalhes
+
+**Capa**  
+Foto de rota (mais paisagem do inventário) em full-bleed. 3 camadas de veladura escura (35%/55% inferior/85% base) garantindo contraste. Topo direito: "N° 01 — Edição 2026". Bloco inferior esquerdo: régua âmbar 38×2, eyebrow "MÍDIA EXTERIOR ESTRATÉGICA", marca em 48pt amarelo + subtítulo branco ("PROPOSTA MÍDIA RODOVIÁRIA — Litoral PR · SC"), tagline com nº de pontos.
+
+**Quem somos**  
+2 colunas: posicionamento à esquerda (eyebrow, H1, lede), 4 diferenciais numerados à direita. Régua. Linha de 4 KPIs (pontos, cidades, estados, formatos) com números 38pt. Mapa de cobertura abaixo (SVG já existente, refinado: grid mais fino, pinos em camadas).
+
+**Divisor de rodovia** (1 por rota relevante)  
+Full-bleed: melhor foto da rota. Camadas de veladura. Centralizado/esquerda baixo: eyebrow "RODOVIA", código gigante (ex "PR-412") em 110pt âmbar, subtítulo branco ("Garuva → Guaratuba · principal acesso ao litoral"), chip "N pontos".
+
+**Grid da rodovia**  
+Header: eyebrow + título (ex "PR-412 · ROTA DO LITORAL") + lede curta.  
+3 colunas × 2 linhas (6 cards/página, paginar se a rota tiver mais). Card:
+- Foto 100% topo (180×112pt)
+- Tarja inferior preta (`#000` 80%) com `PONTO #CODIGO` em âmbar + cidade/rodovia + sentido em branco
+- Sem bordas, espaçamento 10pt entre cards
+Rodapé da página: "RODOVIA | trajeto" à esquerda, BJ7 MÍDIA à direita.
+
+**Tabela de coordenadas**  
+Cabeçalho amarelo (RODOVIA · LOCALIZAÇÃO · SENTIDO · COORDENADAS). Linhas em zebra muito sutil (`#1A1A1A`). Tipografia mono para coordenadas. Ordena por rodovia.
+
+**Formatos**  
+Detecta dimensões distintas no inventário (até 3 mais comuns). Para cada uma desenha um retângulo branco PROPORCIONAL à dimensão real, com setas de cota (h × w), título "MODELO N", subtítulo dimensão, 3 bullets descritivos por faixa (≤30m² institucional, 30–80m² impacto, >80m² gigante) e badge âmbar com área em m². Se só houver 1 dimensão, mostra 1 grande centralizado.
+
+**Contato**  
+2 colunas: esquerda foto fechamento full-height; direita fundo preto com eyebrow "ENTRE EM CONTATO", H1 "Vamos colocar sua marca na rota.", régua âmbar, telefone/WhatsApp em destaque, site, cidade, QR-code (já gerado).
+
+## Mudanças por arquivo
+
+**`src/lib/pdf/buildMidiaKitData.ts`**
+- Acrescentar `rodovias: Array<{ rodovia: string; sentido?: string; pontos: MidiaKitPonto[]; capa?: string }>` em `MidiaKitData`.
+- Acrescentar `dimensoes_top: Array<{ label: string; w: number; h: number; area: number; faixa: "padrao"|"impacto"|"gigante" }>` (top 3 por contagem).
+- Não mexer no resto.
+
+**`src/lib/pdf/MidiaKitInstitucional.tsx`**
+- Trocar `size="A4"` por `size="A4" orientation="landscape"` em todas as Pages.
+- Atualizar `PAGE_W/PAGE_H` no uso (842×595) — adicionar `LAND_W`/`LAND_H` em `tokens.ts`.
+- Substituir capa, página institucional, fluxo (removido — não é da referência), catálogo, contato pelos componentes descritos. Adicionar `RodoviaDivider`, `RodoviaGridPage`, `TabelaCoordenadas`, `FormatosPage`.
+- Manter `CoverageMap`, `Stat`, `TopBar`, `BottomBar` reaproveitados em landscape (recalcular w).
+
+**`src/lib/pdf/tokens.ts`**
+- Adicionar `LAND_W = 841.89; LAND_H = 595.28;`.
+
+## Fora de escopo
+- Mapa real estilo Mapbox (mantém SVG simples).
+- Versionamento, assinatura, múltiplos templates.
+- Mudanças em UI da página `/midia-kit`, financeiro, contratos.
+
+## Validação
+1. Gerar PDF com seleção total → comparar visual com `bj7_midia-3.pdf` página a página.
+2. Confirmar zero "área grande vazia": cada página preenchida até as margens.
+3. Confirmar que código do ponto aparece em âmbar sobre tarja preta nos cards.
+4. Confirmar que mudar `cor_primaria` no branding propaga em divisor, KPIs, formatos e contato.
+5. Confirmar que rota com apenas 1 ponto não imprime grid com 5 buracos (ajusta para "destaque único" centralizado).

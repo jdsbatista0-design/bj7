@@ -54,7 +54,14 @@ export async function buildMidiaKitData(opts: {
 
   const cidades = Array.from(new Set(todos.map(p => p.cidade).filter(Boolean)));
   const estados = Array.from(new Set(todos.map(p => p.estado).filter(Boolean)));
-  const formatos = Array.from(new Set(todos.map(p => p.formato_label).filter(Boolean)));
+  // Distintos formatos = combinação tipo + dimensão (ex.: "Painel Rodoviário 9x3m")
+  const formatos = Array.from(
+    new Set(
+      todos
+        .map(p => `${p.formato_label || ""} ${p.dimensao || ""}`.trim())
+        .filter(Boolean)
+    )
+  );
 
   const capa = todos.find(p => p.foto) ?? null;
   const cta = [...todos].reverse().find(p => p.foto) ?? null;

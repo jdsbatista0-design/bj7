@@ -69,7 +69,13 @@ export default function MidiaKit() {
   if (loading) return <div className="p-8 text-muted-foreground">Carregando mídia kit…</div>;
 
   const cidades = Array.from(new Set(billboards.map((b) => b.city).filter(Boolean)));
-  const formatos = Array.from(new Set(billboards.map((b) => b.formato_label || b.type).filter(Boolean)));
+  const formatos = Array.from(
+    new Set(
+      billboards
+        .map((b) => `${b.formato_label || b.type || ""} ${b.dimension || ""}`.trim())
+        .filter(Boolean)
+    )
+  );
   const filtered = billboards.filter((b) => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
@@ -140,7 +146,7 @@ export default function MidiaKit() {
             />
           </div>
         </div>
-        <ul className="divide-y divide-border max-h-[520px] overflow-y-auto">
+        <ul className="divide-y divide-border max-h-[70vh] overflow-y-auto">
           {filtered.map((b) => {
             const checked = selected.has(b.id);
             const foto = b.main_photo || (Array.isArray(b.photos) && b.photos[0]) || null;

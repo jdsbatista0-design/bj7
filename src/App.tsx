@@ -17,6 +17,8 @@ import PublicSite from "./pages/PublicSite";
 import Auth from "./pages/Auth";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import MidiaKit from "./pages/MidiaKit";
+import MidiaKitPublico from "./pages/MidiaKitPublico";
 
 const queryClient = new QueryClient();
 
@@ -51,6 +53,8 @@ const AppRoutes = () => {
       {/* Public */}
       <Route path="/" element={<PublicSite />} />
       <Route path="/login" element={user ? <Navigate to="/painel" replace /> : <Auth />} />
+      <Route path="/midia-kit/publico/:token" element={<MidiaKitPublico />} />
+      <Route path="/midia-kit/publico" element={<MidiaKitPublico />} />
       {/* Protected */}
       <Route path="/painel" element={<ProtectedRoute><AppLayout><DashboardHub /></AppLayout></ProtectedRoute>} />
       <Route path="/inventory" element={<ProtectedRoute><AppLayout><Inventory /></AppLayout></ProtectedRoute>} />
@@ -59,6 +63,7 @@ const AppRoutes = () => {
       <Route path="/contracts" element={<Navigate to="/clients?tab=contracts" replace />} />
       <Route path="/operations" element={<ProtectedRoute><AppLayout><Operations /></AppLayout></ProtectedRoute>} />
       <Route path="/financial" element={<Navigate to="/painel?tab=financial" replace />} />
+      <Route path="/midia-kit" element={<ProtectedRoute><AppLayout><MidiaKit /></AppLayout></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><AppLayout><Settings /></AppLayout></ProtectedRoute>} />
       <Route path="*" element={<NotFound />} />
     </Routes>

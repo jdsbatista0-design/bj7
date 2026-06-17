@@ -1,152 +1,107 @@
-# Roadmap BJ7 — CRM profissional, Mídia Kit, Propostas e correções
 
-Reorganizando a ordem com base no que você pediu. O foco agora é **transformar o CRM no coração do negócio** e corrigir o bug crítico de contratos antes de qualquer feature nova.
+# Fase 2A — Mídia Kit redesign + fix Receita por Rodovia
 
----
+## 1. Bug rápido: Receita por Rodovia (Financeiro)
 
-## Fase 0 — Correção crítica: separar Contrato de Terreno vs Contrato de Anúncio (URGENTE)
+`src/pages/Financial.tsx` agrega receita usando `billboard.price` (valor de tabela) sempre que o ponto está `occupied`, e custo usando `billboard.cost` (valor cadastrado), o que diverge da realidade contratada e ignora os contratos.
 
-**Problema atual:** o trigger `sync_billboard_status_from_contract` marca o billboard como `occupied` para QUALQUER contrato ativo. Mas existem dois tipos de contrato totalmente diferentes:
+Correção:
+- Receita por rodovia = soma do `monthly_value` dos contratos ativos `ad_sale` (alias atual `veiculacao`), rateada pelos `billboard_ids` do contrato (rateio igualitário por ponto → soma na rodovia de cada ponto).
+- Custo por rodovia = soma do `monthly_value` dos contratos ativos `land_lease` (alias `locacao_terreno`), rateado da mesma forma; fallback para `billboard.cost` se o ponto não tiver land_lease ativo.
+- `count` = pontos por rodovia (mantém).
+- `margin` = `revenue - cost`.
 
-| Tipo | O que é | Efeito no painel |
-|---|---|---|
-| **Contrato de Terreno (aluguel/cessão)** | BJ7 aluga o terreno do proprietário pra instalar o painel | Painel fica **ativo / operacional** (existe fisicamente), mas continua **disponível** para venda |
-| **Contrato de Anúncio (venda de mídia)** | Cliente anunciante compra a face do painel por X meses | Painel fica **ocupado** (face vendida) |
+Resultado: total da seção bate com MRR e total de despesas de terreno do topo da página.
 
-**Correções:**
+## 2. Schema e dados (billboards)
 
-1. **Migration** adicionando à tabela `contracts`:
-   - `contract_type` enum: `'land_lease'` (terreno) | `'ad_sale'` (anúncio)
-   - migrar contratos existentes (default `'ad_sale'`)
-2. **Migration** adicionando ao `billboards`:
-   - `operational_status` enum: `'planned' | 'active' | 'inactive'` (existe? está rodando?)
-   - manter `status` apenas para ocupação comercial: `available | reserved | occupied`
-3. **Reescrever o trigger** `sync_billboard_status_from_contract`:
-   - Se `contract_type = 'land_lease'` → atualiza `operational_status` para `active` (não toca em `status`)
-   - Se `contract_type = 'ad_sale'` → atualiza `status` para `occupied` quando ativo, libera quando expira
-4. **UI Contratos** (dentro de ClientsHub): seletor `contract_type` no form + filtro/aba "Terrenos" vs "Anúncios"
-5. **Card do painel** no Inventário mostra dois badges: "Operacional ✓" + "Comercial: Disponível/Ocupado/Reservado"
+Migração:
+- `ALTER TABLE billboards ADD COLUMN formato_label text` — rótulo apresentável (ex.: "Painel Rodoviário"). Backfill a partir de `type` via mapa (`painel_rodoviario` → "Painel Rodoviário", etc.). Daqui pra frente UI e PDF leem `formato_label` (fallback titlecase do `type`). Nunca exibir o valor cru.
+- Conferir o 30º ponto faltante: rodar `select count(*) from billboards where deleted_at is null` e, se faltar, abrir um aviso no painel admin pedindo o insert manual (não inventamos dados de ponto real).
 
----
+Fotos: usar `main_photo` + `photos[]` (já existem em `billboards`). Onde ausente, placeholder asfalto com motivo de pista renderizado em `<Svg>` dentro do PDF (não imagem externa).
 
-## Fase 1 — CRM profissional (o coração)
+## 3. Mídia Kit — tela do comercial (`/midia-kit`)
 
-Quero que o CRM funcione como Pipedrive/HubSpot adaptado pra mídia OOH.
+Reescreve `src/pages/MidiaKit.tsx`:
+- Carrega `branding_settings` + todos `billboards` ativos (com `main_photo`, `photos`, `formato_label`, `city`, `route`, `dimension`, `code`, `address`, `coordinates`).
+- **Painel de seleção** acima do botão de download:
+  - Coluna esquerda: lista de pontos com checkbox, miniatura, código, cidade, rodovia, formato.
+  - Coluna direita: mapa Leaflet (mesmos tiles dark do app) com pin amarelo por ponto; pino fica opaco quando desmarcado.
+  - "Selecionar todos" (default marcado) + busca por cidade/rodovia/código.
+- Botão **Baixar PDF** passa `selectedIds` para o gerador. Páginas institucionais sempre entram; o catálogo (página 4) só inclui os marcados.
+- KPIs do topo continuam mostrando totais da empresa (não da seleção).
+- Botão "Copiar link público" mantém comportamento atual (link institucional, sem seleção).
 
-### 1.1 Listas de Prospecção (pré-lead)
+## 4. Mídia Kit — PDF (`src/lib/pdf/MidiaKitInstitucional.tsx`)
 
-**Novo conceito:** antes de virar lead qualificado, você tem **listas brutas** (planilhas de empresas a abordar).
+Reescrita completa em `@react-pdf/renderer`. Sem `html2canvas`.
 
-- **Nova tabela `prospect_lists`**: nome, descrição, origem (CSV importado, Google Maps, indicação, etc.), owner, created_at.
-- **Nova tabela `prospects`**: list_id, company_name, contact_name, phone, email, city, segment, website, instagram, notes, status (`untouched | contacted | qualified | discarded | converted`), assigned_to.
-- **Importador CSV/XLSX**: tela "Prospecção → Importar lista" — upload do arquivo, mapeamento de colunas (nome empresa, telefone, cidade, etc.), preview, import em batch.
-- **Tela Listas**: tabela paginada/virtualizada (suporta 10k+ linhas), filtros por cidade/segmento/status, atribuição em massa a vendedor, exportar.
-- **Ação "Qualificar"** → cria um `lead` no pipeline e marca prospect como `converted`. Mantém rastreabilidade (`leads.prospect_id`).
+### Sistema de design
+Tokens centralizados no topo do arquivo:
+```
+ASPHALT_BG  #111111
+CARD_BG     #1C1C1C
+RULE        #2A2A2A
+ICE         #F4F4F2
+GRAY        #8A8A8A
+AMBER       = branding.cor_primaria ?? "#F2B705"
+```
+- `Font.register` para Barlow Condensed (display) e Barlow/Inter (corpo) a partir de fontes do Google Fonts (URLs `.ttf` registradas no boot do app).
+- Escala tipográfica conforme briefing (H1 56-64, número-destaque 60-72, eyebrow 9pt uppercase).
+- Layout: margem 48pt, grid 12 colunas/gutter 16pt aplicado via `flex`.
+- Header de página interna: eyebrow amarelo + nº de página topo-direita.
+- Footer fixo: logo (de branding) + `bj7.com.br` + `contato_oficial.telefone/whatsapp`, separados por régua `#2A2A2A`.
+- Motivo "faixa de pista": componente `<RoadStripe orientation="horizontal|vertical" />` renderizado com `<Svg>` (dashes amarelos) usado em divisores e bordas.
+- Régua amarela 3pt sob cada H1.
+- Anti-vazio: cada página tem foto, mapa ou número-destaque preenchendo área principal — não há `<View>` solto centralizado em fundo preto.
 
-### 1.2 Pipeline + Cadência por etapa
+### Páginas
+1. **Capa** — `<Image>` full-bleed do painel iluminado mais bem fotografado (heurística: primeiro com `main_photo` no array marcado de "destaque" ou fallback primeiro com foto). Gradiente asfalto via View com `backgroundColor` em camadas. Logo topo-esquerda. "MÍDIA KIT 2026" + tagline ancorados na parte inferior esquerda. `RoadStripe` no rodapé.
+2. **Quem somos + Cobertura** — texto institucional curto + três números-destaque grandes (`{total_pontos} PONTOS · {n_cidades} CIDADES · {n_estados} ESTADOS`, derivado dos dados, não chumbado). Metade inferior = mapa estático dark renderizado server-side via Mapbox Static Images API (ou fallback: imagem PNG gerada em build e armazenada em `public/`). Pins amarelos nas coordenadas.
+3. **Fluxo & Impacto** — incluída **só se** existir pelo menos um ponto com `traffic_count` ou `daily_impact` preenchido. Caso contrário a página é omitida (não renderiza vazia). Quando renderiza: agrupa por cidade/corredor, números display amarelos.
+4. **Catálogo de pontos** — somente `selectedIds`. Cards: foto 40% do card (`<Image src={main_photo}>`), bloco de dados (endereço, cidade, `formato_label`, dimensão, iluminação). Grid 2 colunas em A4 retrato. Quebra automática de página (`break`) usando `wrap` do react-pdf. Substitui a página atual de "Formatos".
+5. **Por que BJ7** — 4 diferenciais com bullet amarelo + 1 foto de comprovação (heurística: foto marcada como `comprovacao` ou última foto noturna de qualquer ponto). Foto preenche o lado direito da página, texto à esquerda.
+6. **CTA / Contato** — foto noturna full-bleed + headline grande + WhatsApp do `contato_oficial` + QR code para `bj7.com.br` gerado client-side com `qrcode` (npm) e injetado como data-URL em `<Image>`.
 
-- Manter Kanban atual em `CRM.tsx` mas adicionar:
-  - **Cadência automática por etapa** (não só lead novo): cada estágio do funil tem sua própria régua de tarefas (ex.: "Proposta enviada" → follow-up em 1d, 3d, 7d).
-  - Usa as tabelas já criadas: `cadences`, `cadence_steps`, `lead_cadence_runs`.
-  - Quando lead muda de estágio (drag-and-drop), cancela cadência antiga e inicia a nova.
-- **Visão "Hoje"** (nova rota `/crm/today`): tarefas do dia agrupadas por tipo (ligar, WhatsApp, enviar proposta, follow-up), ordenadas por prioridade. Botões rápidos: feito / adiar / parar cadência.
-- **Atividades** (usa tabela `activities`): timeline por lead com ligações, e-mails, WhatsApp, reuniões, observações. Form rápido pra registrar.
-- **Comunicações** (usa tabela `communications`): templates de mensagem (WhatsApp/email) com variáveis `{{nome}} {{ponto}} {{cidade}}`.
+### Copy dinâmica
+- Texto de formatos derivado dos formatos distintos do inventário (count). Se houver 1 formato, evita "quatro padrões".
+- Página 2 sempre mostra totais da empresa; página 4 mostra só a seleção. Sem strings hardcoded de quantidade.
 
-### 1.3 Score e priorização
+### Branding conectado (teste de aceite)
+- Cor amarela usada em números-destaque, réguas e bullets vem de `branding.cor_primaria`. Trocar no admin muda no PDF.
+- Logo, contato e texto institucional lidos do `branding_settings` no momento do gerar.
 
-- Campo `lead_score` calculado: orçamento × probabilidade × tempo no estágio.
-- Badge visual no card do Kanban.
+## 5. Dependências
+- `qrcode` (npm) para o QR da página 6.
+- Fontes (Barlow Condensed, Barlow) carregadas via `Font.register` apontando para CDN do Google Fonts em formato `.ttf`.
+- Mapa estático: tentar Mapbox Static API se houver `MAPBOX_TOKEN`; fallback para `public/maps/cobertura.png` pré-gerado (commit manual) para não bloquear a entrega.
 
-### 1.4 Métricas do CRM
+## 6. Permissões e rotas
+- Mantém rota `/midia-kit` interna e `/midia-kit/publico/:token` pública (sem fluxo de seleção).
+- Chave de permissão `media_kit.view` já está no `PermissionGate`.
 
-- Conversão por estágio, tempo médio em cada estágio, vendedor com maior conversão, motivos de perda.
+## 7. Arquivos afetados
 
----
+```text
+src/pages/Financial.tsx                       (fix rodovia)
+src/pages/MidiaKit.tsx                        (tela de seleção + mapa)
+src/lib/pdf/MidiaKitInstitucional.tsx         (reescrita completa)
+src/lib/pdf/tokens.ts                         (novo — tokens visuais)
+src/lib/pdf/components/RoadStripe.tsx         (novo)
+src/lib/pdf/components/AsphaltPlaceholder.tsx (novo)
+src/lib/pdf/fonts.ts                          (novo — Font.register)
+public/maps/cobertura.png                     (asset estático fallback)
+supabase/migrations/...                        (add billboards.formato_label + backfill)
+```
 
-## Fase 2 — Mídia Kit + Modelo de Proposta padrão
+## 8. Fora de escopo (Fase 2A)
+- Mídia kit por ponto (one-pager individual) — fica para 2B.
+- Proposta padrão e conversão em contrato — Fase 2B.
+- Edição de fotos / upload em massa de novas imagens — depende de fotos já estarem no bucket.
 
-### 2.1 Mídia Kit por ponto (PDF)
-
-- Biblioteca: `@react-pdf/renderer` (client-side, sem edge function).
-- Template preto + amber (#EAB308) com:
-  - Capa (logo BJ7, código do ponto, cidade/rota)
-  - Foto do painel + mini-mapa estático (Leaflet → canvas → image)
-  - Ficha técnica (medidas, formato, iluminação)
-  - Argumento comercial (rota, fluxo qualitativo — sem números proibidos)
-  - Preço sob consulta + contato
-- Botão "Gerar mídia kit" no card do Inventário e no modal do lead.
-- Versão **multi-pontos** (combo): selecionar 3-5 pontos e gerar um único PDF de circuito.
-
-### 2.2 Mídia Kit institucional
-
-- PDF único da empresa (não por ponto): quem somos, cobertura, cases, números agregados.
-- Editável em Settings → "Mídia Kit institucional" (campos de texto + upload de imagens).
-
-### 2.3 Modelo de Proposta padrão
-
-- **Nova tabela `proposal_templates`**: nome, conteúdo (markdown/html com variáveis), default flag.
-- **Nova tabela `proposals`**: lead_id, client_id, template_id, billboards (array), valor, prazo, desconto, status (`draft | sent | accepted | rejected | expired`), valid_until, pdf_url, sent_at.
-- Editor de proposta: seleciona lead + pontos + período → renderiza preview → gera PDF → salva em `contract-files` → link público assinado pra envio por WhatsApp.
-- Quando aceita: botão "Converter em contrato" cria o `contract` com `contract_type='ad_sale'` automaticamente.
-
----
-
-## Fase 3 — Régua de Renovação automática
-
-- Job diário (`pg_cron` + edge function) que lê `contracts.end_date` onde `contract_type='ad_sale'`:
-  - 60 dias antes → cria `activity` tipo `renewal_alert` (prioridade baixa)
-  - 30 dias → prioridade média + cadência de renovação inicia
-  - 15/7 dias → prioridade alta + notificação no sino
-- Aba **DashboardHub → "Renovações"**: contratos vencendo agrupados por marco, com ações "renovar / perder / em negociação".
-- Mesma lógica para `contract_type='land_lease'`: alerta de renovação de terreno (atinge o operacional).
-
----
-
-## Fase 4 — Polimento
-
-- Ranking de vendedores + comissionamento (já tem `seller_metrics`)
-- Rotina semanal do Dono (SEG-SEX)
-- Pixel/UTM/campanhas Meta
-
----
-
-## Detalhes técnicos consolidados
-
-### Schema novo
-- `prospect_lists`, `prospects` (+ índice por `list_id` e `status`)
-- `proposal_templates`, `proposals`
-- `billboards.operational_status` (enum novo)
-- `contracts.contract_type` (enum novo)
-- `leads.prospect_id` (FK opcional)
-
-### Triggers a corrigir
-- `sync_billboard_status_from_contract` reescrito pra respeitar `contract_type`
-- Novo trigger ao mover lead de estágio → cancela `lead_cadence_runs` antigo + cria novo
-
-### Dependências novas
-- `@react-pdf/renderer` (mídia kit + proposta)
-- `papaparse` ou `xlsx` (importar listas)
-- `leaflet-image` ou render estático via API (mapa no PDF)
-
-### RLS
-- Todas as novas tabelas com `has_role()` + `service_role`; sem anon.
-- `prospects` visíveis ao vendedor atribuído + admin.
-
-### Memória
-- Atualizar `mem://features/regras-negocio` com a separação Terreno vs Anúncio.
-- Criar `mem://features/crm/prospect-lists` documentando o fluxo Lista → Prospect → Lead → Cliente.
-
----
-
-## Ordem de entrega sugerida
-
-1. **Fase 0** (correção do bug) — 1 mensagem, prioridade máxima
-2. **Fase 1.1** (Listas de prospecção + importador) — base do CRM
-3. **Fase 2.3** (Modelo de proposta) — gera caixa rápido
-4. **Fase 2.1** (Mídia kit por ponto)
-5. **Fase 1.2 + 1.3** (Cadência por etapa + score)
-6. **Fase 3** (Régua de renovação)
-7. **Fase 2.2 + 1.4 + Fase 4**
-
-Começo pela **Fase 0** assim que aprovado — é bug em produção mexendo na regra de ocupação.
+## 9. Validação antes de fechar
+- Trocar `cor_primaria` no admin e baixar PDF → cor dos números muda.
+- Desmarcar 27 pontos, baixar → catálogo tem 3 pontos, página 2 ainda mostra total da empresa.
+- Inspeção visual (pdftoppm) de todas as páginas: sem áreas mortas >25%, sem texto sobreposto, fotos presentes.
+- Total de "Receita por Rodovia" = MRR exibido no topo do Financeiro.

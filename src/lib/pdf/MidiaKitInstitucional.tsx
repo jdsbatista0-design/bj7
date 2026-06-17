@@ -167,7 +167,7 @@ function PontoCard({ p, amber }: { p: MidiaKitPonto; amber: string }) {
         </Text>
         <Text style={[s.small, { color: TOKENS.GRAY, marginTop: 2 }]} >{p.rodovia}</Text>
         {p.endereco ? (
-          <Text style={[s.small, { marginTop: 4, color: TOKENS.DIM }]} numberOfLines={1}>{p.endereco}</Text>
+          <Text style={[s.small, { marginTop: 4, color: TOKENS.DIM }]}>{p.endereco}</Text>
         ) : null}
         <View style={{ height: 0.5, backgroundColor: TOKENS.RULE, marginVertical: 8 }} />
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -216,7 +216,7 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
             <View style={{ position: "absolute", width: "100%", height: "100%", backgroundColor: "#0A0A0A" }} />
           )}
           {/* veladura escurecendo todo o frame com gradiente em camadas */}
-          <View style={{ position: "absolute", inset: 0, backgroundColor: TOKENS.ASPHALT, opacity: 0.35 }} />
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: TOKENS.ASPHALT, opacity: 0.35 }} />
           <View style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "55%", backgroundColor: TOKENS.ASPHALT, opacity: 0.55 }} />
           <View style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "30%", backgroundColor: TOKENS.ASPHALT, opacity: 0.85 }} />
 
@@ -449,7 +449,7 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
           ) : capa_foto ? (
             <Image src={capa_foto} style={{ position: "absolute", width: "100%", height: "100%", objectFit: "cover" }} />
           ) : null}
-          <View style={{ position: "absolute", inset: 0, backgroundColor: TOKENS.ASPHALT, opacity: 0.78 }} />
+          <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: TOKENS.ASPHALT, opacity: 0.78 }} />
 
           <View style={{ position: "absolute", top: MARGIN, left: MARGIN, right: MARGIN, flexDirection: "row", justifyContent: "space-between" }}>
             <Text style={[s.eyebrow, { color: amber }]}>05 — Próximo passo</Text>

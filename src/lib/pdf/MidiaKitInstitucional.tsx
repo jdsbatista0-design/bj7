@@ -291,21 +291,18 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
       {/* ============== QUEM SOMOS + COBERTURA ============== */}
       <Page size="A4" orientation="landscape" style={s.page}>
         <TopBar section="Quem somos" num={next()} total={tot} amber={amber} brand="BJ7 Mídia" />
-        <View style={s.inner}>
-          <View style={{ flexDirection: "row", gap: 28 }}>
-            <View style={{ flex: 1.4 }}>
+        <View style={s.inner} wrap={false}>
+          <View style={{ flexDirection: "row", gap: 24 }}>
+            <View style={{ flex: 1.5 }}>
               <Text style={[s.eyebrow, { color: amber }]}>01 — Posicionamento</Text>
-              <Text style={[s.h1, { marginTop: 10 }]}>Onde a marca{"\n"}vira impacto.</Text>
-              <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 14, marginBottom: 14 }} />
-              <Text style={s.lede}>
+              <Text style={[s.h1, { marginTop: 8, fontSize: 28 }]}>Onde a marca{"\n"}vira impacto.</Text>
+              <View style={{ width: 38, height: 2, backgroundColor: amber, marginTop: 10, marginBottom: 10 }} />
+              <Text style={[s.lede, { fontSize: 9.5 }]}>
                 {branding.texto_institucional ||
                   "A BJ7 opera mídia exterior estratégica no Litoral do Paraná e Santa Catarina, conectando marcas ao alto fluxo das rotas turísticas e corredores logísticos da região."}
               </Text>
-              <Text style={[s.body, { marginTop: 12 }]}>
-                Operação própria, atendimento consultivo e comprovação documentada — cada flight entregue com relatório fotográfico de instalação e manutenção.
-              </Text>
             </View>
-            <View style={{ flex: 1, borderLeftWidth: 0.5, borderLeftColor: TOKENS.RULE, paddingLeft: 22 }}>
+            <View style={{ flex: 1, borderLeftWidth: 0.5, borderLeftColor: TOKENS.RULE, paddingLeft: 18 }}>
               <Text style={[s.eyebrow]}>Diferenciais</Text>
               {[
                 "Infraestrutura própria",
@@ -313,29 +310,29 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
                 "Atendimento consultivo",
                 "Comprovação por flight",
               ].map((it, i) => (
-                <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginTop: 12 }}>
+                <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginTop: 8 }}>
                   <Text style={{ fontFamily: "Helvetica-Bold", color: amber, fontSize: 9, width: 22 }}>{T(i + 1)}</Text>
-                  <Text style={{ flex: 1, fontFamily: "Helvetica-Bold", fontSize: 10.5, color: TOKENS.ICE }}>{it}</Text>
+                  <Text style={{ flex: 1, fontFamily: "Helvetica-Bold", fontSize: 10, color: TOKENS.ICE }}>{it}</Text>
                 </View>
               ))}
             </View>
           </View>
 
-          <View style={{ height: 0.5, backgroundColor: TOKENS.RULE, marginTop: 22, marginBottom: 18 }} />
+          <View style={{ height: 0.5, backgroundColor: TOKENS.RULE, marginTop: 16, marginBottom: 14 }} />
 
-          <View style={{ flexDirection: "row", gap: 24 }}>
+          <View style={{ flexDirection: "row", gap: 20 }}>
             <Stat amber={amber} value={cobertura.total_pontos} label="Pontos ativos" />
             <Stat amber={amber} value={cobertura.cidades.length} label="Cidades atendidas" />
             <Stat amber={amber} value={cobertura.estados.length || 2} label="Estados" />
             <Stat amber={amber} value={cobertura.formatos_distintos} label="Formatos" />
           </View>
 
-          <View style={{ marginTop: 18, flex: 1 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 6 }}>
+          <View style={{ marginTop: 14 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "baseline", marginBottom: 5 }}>
               <Text style={[s.eyebrow, { color: TOKENS.ICE }]}>Mapa de cobertura</Text>
               <Text style={s.small}>Pontos próprios · escala aproximada</Text>
             </View>
-            <CoverageMap pontos={pontos_todos} amber={amber} w={W} h={150} />
+            <CoverageMap pontos={pontos_todos} amber={amber} w={W} h={110} />
           </View>
         </View>
         <BottomBar left="Mídia Kit · Edição 2026" right={branding.contato_oficial.site || "bj7.com.br"} amber={amber} />

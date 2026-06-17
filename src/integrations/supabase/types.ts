@@ -696,6 +696,7 @@ export type Database = {
           billboard_ids: string[] | null
           client_id: string | null
           client_name: string | null
+          contract_type: Database["public"]["Enums"]["contract_type_enum"]
           created_at: string
           deleted_at: string | null
           document_url: string | null
@@ -715,6 +716,7 @@ export type Database = {
           billboard_ids?: string[] | null
           client_id?: string | null
           client_name?: string | null
+          contract_type?: Database["public"]["Enums"]["contract_type_enum"]
           created_at?: string
           deleted_at?: string | null
           document_url?: string | null
@@ -734,6 +736,7 @@ export type Database = {
           billboard_ids?: string[] | null
           client_id?: string | null
           client_name?: string | null
+          contract_type?: Database["public"]["Enums"]["contract_type_enum"]
           created_at?: string
           deleted_at?: string | null
           document_url?: string | null
@@ -1502,6 +1505,8 @@ export type Database = {
         | "scheduled"
         | "published"
         | "archived"
+      contract_type_enum: "land_lease" | "ad_sale"
+      operational_status_enum: "planned" | "active" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1707,6 +1712,8 @@ export const Constants = {
         "published",
         "archived",
       ],
+      contract_type_enum: ["land_lease", "ad_sale"],
+      operational_status_enum: ["planned", "active", "inactive"],
     },
   },
 } as const

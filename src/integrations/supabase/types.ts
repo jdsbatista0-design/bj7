@@ -296,6 +296,45 @@ export type Database = {
         }
         Relationships: []
       }
+      branding_settings: {
+        Row: {
+          condicoes_comerciais_padrao: string | null
+          contato_oficial: Json
+          cor_primaria: string
+          created_at: string
+          id: string
+          logo_url: string | null
+          singleton: boolean
+          texto_institucional: string | null
+          updated_at: string
+          validade_padrao_dias: number
+        }
+        Insert: {
+          condicoes_comerciais_padrao?: string | null
+          contato_oficial?: Json
+          cor_primaria?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          singleton?: boolean
+          texto_institucional?: string | null
+          updated_at?: string
+          validade_padrao_dias?: number
+        }
+        Update: {
+          condicoes_comerciais_padrao?: string | null
+          contato_oficial?: Json
+          cor_primaria?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          singleton?: boolean
+          texto_institucional?: string | null
+          updated_at?: string
+          validade_padrao_dias?: number
+        }
+        Relationships: []
+      }
       cadence_steps: {
         Row: {
           advance_if_no_response: boolean | null
@@ -980,6 +1019,33 @@ export type Database = {
           },
         ]
       }
+      midia_kit_views: {
+        Row: {
+          aberto_em: string
+          id: string
+          ip: string | null
+          referer: string | null
+          token: string
+          user_agent: string | null
+        }
+        Insert: {
+          aberto_em?: string
+          id?: string
+          ip?: string | null
+          referer?: string | null
+          token: string
+          user_agent?: string | null
+        }
+        Update: {
+          aberto_em?: string
+          id?: string
+          ip?: string | null
+          referer?: string | null
+          token?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -1081,6 +1147,87 @@ export type Database = {
           updated_at?: string | null
           variables?: string[] | null
           version?: number | null
+        }
+        Relationships: []
+      }
+      proposals: {
+        Row: {
+          aceita_em: string | null
+          cliente_id: string
+          cliente_nome: string
+          cliente_setor: string | null
+          cliente_tipo: string
+          condicoes_pagamento: string | null
+          conteudo_ia: Json | null
+          convertida_contrato_id: string | null
+          created_at: string
+          desconto_percent: number
+          enviada_em: string | null
+          id: string
+          numero: string
+          objetivo_campanha: string | null
+          observacoes: string | null
+          pdf_url: string | null
+          periodo_meses: number
+          pontos: Json
+          status: string
+          updated_at: string
+          validade: string
+          valor_mensal: number
+          valor_total: number
+          vendedor_id: string | null
+        }
+        Insert: {
+          aceita_em?: string | null
+          cliente_id: string
+          cliente_nome: string
+          cliente_setor?: string | null
+          cliente_tipo: string
+          condicoes_pagamento?: string | null
+          conteudo_ia?: Json | null
+          convertida_contrato_id?: string | null
+          created_at?: string
+          desconto_percent?: number
+          enviada_em?: string | null
+          id?: string
+          numero?: string
+          objetivo_campanha?: string | null
+          observacoes?: string | null
+          pdf_url?: string | null
+          periodo_meses?: number
+          pontos?: Json
+          status?: string
+          updated_at?: string
+          validade?: string
+          valor_mensal?: number
+          valor_total?: number
+          vendedor_id?: string | null
+        }
+        Update: {
+          aceita_em?: string | null
+          cliente_id?: string
+          cliente_nome?: string
+          cliente_setor?: string | null
+          cliente_tipo?: string
+          condicoes_pagamento?: string | null
+          conteudo_ia?: Json | null
+          convertida_contrato_id?: string | null
+          created_at?: string
+          desconto_percent?: number
+          enviada_em?: string | null
+          id?: string
+          numero?: string
+          objetivo_campanha?: string | null
+          observacoes?: string | null
+          pdf_url?: string | null
+          periodo_meses?: number
+          pontos?: Json
+          status?: string
+          updated_at?: string
+          validade?: string
+          valor_mensal?: number
+          valor_total?: number
+          vendedor_id?: string | null
         }
         Relationships: []
       }

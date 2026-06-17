@@ -5,8 +5,9 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   Shield, UserPlus, Eye, EyeOff, Clock, Users, Settings as SettingsIcon,
-  ChevronDown, ChevronRight, Check, X as XIcon, Trash2,
+  ChevronDown, ChevronRight, Check, X as XIcon, Trash2, Palette,
 } from "lucide-react";
+import { BrandingSettingsTab } from "@/components/BrandingSettingsTab";
 import {
   ALL_MODULES, ALL_ACTIONS, MODULE_LABELS, ACTION_LABELS,
   type PermissionModule, type PermissionAction, type UserPermission,
@@ -48,7 +49,7 @@ const ROLE_COLORS: Record<AppRole, string> = {
 
 export default function Settings() {
   const { isAdmin, user } = useAuth();
-  const [tab, setTab] = useState<"users" | "permissions" | "logs">("users");
+  const [tab, setTab] = useState<"users" | "permissions" | "logs" | "branding">("users");
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [logs, setLogs] = useState<AccessLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -166,6 +167,7 @@ export default function Settings() {
       <div className="flex gap-1 bg-muted rounded-lg p-1 w-fit overflow-x-auto">
         {[
           { key: "users" as const, icon: UserPlus, label: "Usuários" },
+          { key: "branding" as const, icon: Palette, label: "Branding" },
           { key: "logs" as const, icon: Clock, label: "Acessos" },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
@@ -347,6 +349,13 @@ export default function Settings() {
           )}
         </div>
       )}
+
+      {tab === "branding" && (
+        <div className="glass-panel p-4 md:p-5">
+          <BrandingSettingsTab />
+        </div>
+      )}
+
       {/* Delete confirmation dialog */}
       {deletingUserId && (() => {
         const target = users.find(u => u.id === deletingUserId);

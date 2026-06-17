@@ -13,6 +13,7 @@ import {
   ChevronRight,
   LogOut,
   Settings,
+  FileText,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -22,6 +23,7 @@ const navItems = [
   { path: "/crm", label: "Comercial", icon: Kanban },
   { path: "/clients", label: "Clientes", icon: Users },
   { path: "/operations", label: "Operação", icon: Wrench },
+  { path: "/midia-kit", label: "Mídia Kit", icon: FileText },
 ];
 
 export function AppSidebar({ onNavigate }: { onNavigate?: () => void } = {}) {

@@ -44,14 +44,14 @@ export interface MidiaKitData {
 }
 
 const styles = StyleSheet.create({
-  page: { backgroundColor: TOKENS.ASPHALT, color: TOKENS.ICE, fontFamily: "Barlow", fontSize: 11 },
+  page: { backgroundColor: TOKENS.ASPHALT, color: TOKENS.ICE, fontFamily: "Helvetica", fontSize: 11 },
   pageInner: { flex: 1, padding: MARGIN, position: "relative" },
 
-  eyebrow: { fontSize: 9, letterSpacing: 2, textTransform: "uppercase", fontFamily: "Barlow", fontWeight: 500 },
-  h1: { fontFamily: "Barlow Condensed", fontWeight: 900, fontSize: 56, letterSpacing: 1, lineHeight: 1, color: TOKENS.ICE },
-  h2: { fontFamily: "Barlow Condensed", fontWeight: 700, fontSize: 30, letterSpacing: 0.5, lineHeight: 1.05, color: TOKENS.ICE, textTransform: "uppercase" },
-  display: { fontFamily: "Barlow Condensed", fontWeight: 900, fontSize: 68, lineHeight: 1 },
-  body: { fontFamily: "Barlow", fontSize: 11, lineHeight: 1.55, color: TOKENS.ICE },
+  eyebrow: { fontSize: 9, letterSpacing: 2, textTransform: "uppercase", fontFamily: "Helvetica", fontWeight: 500 },
+  h1: { fontFamily: "Helvetica-Bold", fontWeight: 900, fontSize: 56, letterSpacing: 1, lineHeight: 1, color: TOKENS.ICE },
+  h2: { fontFamily: "Helvetica-Bold", fontWeight: 700, fontSize: 30, letterSpacing: 0.5, lineHeight: 1.05, color: TOKENS.ICE, textTransform: "uppercase" },
+  display: { fontFamily: "Helvetica-Bold", fontWeight: 900, fontSize: 68, lineHeight: 1 },
+  body: { fontFamily: "Helvetica", fontSize: 11, lineHeight: 1.55, color: TOKENS.ICE },
   small: { fontSize: 9, color: TOKENS.GRAY, lineHeight: 1.4 },
   rule: { height: 3, marginTop: 10, marginBottom: 14 },
 
@@ -80,7 +80,7 @@ function PageFooter({ branding, amber }: { branding: MidiaKitData["branding"]; a
   const { contato_oficial } = branding;
   return (
     <View style={styles.footer} fixed>
-      <Text style={[styles.footerText, { color: TOKENS.ICE, fontFamily: "Barlow Condensed", fontWeight: 700, fontSize: 11, letterSpacing: 3 }]}>BJ7 PAINÉIS</Text>
+      <Text style={[styles.footerText, { color: TOKENS.ICE, fontFamily: "Helvetica-Bold", fontWeight: 700, fontSize: 11, letterSpacing: 3 }]}>BJ7 PAINÉIS</Text>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
         <Text style={styles.footerText}>{contato_oficial.site || "bj7.com.br"}</Text>
         {contato_oficial.whatsapp || contato_oficial.telefone ? (
@@ -164,7 +164,7 @@ function PontoCard({ p, amber }: { p: MidiaKitPonto; amber: string }) {
             <Text style={[styles.eyebrow, { color: amber }]}>{p.formato_label}</Text>
             <Text style={[styles.eyebrow, { color: TOKENS.GRAY }]}>#{p.codigo}</Text>
           </View>
-          <Text style={{ fontFamily: "Barlow Condensed", fontWeight: 700, fontSize: 20, marginTop: 6, color: TOKENS.ICE, lineHeight: 1.1, textTransform: "uppercase" }}>
+          <Text style={{ fontFamily: "Helvetica-Bold", fontWeight: 700, fontSize: 20, marginTop: 6, color: TOKENS.ICE, lineHeight: 1.1, textTransform: "uppercase" }}>
             {p.cidade}{p.estado ? ` · ${p.estado}` : ""}
           </Text>
           <Text style={[styles.body, { color: TOKENS.GRAY, marginTop: 2 }]}>{p.rodovia}</Text>
@@ -175,11 +175,11 @@ function PontoCard({ p, amber }: { p: MidiaKitPonto; amber: string }) {
         <View style={{ flexDirection: "row", marginTop: 10, gap: 14 }}>
           <View>
             <Text style={[styles.small, { color: TOKENS.DIM, textTransform: "uppercase", letterSpacing: 1 }]}>Dim.</Text>
-            <Text style={[styles.body, { fontFamily: "Barlow Condensed", fontWeight: 700 }]}>{p.dimensao}</Text>
+            <Text style={[styles.body, { fontFamily: "Helvetica-Bold", fontWeight: 700 }]}>{p.dimensao}</Text>
           </View>
           <View>
             <Text style={[styles.small, { color: TOKENS.DIM, textTransform: "uppercase", letterSpacing: 1 }]}>Ilum.</Text>
-            <Text style={[styles.body, { fontFamily: "Barlow Condensed", fontWeight: 700 }]}>
+            <Text style={[styles.body, { fontFamily: "Helvetica-Bold", fontWeight: 700 }]}>
               {p.iluminacao === "sim" || p.iluminacao === "led" ? "SIM" : p.iluminacao === "nao" ? "NÃO" : (p.iluminacao || "—").toUpperCase()}
             </Text>
           </View>
@@ -221,7 +221,7 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
             {branding.logo_url ? (
               <Image src={branding.logo_url} style={{ width: 110, height: 40, objectFit: "contain" }} />
             ) : (
-              <Text style={[styles.eyebrow, { color: TOKENS.ICE, fontSize: 12, fontFamily: "Barlow Condensed", fontWeight: 900, letterSpacing: 3 }]}>BJ7 PAINÉIS</Text>
+              <Text style={[styles.eyebrow, { color: TOKENS.ICE, fontSize: 12, fontFamily: "Helvetica-Bold", fontWeight: 900, letterSpacing: 3 }]}>BJ7 PAINÉIS</Text>
             )}
             <Text style={[styles.eyebrow, { color: amber }]}>Mídia Kit 2026</Text>
           </View>
@@ -368,7 +368,7 @@ export function MidiaKitInstitucionalDoc({ data }: { data: MidiaKitData }) {
               <View key={i} style={{ marginTop: 18, flexDirection: "row", gap: 12 }}>
                 <Text style={[styles.display, { fontSize: 24, color: amber, width: 30 }]}>{String(i + 1).padStart(2, "0")}</Text>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ fontFamily: "Barlow Condensed", fontWeight: 700, fontSize: 16, color: TOKENS.ICE, textTransform: "uppercase", letterSpacing: 0.5 }}>{d.t}</Text>
+                  <Text style={{ fontFamily: "Helvetica-Bold", fontWeight: 700, fontSize: 16, color: TOKENS.ICE, textTransform: "uppercase", letterSpacing: 0.5 }}>{d.t}</Text>
                   <Text style={[styles.body, { color: TOKENS.GRAY, marginTop: 3 }]}>{d.d}</Text>
                 </View>
               </View>

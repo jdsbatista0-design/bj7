@@ -349,6 +349,13 @@ export default function Settings() {
           )}
         </div>
       )}
+
+      {tab === "branding" && (
+        <div className="glass-panel p-4 md:p-5">
+          <BrandingSettingsTab />
+        </div>
+      )}
+
       {/* Delete confirmation dialog */}
       {deletingUserId && (() => {
         const target = users.find(u => u.id === deletingUserId);

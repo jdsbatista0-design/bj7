@@ -1,0 +1,1 @@
+ALTER VIEW public.public_billboards SET (security_invoker = false);

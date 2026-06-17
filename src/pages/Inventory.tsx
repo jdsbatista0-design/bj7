@@ -169,6 +169,14 @@ function BillboardForm({ initial, onSave, onCancel, title, clients }: {
                     <option value="available">Disponível</option><option value="occupied">Ocupado</option><option value="reserved">Reservado</option>
                   </select></div>
               </div>
+              <div><label className={labelClass}>Status Operacional</label>
+                <select className={inputClass} value={form.operational_status || "active"} onChange={e => set("operational_status", e.target.value)}>
+                  <option value="active">Operacional (instalado e rodando)</option>
+                  <option value="planned">Planejado (terreno em negociação)</option>
+                  <option value="inactive">Inativo (sem contrato de terreno)</option>
+                </select>
+                <p className="text-[10px] text-muted-foreground mt-1">Diferente do status comercial. Indica se o painel existe fisicamente.</p>
+              </div>
               <div><label className={labelClass}>Título</label>
                 <input className={inputClass} value={form.title || ""} onChange={e => set("title", e.target.value)} placeholder="Ex: Painel Trevo de Garuva" /></div>
               <div><label className={labelClass}>Tipo</label>
@@ -334,6 +342,12 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
   const allPhotos = [billboard.main_photo, ...(billboard.gallery || [])].filter(Boolean);
   const statusLabels = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
   const statusBadge = { available: "badge-available", occupied: "badge-occupied", reserved: "badge-reserved" };
+  const opLabels: Record<string, string> = { active: "Operacional", inactive: "Inativo", planned: "Planejado" };
+  const opClass: Record<string, string> = {
+    active: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30",
+    inactive: "bg-muted text-muted-foreground border border-border",
+    planned: "bg-amber-500/10 text-amber-500 border border-amber-500/30",
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-end md:items-center justify-center" onClick={onClose}>
@@ -342,6 +356,9 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
           <div className="flex items-center gap-3">
             <span className="font-display font-bold text-xl text-primary">#{billboard.code}</span>
             <span className={statusBadge[billboard.status]}>{statusLabels[billboard.status]}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${opClass[billboard.operational_status] || opClass.active}`}>
+              {opLabels[billboard.operational_status] || "Operacional"}
+            </span>
             {!billboard.show_on_site && <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">Oculto do site</span>}
           </div>
           <div className="flex items-center gap-1">

@@ -69,10 +69,18 @@ function ContractForm({ initial, clients, billboards, onSave, onCancel }: {
           <button onClick={onCancel} className="text-muted-foreground hover:text-foreground"><X className="w-5 h-5" /></button>
         </div>
         <div className="p-4 space-y-3 overflow-y-auto flex-1">
-          <div><label className={labelClass}>Tipo</label>
+          <div>
+            <label className={labelClass}>Tipo de Contrato</label>
             <select className={inputClass} value={form.type || "veiculacao"} onChange={e => set("type", e.target.value)}>
-              <option value="veiculacao">Veiculação</option><option value="locacao_terreno">Locação de Terreno</option>
-            </select></div>
+              <option value="veiculacao">Venda de Anúncio (cliente anunciante ocupa a face)</option>
+              <option value="locacao_terreno">Aluguel de Terreno (BJ7 aluga o terreno do proprietário)</option>
+            </select>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              {form.type === "locacao_terreno"
+                ? "Marca o painel como operacional — não ocupa a face para venda."
+                : "Marca a face do painel como ocupada pelo anunciante durante o período."}
+            </p>
+          </div>
           <div><label className={labelClass}>{form.type === "veiculacao" ? "Anunciante" : "Proprietário"}</label>
             <select className={inputClass} value={form.client_id || ""} onChange={e => { const c = clients.find(x => x.id === e.target.value); set("client_id", e.target.value); set("client_name", c?.name || ""); }}>
               <option value="">Selecione...</option>

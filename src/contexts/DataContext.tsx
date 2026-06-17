@@ -82,6 +82,7 @@ export interface Client {
 export interface Contract {
   id: string;
   type: "veiculacao" | "locacao_terreno";
+  contract_type: "ad_sale" | "land_lease";
   client_id: string | null;
   client_name: string;
   billboard_ids: string[];
@@ -220,7 +221,9 @@ function mapClient(row: any): Client {
 
 function mapContract(row: any): Contract {
   return {
-    id: row.id, type: row.type || "veiculacao", client_id: row.client_id,
+    id: row.id, type: row.type || "veiculacao",
+    contract_type: row.contract_type || (row.type === "locacao_terreno" ? "land_lease" : "ad_sale"),
+    client_id: row.client_id,
     client_name: row.client_name || "", billboard_ids: row.billboard_ids || [],
     start_date: row.start_date, end_date: row.end_date,
     monthly_value: Number(row.monthly_value) || 0, total_value: Number(row.total_value) || 0,
@@ -422,20 +425,17 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   // Contract CRUD — auto-updates billboard status when contract becomes active
   const addContract = async (c: Partial<Contract>) => {
+    const ctype = c.contract_type || (c.type === "locacao_terreno" ? "land_lease" : "ad_sale");
     const { error } = await supabase.from("contracts").insert({
-      type: c.type, client_id: c.client_id, client_name: c.client_name,
+      type: c.type, contract_type: ctype, client_id: c.client_id, client_name: c.client_name,
       billboard_ids: c.billboard_ids || [], start_date: c.start_date, end_date: c.end_date,
       monthly_value: c.monthly_value, total_value: c.total_value, status: c.status,
       renewal_type: c.renewal_type, payment_method: c.payment_method,
       document_url: c.document_url || "", notes: c.notes || "",
     } as any);
     if (!error) {
-      if (c.status === "active" && c.billboard_ids && c.billboard_ids.length > 0) {
-        for (const bid of c.billboard_ids) {
-          await supabase.from("billboards").update({ status: "occupied" }).eq("id", bid);
-        }
-        refreshTable("billboards");
-      }
+      // Status do painel é sincronizado pelo trigger DB respeitando contract_type
+      refreshTable("billboards");
       refreshTable("contracts");
     }
   };
@@ -443,20 +443,12 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const updateContract = async (id: string, updates: Partial<Contract>) => {
     const dbUpdates: any = { ...updates };
     delete dbUpdates.id;
+    if (updates.type === "locacao_terreno") dbUpdates.contract_type = "land_lease";
+    else if (updates.type === "veiculacao") dbUpdates.contract_type = "ad_sale";
     const { error } = await supabase.from("contracts").update(dbUpdates).eq("id", id);
     if (!error) {
-      if (updates.status === "active" && updates.billboard_ids && updates.billboard_ids.length > 0) {
-        for (const bid of updates.billboard_ids) {
-          await supabase.from("billboards").update({ status: "occupied" }).eq("id", bid);
-        }
-        refreshTable("billboards");
-      }
-      if ((updates.status === "cancelled" || updates.status === "expired") && updates.billboard_ids) {
-        for (const bid of updates.billboard_ids) {
-          await supabase.from("billboards").update({ status: "available" }).eq("id", bid);
-        }
-        refreshTable("billboards");
-      }
+      // Status do painel sincronizado pelo trigger DB
+      refreshTable("billboards");
       refreshTable("contracts");
     }
   };

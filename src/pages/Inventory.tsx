@@ -334,6 +334,12 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
   const allPhotos = [billboard.main_photo, ...(billboard.gallery || [])].filter(Boolean);
   const statusLabels = { available: "Disponível", occupied: "Ocupado", reserved: "Reservado" };
   const statusBadge = { available: "badge-available", occupied: "badge-occupied", reserved: "badge-reserved" };
+  const opLabels: Record<string, string> = { active: "Operacional", inactive: "Inativo", planned: "Planejado" };
+  const opClass: Record<string, string> = {
+    active: "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30",
+    inactive: "bg-muted text-muted-foreground border border-border",
+    planned: "bg-amber-500/10 text-amber-500 border border-amber-500/30",
+  };
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-end md:items-center justify-center" onClick={onClose}>
@@ -342,6 +348,9 @@ function BillboardDetail({ billboard, onClose, onEdit, onDelete }: {
           <div className="flex items-center gap-3">
             <span className="font-display font-bold text-xl text-primary">#{billboard.code}</span>
             <span className={statusBadge[billboard.status]}>{statusLabels[billboard.status]}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${opClass[billboard.operational_status] || opClass.active}`}>
+              {opLabels[billboard.operational_status] || "Operacional"}
+            </span>
             {!billboard.show_on_site && <span className="text-[10px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">Oculto do site</span>}
           </div>
           <div className="flex items-center gap-1">

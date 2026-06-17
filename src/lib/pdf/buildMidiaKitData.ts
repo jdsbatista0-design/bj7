@@ -34,8 +34,8 @@ export function mapPontos(rows: any[]): MidiaKitPonto[] {
     dimensao: b.dimension || `${b.width || 0}x${b.height || 0}m`,
     iluminacao: b.illumination || "",
     foto: pickFoto(b),
-    lat: typeof b.lat === "number" ? b.lat : null,
-    lng: typeof b.lng === "number" ? b.lng : null,
+    lat: typeof b.lat === "number" ? b.lat : undefined,
+    lng: typeof b.lng === "number" ? b.lng : undefined,
     fluxo: typeof b.estimated_flow === "number" ? b.estimated_flow : 0,
     impacto: typeof b.daily_impact === "number" ? b.daily_impact : 0,
   } as MidiaKitPonto));

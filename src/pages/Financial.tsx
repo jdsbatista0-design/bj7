@@ -111,11 +111,25 @@ export default function Financial() {
 
     const revenueByRoute = billboards.reduce((acc, b) => {
       if (!acc[b.route]) acc[b.route] = { route: b.route, revenue: 0, cost: 0, count: 0 };
-      if (b.status === "occupied") acc[b.route].revenue += b.price;
       acc[b.route].cost += b.cost;
       acc[b.route].count++;
       return acc;
     }, {} as Record<string, { route: string; revenue: number; cost: number; count: number }>);
+    // Receita real: rateia monthly_value de cada contrato ad_sale ativo
+    // igualmente entre seus billboard_ids, somando na rodovia de cada ponto.
+    contracts
+      .filter(c => c.status === "active" && (c.contract_type === "ad_sale" || c.type === "veiculacao"))
+      .forEach(c => {
+        const bids = (c.billboard_ids || []).filter(Boolean);
+        if (bids.length === 0) return;
+        const share = (c.monthly_value || 0) / bids.length;
+        bids.forEach(bid => {
+          const bb = billboards.find(b => b.id === bid);
+          if (!bb) return;
+          if (!revenueByRoute[bb.route]) revenueByRoute[bb.route] = { route: bb.route, revenue: 0, cost: 0, count: 0 };
+          revenueByRoute[bb.route].revenue += share;
+        });
+      });
     const routeData = Object.values(revenueByRoute).map(r => ({ ...r, margin: r.revenue - r.cost }));
 
     return { totalRevenue, totalCost, margin, marginPct, totalLandCosts, routeData, totalExpenses, totalIncomes, expensesByCategory };
